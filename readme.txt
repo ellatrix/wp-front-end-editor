@@ -19,11 +19,10 @@ Don’t install this on a production website!
 
 == Changelog ==
 
+= 0.2 =
+
+* Refresh rewrite rules on activation.
+
 = 0.1 =
 
 * Initial release.
-
-== Upgrade Notice ==
-
-= 0.1 =
-Initial release.

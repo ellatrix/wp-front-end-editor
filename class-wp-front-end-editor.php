@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.1';
+	public $version = '0.2';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 	
@@ -46,6 +46,8 @@ class WP_Front_End_Editor {
 	
 	private function __construct() {
 		
+		register_activation_hook( $this->plugin, array( $this, 'activate' ) );
+		
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		
 		if ( ! is_plugin_active('mp6/mp6.php') ) {
@@ -59,6 +61,14 @@ class WP_Front_End_Editor {
 		
 		add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) ); // temporary
 		add_action( 'init', array( $this, 'init' ) );
+		
+	}
+	
+	public function activate() {
+		
+		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
+		
+		flush_rewrite_rules();
 		
 	}
 	
