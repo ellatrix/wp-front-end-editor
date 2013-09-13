@@ -168,7 +168,7 @@ class WP_Front_End_Editor {
 		
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'jquery-ui-draggable' );
-		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), '4.0.5', true );
+		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), '4.0.6', true );
 		wp_enqueue_script( 'wp-front-end-editor', $this->url() . 'js/wp-front-end-editor.js', array(), $this->version, true );
 		
 		wp_localize_script( 'wp-front-end-editor', 'wp_front_end_editor', array('post_id' => $post->ID, 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
