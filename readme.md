@@ -56,7 +56,7 @@ Distraction free writing?
 
 Post updated
 
-![Responsive](http://make.wordpress.org/ui/files/2013/09/fee-61-1024x640.png)
+![Responsive](http://make.wordpress.org/ui/files/2013/09/fee-62-1024x640.png)
 
 Responsive
 
