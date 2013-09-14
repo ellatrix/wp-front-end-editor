@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.2';
+	public $version = '0.3';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 	
