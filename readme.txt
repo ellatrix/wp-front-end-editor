@@ -13,7 +13,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 **Make WordPress Core:** [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
 **Make WordPress UI:** [Tagged Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
 **WordPress.org Plugin Directory:** [WordPress Front-end Editor](http://wordpress.org/plugins/wp-front-end-editor/)  
-**GitHub:** [avryl](https://github.com/avryl) / [wp-front-end-editor](https://github.com/avryl/wp-front-end-editor)
+**GitHub Mirror:** [avryl](https://github.com/avryl) / [wp-front-end-editor](https://github.com/avryl/wp-front-end-editor)
 
 **Weekly IRC Chat:** Thursdays, 20:00 UTC, #wordpress-ui
 
@@ -36,7 +36,19 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 The solution I’m interested in exploring is a true WYSIWYG front-end editor that doesn’t interfere with any css rules and still has all or most of the functionality of the current back-end editor. The scope of the project would be limited to editing and creating posts (meaning posts and pages, as well as CPTs that support it).
 
-[Screenshots coming soon.]
+[Edit mode](http://make.wordpress.org/ui/files/2013/09/fee-11-1024x640.png)
+
+[TinyMCE 4.x](http://make.wordpress.org/ui/files/2013/09/fee-2-1024x640.png)
+
+[Tagging](http://make.wordpress.org/ui/files/2013/09/fee-3-1024x640.png)
+
+[Distraction free writing?](http://make.wordpress.org/ui/files/2013/09/fee-4-1024x640.png)
+
+[Post updated](http://make.wordpress.org/ui/files/2013/09/fee-5-1024x640.png)
+
+[Responsive](http://make.wordpress.org/ui/files/2013/09/fee-61-1024x640.png)
+
+Other approaches:
 
 * @scribu made a great [Front-end Editor plugin](http://wordpress.org/plugins/front-end-editor/) a few years ago.
 * Utilising the current customiser could be another approach.
