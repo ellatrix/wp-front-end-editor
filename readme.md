@@ -83,6 +83,10 @@ Don’t install this on a production website!
 
 ## Changelog
 
+### 0.3
+
+* Updated to TinyMCE 4.0.6.
+
 ### 0.2
 
 * Refresh rewrite rules on activation.
