@@ -26,8 +26,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 * Posts edited and created through the back-end end up looking very different on the front-end.
 * `add_editor_style()` tries to solve this, but it has its limits due to the way it works, it’s double work for theme authors and a lot of themes don’t even support it.
-* Post formats aren’t supported by `add_editor_style()` at all.
-* It’s also impossible at the moment to apply any css rules based on classes outside the content. A small example: the colour of the links and headings inside my post are based on the category of that post. Additional css rules have been added based on the post class, but they don’t affect the colour in the back-end editor.
+* [Post formats aren’t supported by `add_editor_style()` at all.] They are.
+* [It’s also impossible at the moment to apply any css rules based on classes outside the content. A small example: the colour of the links and headings inside my post are based on the category of that post. Additional css rules have been added based on the post class, but they don’t affect the colour in the back-end editor.] Additional classes could be added to the back-end editor.
 * One of the main reasons the posts appear different is that the surrounding elements on the front-end are taken away from the content.
 * The title field isn’t styled the way it looks on the front-end.
 * So the the current editor isn’t really WYSIWYG and the content is taken out of context, causing confusing and frustration to users.
@@ -73,7 +73,7 @@ Don’t install this on a production website!
 
 = 0.3 =
 
-* Updated to TinyMCE 4.0.6
+* Updated to TinyMCE 4.0.6.
 
 = 0.2 =
 
