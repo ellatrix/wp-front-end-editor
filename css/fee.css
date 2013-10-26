@@ -210,7 +210,7 @@
 	position: fixed;
 	top: 54px;
 	left: 20px;
-	z-index: 100000;
+	z-index: 0;
 	padding: 5px;
 	background: #222;
 	border-radius: 2px;
