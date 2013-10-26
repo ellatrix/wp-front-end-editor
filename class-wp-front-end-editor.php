@@ -143,7 +143,7 @@ class WP_Front_End_Editor {
 			return get_permalink( $id );
 		
 		if ( ! is_admin() )
-			return get_permalink( $id ) . 'edit/';
+			return get_permalink( $id ) . '&edit';
 		
 		return $link;
 		
