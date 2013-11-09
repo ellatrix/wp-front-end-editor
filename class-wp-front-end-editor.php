@@ -139,11 +139,13 @@ class WP_Front_End_Editor {
 	
 	public function get_edit_post_link( $link, $id, $context ) {
 		
+		$post = get_post( $id );
+		
 		if ( $this->is_edit() )
 			return get_permalink( $id );
 		
 		if ( ! is_admin() )
-			return get_permalink( $id ) . 'edit/';
+			return ( ! get_option( 'permalink_structure' ) || $post->post_status == 'draft' ) ? get_permalink( $id ) . '&edit' : get_permalink( $id ) . 'edit/';
 		
 		return $link;
 		
