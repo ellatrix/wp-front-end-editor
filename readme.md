@@ -1,26 +1,24 @@
 # WordPress Front-end Editor
 
-**Contributors:** avryl  
+**Contributors:** avryl, wordpressdotorg  
 **Tags:** front-end editor, inline editing  
-**Requires at least:** 3.6  
-**Tested up to:** 3.6.1  
-**Stable tag:** 0.3  
+**Requires at least:** 3.7  
+**Tested up to:** 3.7.1  
+**Stable tag:** 0.3.1  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
 
 ## Description
 
-**Make WordPress Core:** [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
-**Make WordPress UI:** [Tagged Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
-**WordPress.org Plugin Directory:** [WordPress Front-end Editor](http://wordpress.org/plugins/wp-front-end-editor/)  
-**GitHub Mirror:** [avryl](https://github.com/avryl) / [wp-front-end-editor](https://github.com/avryl/wp-front-end-editor)
+### Links
 
-**Weekly IRC Chat:** Thursdays, 20:00 UTC, #wordpress-ui
+[Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
+[Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
+[Plugin](http://wordpress.org/plugins/wp-front-end-editor/)  
+[GitHub Mirror](https://github.com/avryl/wp-front-end-editor)  
+[Tasks](https://docs.google.com/spreadsheet/ccc?key=0AjPkPpRo7PoWdERlR096M3RtRnpXOS10X2l3T0JXa2c)
 
-* [12 September](http://irclogs.wordpress.org/chanlog.php?channel=wordpress-ui&day=2013-09-12&sort=asc#m119703)
-* [5 September](http://irclogs.wordpress.org/chanlog.php?channel=wordpress-ui&day=2013-09-05&sort=asc#m117455)
-* [29 August](http://irclogs.wordpress.org/chanlog.php?channel=wordpress-ui&day=2013-08-29&sort=asc#m115415)
-* [22 August](http://irclogs.wordpress.org/chanlog.php?channel=wordpress-ui&day=2013-08-22&sort=asc#m113119)
+**Weekly IRC Chat:** Mondays, 16:00 UTC, #wordpress-ui
 
 ### What problem(s) are you trying to solve?
 
@@ -69,28 +67,29 @@ Other approaches:
 
 We're still looking for more people to join us - developers, UI designers and WordPress users/trainers for testing/feedback. Please get in touch on IRC, or leave a comment on one of the [Make WordPress UI](http://make.wordpress.org/ui/tag/front-end-editor/) blog posts.
 
-So far @ubernaut, @melchoyce, @trishasalas, @georgestephanis and myself (@avryl) have shown interest.
-
-### Next steps
-
-* Explore other platforms and see how they implement front-end editing.
-* Brainstorm!
-* Get feedback to the mockups and plugin and decide on the best approach.
+So far @avryl, @helen, @melchoyce, @samuelsidler, @shaunandrews and @ubernaut have shown interest.
 
 ## Installation
 
-Don’t install this on a production website!
+This is just an experiment!
 
 ## Changelog
 
+### 0.3.1
+
+* Removed mp6 dependency
+* Fixed permalinks
+* Added wordpressdotorg as a contributor
+* Updated to TinyMCE 4.0.10
+
 ### 0.3
 
-* Updated to TinyMCE 4.0.6.
+* Updated to TinyMCE 4.0.6
 
 ### 0.2
 
-* Refresh rewrite rules on activation.
+* Refresh rewrite rules on activation
 
 ### 0.1
 
-* Initial release.
+* Initial release
