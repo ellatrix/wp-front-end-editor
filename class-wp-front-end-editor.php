@@ -48,17 +48,6 @@ class WP_Front_End_Editor {
 		
 		register_activation_hook( $this->plugin, array( $this, 'activate' ) );
 		
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		
-		if ( ! is_plugin_active('mp6/mp6.php') ) {
-				
-			add_action( 'admin_init', array( $this, 'admin_init' ) );
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-			
-			return;
-		
-		}
-		
 		add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) ); // temporary
 		add_action( 'init', array( $this, 'init' ) );
 		
@@ -72,23 +61,9 @@ class WP_Front_End_Editor {
 		
 	}
 	
-	public function admin_init() {
-		
-		deactivate_plugins( $this->plugin );
-		
-	}
-	
-	public function admin_notices() {
-		
-		echo '<div class="error"><p>Please install and activate <strong>mp6</strong> before activating <strong>WordPress Front-end Editor</strong>.</p></div>';
-		if ( isset( $_GET['activate'] ) )
-			unset( $_GET['activate'] );
-		
-	}
-	
 	public function after_setup_theme() {
 		
-		add_theme_support('front-end-editor');
+		add_theme_support( 'front-end-editor' );
 		
 	}
 	
@@ -181,7 +156,7 @@ class WP_Front_End_Editor {
 		
 		global $post;
 		
-		require_once('editor-template.php');
+		require_once( 'editor-template.php' );
 		
 	}
 	
