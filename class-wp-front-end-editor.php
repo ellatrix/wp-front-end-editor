@@ -2,7 +2,8 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.3';
+	public $version = '0.3.2';
+	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 	
@@ -46,10 +47,38 @@ class WP_Front_End_Editor {
 	
 	private function __construct() {
 		
+		global $wp_version;
+		
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		
+		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
+		
+			add_action( 'admin_init', array( $this, 'admin_init' ) );
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+			
+			return;
+		
+		}
+		
 		register_activation_hook( $this->plugin, array( $this, 'activate' ) );
 		
 		add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) ); // temporary
 		add_action( 'init', array( $this, 'init' ) );
+		
+	}
+	
+	public function admin_init() {
+		
+		deactivate_plugins( $this->plugin );
+		
+	}
+	
+	public function admin_notices() {
+		
+		echo '<div class="error"><p>Please upgrade to WordPress <strong>3.8</strong> or higher before activating <strong>WordPress Front-end Editor</strong>.</p></div>';
+		
+		if ( isset( $_GET['activate'] ) )
+			unset( $_GET['activate'] );
 		
 	}
 	
@@ -145,10 +174,10 @@ class WP_Front_End_Editor {
 		
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'jquery-ui-draggable' );
-		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), '4.0.6', true );
+		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), $this->version_tinymce, true );
 		wp_enqueue_script( 'wp-front-end-editor', $this->url() . 'js/wp-front-end-editor.js', array(), $this->version, true );
 		
-		wp_localize_script( 'wp-front-end-editor', 'wp_front_end_editor', array('post_id' => $post->ID, 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+		wp_localize_script( 'wp-front-end-editor', 'wp_front_end_editor', array( 'post_id' => $post->ID, 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 		
 	}
 	
