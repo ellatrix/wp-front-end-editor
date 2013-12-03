@@ -175,7 +175,7 @@ class WP_Front_End_Editor {
 		
 		global $post;
 		
-		$content = $post->post_content;
+		$content = wpautop( $post->post_content );
 		$content = str_replace( '<!--nextpage-->' , esc_html( '<!--nextpage-->' ) , $content );
 		$content = '<div id="fee-edit-content-' . $post->ID . '" class="contenteditable">' . $content . '</div>';
 			
