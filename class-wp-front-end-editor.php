@@ -49,9 +49,7 @@ class WP_Front_End_Editor {
 		
 		global $wp_version;
 		
-		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-		
-		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
+		if ( empty( $wp_version ) || version_compare( $wp_version, '3.8-alpha', '<' ) || version_compare( $wp_version, '3.9-beta', '>=' ) ) {
 		
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -75,7 +73,7 @@ class WP_Front_End_Editor {
 	
 	public function admin_notices() {
 		
-		echo '<div class="error"><p>Please upgrade to WordPress <strong>3.8</strong> or higher before activating <strong>WordPress Front-end Editor</strong>.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8-alpha and 3.9-alpha.</p></div>';
 		
 		if ( isset( $_GET['activate'] ) )
 			unset( $_GET['activate'] );
