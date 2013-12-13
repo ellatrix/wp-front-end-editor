@@ -100,18 +100,18 @@
 		var i = null;
 		$('body').mousemove(function() {
 		    clearTimeout(i);
-		    $('#fee-main-bar, #wpadminbar').stop().animate({opacity:1},'slow');
+		    $('#fee-main-bar, #wpadminbar').stop().animate({opacity:1},'slow','linear');
 		    if ( $($mce_toolbar).hasClass('fee-active') ) {
-		    	$($mce_toolbar).stop().animate({opacity:1},'slow');
+		    	$($mce_toolbar).stop().animate({opacity:1},'slow','linear');
 		    }
 		    if ( ! $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).hasClass('fee-hovering') ) {
 		    	i = setTimeout(function() {
-		    	    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow');
+		    	    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow','linear');
 		    	}, 3000);
 		    }
 		}).mouseleave(function() {
 		    clearTimeout(i);
-		    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow');  
+		    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow','linear');  
 		});
 		
 		$('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).mouseenter(function() {
@@ -120,10 +120,11 @@
 		    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).removeClass('fee-hovering');
 		});
 		
+		$('.fee-edit-thumbnail-button').animate({opacity:0},0);
 		$('.fee-edit-thumbnail').mouseenter(function() {
-		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:1},'slow');
+		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:1},400,'linear');
 		}).mouseleave(function() {
-		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:0},'slow');  
+		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:0},500,'linear');  
 		});
 		
 		$('#fee-tags, #fee-cats, #fee-link').on('click', function(e) {
