@@ -100,18 +100,18 @@
 		var i = null;
 		$('body').mousemove(function() {
 		    clearTimeout(i);
-		    $('#fee-main-bar, #wpadminbar').fadeIn('slow');
+		    $('#fee-main-bar, #wpadminbar').stop().animate({opacity:1},'slow');
 		    if ( $($mce_toolbar).hasClass('fee-active') ) {
-		    	$($mce_toolbar).fadeIn('slow');
+		    	$($mce_toolbar).stop().animate({opacity:1},'slow');
 		    }
 		    if ( ! $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).hasClass('fee-hovering') ) {
 		    	i = setTimeout(function() {
-		    	    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).fadeOut('slow');
+		    	    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow');
 		    	}, 3000);
 		    }
 		}).mouseleave(function() {
 		    clearTimeout(i);
-		    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).fadeOut('slow');  
+		    $('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).stop().animate({opacity:0},'slow');  
 		});
 		
 		$('#fee-main-bar, #wpadminbar, ' + $mce_toolbar).mouseenter(function() {
@@ -121,9 +121,9 @@
 		});
 		
 		$('.fee-edit-thumbnail').mouseenter(function() {
-		    $(this).find('.fee-edit-thumbnail-button').fadeIn('slow');
+		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:1},'slow');
 		}).mouseleave(function() {
-		    $(this).find('.fee-edit-thumbnail-button').fadeOut('slow');  
+		    $(this).find('.fee-edit-thumbnail-button').stop().animate({opacity:0},'slow');  
 		});
 		
 		$('#fee-tags, #fee-cats, #fee-link').on('click', function(e) {
