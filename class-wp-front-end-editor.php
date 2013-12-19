@@ -128,14 +128,16 @@ class WP_Front_End_Editor {
 		
 		require_once( ABSPATH . '/wp-admin/includes/media.php' );
 		
-		add_action( 'wp_head', array( $this, 'wp_head' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'wp_footer', array( $this, 'wp_footer' ), 1 );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10 );
+		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
 		
 		add_filter( 'the_title', array( $this, 'the_title' ), 20, 2 );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
 		add_filter( 'wp_link_pages', array( $this, 'wp_link_pages' ), 20 );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
-		add_filter( 'comments_template', array( $this, 'comments_template' ) );
+//		add_filter( 'comments_template', array( $this, 'comments_template' ) );
 		
 	}
 	
@@ -162,13 +164,12 @@ class WP_Front_End_Editor {
 		
 	}
 	
-	public function wp_head() {
+	public function wp_enqueue_scripts() {
 		
 		global $post;
 		
-		wp_enqueue_style( 'fee-style' , $this->url() . 'css/fee.css', false, $this->version, 'screen' );
-		wp_enqueue_style( 'fee-buttons', $this->url() . 'css/buttons.css', false, $this->version, 'screen' );
-		wp_enqueue_style( 'genericons', $this->url() . 'css/genericons.css', false, $this->version, 'screen' );
+		wp_enqueue_style( 'wp-fee-style' , $this->url() . 'css/fee.css', false, $this->version, 'screen' );
+		wp_enqueue_style( 'buttons' );
 		
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'jquery-ui-draggable' );
@@ -184,6 +185,95 @@ class WP_Front_End_Editor {
 		global $post;
 		
 		require_once( 'editor-template.php' );
+		
+	}
+	
+	public function wp_before_admin_bar_render() {
+		
+		global $wp_admin_bar;
+				
+		foreach ( $wp_admin_bar->get_nodes() as $node => $object ) {
+			
+			if ( ( isset( $object->fee ) && $object->fee == true ) || $node == 'top-secondary' ) {
+								
+				continue;
+				
+			}
+			
+			$wp_admin_bar->remove_node( $node );
+			
+		}
+		
+	}
+	
+	public function admin_bar_menu( $wp_admin_bar ) {
+		
+		$id = 'wp-fee-save';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['parent'] = 'top-secondary';
+		$nodes[$id]['title'] = '<span id="fee-save" class="button button-primary" href="#">Save</span>';
+		$nodes[$id]['meta']['class'] = 'wp-core-ui';
+		$nodes[$id]['fee'] = true;
+		
+		$id = 'wp-fee-media';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['href'] = '#';
+		$nodes[$id]['parent'] = 'top-secondary';
+		$nodes[$id]['title'] = 'Media';
+		$nodes[$id]['meta']['class'] = 'insert-media add_media';
+		$nodes[$id]['fee'] = true;
+		
+		$id = 'wp-fee-tags';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['parent'] = 'top-secondary';
+		$nodes[$id]['title'] = 'Tags';
+		$nodes[$id]['fee'] = true;
+		
+		$id = 'tags-input';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['parent'] = 'wp-fee-tags';
+		$nodes[$id]['title'] = '<input id="input-tags" class="fee-tag" placeholder="add...">';
+		$nodes[$id]['fee'] = true;
+		
+		$tags = get_the_tags( $post->ID );
+		
+		if ( $tags ) {
+			
+			foreach( $tags as $tag ) {
+								
+				$id = 'tag-' . $tag->term_id;
+				$nodes[$id]['id'] = $id;
+				$nodes[$id]['parent'] = 'wp-fee-tags';
+				$nodes[$id]['title'] = '<span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' . $tag->name . '</span>';
+				$nodes[$id]['meta']['class'] = 'wp-fee-tags';
+				$nodes[$id]['fee'] = true;
+				
+			}
+			
+		}
+		
+		$id = 'wp-fee-cats';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['parent'] = 'top-secondary';
+		$nodes[$id]['title'] = 'Categories';
+		$nodes[$id]['fee'] = true;
+		
+		$id = 'cats-input';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['parent'] = 'wp-fee-cats';
+		$nodes[$id]['title'] = '...';
+		$nodes[$id]['fee'] = true;
+		
+		$id = 'wp-fee-mce-toolbar';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['title'] = '';
+		$nodes[$id]['fee'] = true;
+		
+		foreach ( $nodes as $node ) {
+						
+			$wp_admin_bar->add_node( $node );
+			
+		}
 		
 	}
 	
@@ -237,11 +327,11 @@ class WP_Front_End_Editor {
 		
 	}
 	
-	public function comments_template( $file ) {
-		
-		return $this->path() . 'meta.php';
-		
-	}
+//	public function comments_template( $file ) {
+//		
+//		return $this->path() . 'comments.php';
+//		
+//	}
 	
 	public function wpfee_post() {
 		

@@ -1,13 +1,8 @@
-/*body {
-	padding-bottom: 34px;
-}*/
-
 .fee-reset {
 	font-family: "Open Sans", sans-serif;
 	font-size: 14px;
 	line-height: 14px;
 }
-
 .fee-reset a,
 .fee-reset a:link,
 .fee-reset a:hover,
@@ -17,129 +12,43 @@
 	border: none;
 }
 
-#fee-main-bar {
-	z-index: 99999;
-	position: fixed;
-	left: 0;
-	bottom: 0;
-	width: 100%;
-	height: 34px;
-	background-color: #222 /*rgba(0, 0, 0, .75)*/;
+#fee-save.button {
+	height: 22px;
+	line-height: 22px;
+	padding: 0 10px 1px;
+	border-radius: 3px;
+	margin: 3px 0;
 }
-#fee-main-bar ol,
-#fee-main-bar ul {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	margin-left: 10px;
-} 
-#fee-main-bar .fee-item {
-	height: 24px;
-	line-height: 24px;
-	color: #ccc;
-	float: left;
-	margin: 5px 0 5px 20px;
-	position: relative;
+#wpadminbar .ab-top-menu > #wp-admin-bar-wp-fee-save:hover > .ab-item {
+	background-color: transparent;
 }
-#fee-main-bar .fee-item a {
-	color: #ccc;
-}
-#fee-main-bar .fee-item > a {
-	display: block;
-	height: 24px;
-}
-#fee-main-bar .fee-item a:hover,
-#fee-main-bar .fee-item a.hover {
-	text-decoration: none;
-	color: #1e8cbe;
-}
-#fee-main-bar .button {
-	height: 24px;
-	line-height: 24px;
-}
-#fee-main-bar #fee-save {
-	float: right;
-	margin: 5px 20px;
-}
-#fee-main-bar .has-dashicon:before {
-	display: inline-block;
-	-webkit-font-smoothing: antialiased;
-	font: normal 22px/1 'genericons';
-	vertical-align: top;
-	height: 24px;
-	line-height: 24px;
-	padding-right: 5px;
-}
-#fee-main-bar .has-dashicon2:before {
-	display: inline-block;
-	-webkit-font-smoothing: antialiased;
-	font: normal 13px/1 'dashicons';
-	vertical-align: top;
-	padding-right: 5px;
-	height: 13px;
-	line-height: 24px;
-}
-#fee-cats div:before {
-	content: '\f301';
-}
-#fee-main-bar #fee-tags div:before {
-	content: '\f302';
-	line-height: 23px;
-	height: 23px;
-}
-#fee-main-bar #fee-media div:before {
-	font: normal 18px/1 'dashicons';
-	height: 24px;
-	line-height: 24px;
+#wpadminbar #wp-admin-bar-wp-fee-media > .ab-item::before {
 	content: '\f104';
+	top: 2px;
 }
-#fee-main-bar #fee-link div:before {
-	font: normal 18px/1 'dashicons';
-	height: 18px;
-	line-height: 24px;
-	content: '\f103';
+#wpadminbar #wp-admin-bar-wp-fee-tags > .ab-item::before {
+	content: '\f323';
+	top: 2px;
 }
-#fee-options:before {
-	content: '\f445';
-	padding-right: 0!important;
+#wpadminbar #wp-admin-bar-wp-fee-cats > .ab-item::before {
+	content: '\f318';
+	top: 2px;
 }
-.fee-tag.has-dashicon2:before {
+#wpadminbar .ab-icon.wp-fee-remove-tag::before {
 	content: '\f153';
+	top: 2px;
 }
-.fee-tag {
-	font-size: 13px;
-	white-space: nowrap;
-}
-.selectit {
-	white-space: nowrap;
+#wpadminbar .ab-icon.wp-fee-remove-tag {
+	padding-bottom: 0!important;
 	cursor: pointer;
 }
+/*.selectit {
+	white-space: nowrap;
+	cursor: pointer;
+}*/
 .fee-tag:hover {
 	color: #1e8cbe;
 	cursor: pointer;
-}
-#fee-cats-pop-up {
-	padding: 10px 10px 10px 0;
-	background-color: #222;
-	position: absolute;
-	bottom: 40px;
-	border-radius: 2px;
-	min-width: 180px;
-	left: -7px;
-	font-size: 13px;
-}
-#fee-tags-pop-up {
-	padding: 10px;
-	background-color: #222;
-	position: absolute;
-	bottom: 40px;
-	border-radius: 2px;
-	min-width: 120px;
-	left: -7px;
-}
-#fee-main-bar #fee-options {
-	float: right;
-	margin: 5px 0;
 }
 #input-tags,
 #input-cats {
@@ -152,16 +61,6 @@
 	height: 22px;
 	line-height: 22px;
 	max-width: 140px;
-}
-.arrow-down {
-	width: 0; 
-	height: 0; 
-	border-left: 8px solid transparent;
-	border-right: 8px solid transparent;
-	border-top: 8px solid #222;
-	position: absolute;
-	bottom: -8px;
-	left: 10px;
 }
 
 #fee-saving,
@@ -362,7 +261,7 @@ input[type="checkbox"]:checked::before {
 	position: relative!important;
 }
 
-@media (max-width: 600px) {
+/*@media (max-width: 600px) {
 	#fee-mce-toolbar {
 		top: 0!important;
 		left: 0!important;
@@ -378,4 +277,4 @@ input[type="checkbox"]:checked::before {
 	.mce-flow-layout {
 		width: 100%!important;
 	}
-}
+}*/

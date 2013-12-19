@@ -97,73 +97,50 @@
 			}
 		});
 		
+		$('.insert-media.add_media a').data('editor', 'fee-edit-content-' + wp_front_end_editor.post_id)
+		$('.insert-media.add_media a').addClass('insert-media add_media');
+		
 		$('.fee-edit-thumbnail').mouseenter(function() {
 		    $(this).find('.fee-edit-thumbnail-button').fadeIn('slow');
 		}).mouseleave(function() {
 		    $(this).find('.fee-edit-thumbnail-button').fadeOut('slow');  
 		});
 		
-		$('#fee-tags, #fee-cats, #fee-link').on('click', function(e) {
-			e.preventDefault();
-			var $target = $(this).next();
-			$('.fee-element.fee-active').not($target).removeClass('fee-active');
-			$target.toggleClass('fee-active');
-		});
-		
 		$('a[rel~="category"]').on('click', function(e) {
 			e.preventDefault();
-			var $target = $('#fee-cats').next();
-			$('.fee-element.fee-active').not($target).removeClass('fee-active');
-			$target.toggleClass('fee-active');
+			$('#wp-admin-bar-wp-fee-cats').toggleClass('hover');
 		});
 		
 		$('a[rel="tag"]').on('click', function(e) {
 			e.preventDefault();
-			var $target = $('#fee-tags').next();
-			$('.fee-element.fee-active').not($target).removeClass('fee-active');
-			$target.toggleClass('fee-active');
-		});
-				
-		$('#fee-media').on('click', function(e) {
-			e.preventDefault();
-			$('.fee-element.fee-active').removeClass('fee-active');
+			$('#wp-admin-bar-wp-fee-tags').toggleClass('hover');
 		});
 		
 		$('#input-tags').keypress(function(e) {
 			if (e.which == 13) {
 				var tag = $(this).val();
 				$(this).val('');
-				var newtag = '<div class="fee-tag has-dashicon2">' + tag + '</div>';
+				var newtag = '<li class="wp-fee-tags"><div class="ab-item ab-empty-item"><span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' + tag + '</span></div></li>';
 				if (tag != '') {
-					$('#fee-tags-list').append(newtag);
+					$('#wp-admin-bar-wp-fee-tags-default').append(newtag);
 				}
-				$('#fee-tags-list .fee-tag').on('click', function(e) {
+				$('.wp-fee-remove-tag').on('click', function(e) {
 					e.preventDefault();
-					$(this).remove();
+					$(this).parent().remove();
 				});
 			}
 		});
 		
-		$('#fee-tags-list .fee-tag').on('click', function(e) {
+		$('.wp-fee-remove-tag').on('click', function(e) {
 			e.preventDefault();
-			$(this).remove();
-		});
-		
-		$(document).on('DOMNodeInserted', '#fee-tags-list', function(e) {
-			return;
-		});
-		
-		$(document).on('click', '.media-button-select' , function() {
-		     console.log('yes');
+			$(this).parent().remove();
 		});
 		
 		$('#fee-continue').on('click', function(e) {
 			e.preventDefault();
 			$($success).fadeOut('slow');
 		});
-		
-		$('#wp-admin-bar-edit a').text('Cancel'); // lacking hook to change
-		
+				
 		$('#fee-save').on('click', function(e) {
 			e.preventDefault();
 			$($saving).show();
@@ -174,7 +151,7 @@
 				return this.value;
 			}).get();
 			tags_input = '';
-			$('#fee-tags-list .fee-tag').each(function(e) {
+			$('.wp-fee-tag').each(function(e) {
 				tags_input += $(this).text() + ', ';
 			});
 			tags_input = tags_input.slice(0, -2);
