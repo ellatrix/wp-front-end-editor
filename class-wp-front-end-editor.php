@@ -120,6 +120,8 @@ class WP_Front_End_Editor {
 		if ( ! $this->is_edit() )
 			return;
 		
+		add_filter( 'show_admin_bar', '__return_true' );
+		
 		if ( ! $post )
 			wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
 		
