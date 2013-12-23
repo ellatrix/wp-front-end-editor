@@ -22,17 +22,20 @@
 #wpadminbar .ab-top-menu > #wp-admin-bar-wp-fee-save:hover > .ab-item {
 	background-color: transparent;
 }
-#wpadminbar #wp-admin-bar-wp-fee-media > .ab-item::before {
+#wpadminbar #wp-admin-bar-wp-fee-media > .ab-item .ab-icon::before {
 	content: '\f104';
 	top: 2px;
 }
-#wpadminbar #wp-admin-bar-wp-fee-tags > .ab-item::before {
+#wpadminbar #wp-admin-bar-wp-fee-tags > .ab-item .ab-icon::before {
 	content: '\f323';
 	top: 2px;
 }
-#wpadminbar #wp-admin-bar-wp-fee-cats > .ab-item::before {
+#wpadminbar #wp-admin-bar-wp-fee-cats > .ab-item .ab-icon::before {
 	content: '\f318';
 	top: 2px;
+}
+#wpadminbar .ab-item .ab-icon {
+	margin-right: 0;
 }
 #wpadminbar .ab-icon.wp-fee-remove-tag::before {
 	content: '\f153';
@@ -41,6 +44,20 @@
 #wpadminbar .ab-icon.wp-fee-remove-tag {
 	padding-bottom: 0!important;
 	cursor: pointer;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon::before {
+	content: '\f158';
+	top: 2px;
+	color: #eee;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon {
+	margin: 0;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-item {
+	padding: 0 8px;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close {
+	background-color: #333;
 }
 /*.selectit {
 	white-space: nowrap;

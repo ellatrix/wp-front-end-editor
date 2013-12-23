@@ -208,6 +208,15 @@ class WP_Front_End_Editor {
 	
 	public function admin_bar_menu( $wp_admin_bar ) {
 		
+		global $post;
+		
+		$id = 'wp-fee-close';
+		$nodes[$id]['id'] = $id;
+		$nodes[$id]['href'] = get_permalink( $post->ID );
+		$nodes[$id]['parent'] = 'top-secondary';
+		$nodes[$id]['title'] = '<span class="ab-icon"></span>';
+		$nodes[$id]['fee'] = true;
+		
 		$id = 'wp-fee-save';
 		$nodes[$id]['id'] = $id;
 		$nodes[$id]['parent'] = 'top-secondary';
@@ -219,14 +228,16 @@ class WP_Front_End_Editor {
 		$nodes[$id]['id'] = $id;
 		$nodes[$id]['href'] = '#';
 		$nodes[$id]['parent'] = 'top-secondary';
-		$nodes[$id]['title'] = 'Media';
+		$nodes[$id]['title'] = '<span class="ab-icon"></span>';
 		$nodes[$id]['meta']['class'] = 'insert-media add_media';
+		$nodes[$id]['meta']['title'] = 'Manage Media';
 		$nodes[$id]['fee'] = true;
 		
 		$id = 'wp-fee-tags';
 		$nodes[$id]['id'] = $id;
 		$nodes[$id]['parent'] = 'top-secondary';
-		$nodes[$id]['title'] = 'Tags';
+		$nodes[$id]['title'] = '<span class="ab-icon"></span>';
+		$nodes[$id]['meta']['title'] = 'Manage Tags';
 		$nodes[$id]['fee'] = true;
 		
 		$id = 'tags-input';
@@ -255,7 +266,8 @@ class WP_Front_End_Editor {
 		$id = 'wp-fee-cats';
 		$nodes[$id]['id'] = $id;
 		$nodes[$id]['parent'] = 'top-secondary';
-		$nodes[$id]['title'] = 'Categories';
+		$nodes[$id]['title'] = '<span class="ab-icon"></span>';
+		$nodes[$id]['meta']['title'] = 'Manage Categories';
 		$nodes[$id]['fee'] = true;
 		
 		$id = 'cats-input';
