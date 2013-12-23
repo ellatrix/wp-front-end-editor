@@ -111,6 +111,10 @@
 			$('#wp-admin-bar-wp-fee-cats').toggleClass('hover');
 		});
 		
+		$($title).parent().on('click', function(e) {
+			e.preventDefault();
+		});
+		
 		$('a[rel="tag"]').on('click', function(e) {
 			e.preventDefault();
 			$('#wp-admin-bar-wp-fee-tags').toggleClass('hover');
