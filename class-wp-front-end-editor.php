@@ -120,6 +120,7 @@ class WP_Front_End_Editor {
 		if ( ! $this->is_edit() )
 			return;
 		
+		// When in core this should probably be forced just like the admin bar on the back-end. Hiding the admin bar for the front-end editor is not the right way to turn it off.
 		add_filter( 'show_admin_bar', '__return_true' );
 		
 		if ( ! $post )
