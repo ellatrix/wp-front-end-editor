@@ -308,7 +308,7 @@ class WP_Front_End_Editor {
 		global $post;
 		
 		$content = $post->post_content;
-		$content = str_replace( '<!--nextpage-->' , esc_html( '<!--nextpage-->' ) , $content );
+		$content = str_replace( array( '<!--nextpage-->', '<!--more-->' ), array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), $content );
 		$content = '<div id="fee-edit-content-' . $post->ID . '" class="contenteditable">' . $content . '</div>';
 			
 		return $content;
@@ -365,7 +365,7 @@ class WP_Front_End_Editor {
 		$post['post_title'] = $_POST['post_title'];
 		$post['post_title'] = strip_tags($post['post_title']);
 		$post['post_content'] = $_POST['post_content'];
-		$post['post_content'] = str_replace(esc_html('<!--nextpage-->'), '<!--nextpage-->', $post['post_content']);
+		$post['post_content'] = str_replace( array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), array( '<!--nextpage-->', '<!--more-->' ), $post['post_content'] );
 		$post['post_category'] = $_POST['post_category'];
 		$post['tags_input'] = $_POST['tags_input'];
 		
