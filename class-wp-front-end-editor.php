@@ -49,7 +49,7 @@ class WP_Front_End_Editor {
 		
 		global $wp_version;
 		
-		if ( empty( $wp_version ) || version_compare( $wp_version, '3.8-alpha', '<' ) || version_compare( $wp_version, '3.9-beta', '>=' ) ) {
+		if ( empty( $wp_version ) || version_compare( $wp_version, '3.8', '<' ) || version_compare( $wp_version, '3.9-beta', '>=' ) ) {
 		
 			add_action( 'admin_init', array( $this, 'admin_init' ) );
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );

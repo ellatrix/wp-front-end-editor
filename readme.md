@@ -1,10 +1,10 @@
 # WordPress Front-end Editor
 
-**Contributors:** avryl, wordpressdotorg  
+**Contributors:** avryl, wordpressdotorg, Joen, shaunandrews  
 **Tags:** front-end editor, inline editing  
-**Requires at least:** 3.8-alpha  
-**Tested up to:** 3.8-alpha  
-**Stable tag:** 0.3.2  
+**Requires at least:** 3.8  
+**Tested up to:** 3.8  
+**Stable tag:** 0.4  
 **License:** GPLv2 or later  
 **License URI:** http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,10 @@ This is just an experiment!
 ### 0.3.2
 
 * Minimum WordPress version: 3.8-alpha
+
+### 0.4
+
+* Moved the toolbar inside the admin bar.
 
 ### 0.3.1
 
