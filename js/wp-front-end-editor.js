@@ -126,6 +126,10 @@
 			$('.hover').not(this).removeClass('hover');
 		});
 		
+		var menupop_height = $(window).height() - 42;
+		
+		$('.ab-sub-wrapper').css({ 'max-height' : menupop_height + 'px', 'overflow' : 'scroll' });
+		
 		$('#input-tags').keypress(function(e) {
 			if (e.which == 13) {
 				var tag = $(this).val();

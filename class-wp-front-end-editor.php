@@ -276,7 +276,8 @@ class WP_Front_End_Editor {
 		$id = 'cats-input';
 		$nodes[$id]['id'] = $id;
 		$nodes[$id]['parent'] = 'wp-fee-cats';
-		$nodes[$id]['title'] = '...';
+		$nodes[$id]['title'] = '<input id="input-cats" placeholder="add..."><input type="hidden" name="post_category[]" value="0">';
+		$nodes[$id]['meta']['html'] = $this->wp_terms_checklist( $post );
 		$nodes[$id]['fee'] = true;
 		
 		$id = 'wp-fee-mce-toolbar';
@@ -289,6 +290,18 @@ class WP_Front_End_Editor {
 			$wp_admin_bar->add_node( $node );
 			
 		}
+		
+	}
+	
+	public function wp_terms_checklist( $post ) {
+		
+		ob_start();
+		
+		require_once( ABSPATH . 'wp-admin/includes/template.php' );
+		
+		wp_terms_checklist( $post->ID, array( 'taxonomy' => 'category' ) );
+		
+		return ob_get_clean();
 		
 	}
 	

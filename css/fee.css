@@ -12,7 +12,7 @@
 	border: none;
 }
 
-#fee-save.button {
+#wpadminbar #fee-save.button {
 	height: 22px;
 	line-height: 22px;
 	padding: 0 10px 1px;
@@ -60,8 +60,8 @@
 #wpadminbar #wp-admin-bar-wp-fee-close {
 	background-color: #333;
 }
-#input-tags,
-#input-cats {
+#wpadminbar #input-tags,
+#wpadminbar #input-cats {
 	padding: 0;
 	margin: 0;
 	border: none;
@@ -180,71 +180,58 @@
 	color: #ccc;
 }
 
-input[type="checkbox"],
-input[type="radio"] {
+#wpadminbar label.selectit {
+	padding: 0 10px!important;
+	white-space: nowrap;
+}
+
+#wpadminbar input[type="checkbox"] {
 	border-width: 0;
 	border-style: solid;
 	clear: none;
 	cursor: pointer;
 	display: inline-block;
 	line-height: 0;
-	height: 16px;
+	height: 16px!important;
 	margin: -4px 4px 0 0;
 	outline: 0;
 	padding: 0 !important;
 	text-align: center;
 	vertical-align: middle;
-	width: 16px;
+	width: 16px!important;
+	min-width: 16px;
 	-webkit-appearance: none;
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
-input[type="checkbox"] {
-	border-radius: 0;
+#wpadminbar input[type=checkbox]:disabled,
+#wpadminbar input[type=checkbox]:disabled:checked:before {
+	opacity: 0.7;
 }
 
-input[type=radio] {
-	border-radius: 50%;
-	margin-right: 4px;
-	line-height: 10px;
-}
-
-input[type=checkbox]:checked:before {
-	content: '\f147';
-	display: inline-block;
+#wpadminbar input[type=checkbox]:checked:before {
 	float: left;
+	display: inline-block;
+	vertical-align: middle;
+	width: 16px;
 	font: normal 21px/1 'dashicons';
 	speak: none;
-	vertical-align: middle;
-	margin: -3px 0 0 -4px;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-input[type=radio]:checked:before {
-	content: '\2022';
-	text-indent: -9999px;
-	border-radius: 50px;
-	display: inline-block;
-	float: left;
-	font-size: 24px;
-	vertical-align: middle;
-	width: 6px;
-	height: 6px;
-	margin: 4px;
-	line-height: 16px;
+#wpadminbar input[type=checkbox]:checked:before {
+	content: '\f147';
+	margin: -3px 0 0 -4px;
 }
 
-@-moz-document url-prefix() {
-	input[type=checkbox],
-	input[type=radio],
-	.form-table input.tog {
-		margin-bottom: -1px;
-	}
-}
-
-input[type="checkbox"]:checked::before {
+#wpadminbar input[type=checkbox]:checked:before {
 	color: #1e8cbe;
+}
+
+#wpadminbar ul.children {
+	padding-left: 10px!important;
 }
 
 ::-webkit-input-placeholder {
