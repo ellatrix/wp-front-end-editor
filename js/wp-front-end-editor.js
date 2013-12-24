@@ -97,7 +97,7 @@
 			}
 		});
 		
-		$($title).parent().on('click', function(e) {
+		$('a').not('#wp-admin-bar-wp-fee-close a, .post-edit-link').on('click', function(e) {
 			e.preventDefault();
 		});
 		
