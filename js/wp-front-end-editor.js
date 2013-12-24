@@ -3,23 +3,23 @@
 	'use strict';
 	
 	globals.send_to_editor = function(stuff) {
-//		if (stuff.slice(0, 8) == '[gallery') {
-//			(function($) {
-//				$.ajax({
-//					type: 'POST',
-//					url: wp_front_end_editor.ajax_url,
-//					data: {
-//						'action': 'wpfee_shortcode',
-//						'shortcode': stuff
-//					},
-//					success: function(data) {
-//						tinyMCE.activeEditor.insertContent(data);
-//					}
-//				});
-//			}(jQuery));
-//		} else {
+		if (stuff.slice(0, 8) == '[gallery') {
+			(function($) {
+				$.ajax({
+					type: 'POST',
+					url: wp_fee.ajax_url,
+					data: {
+						'action': 'wpfee_shortcode',
+						'shortcode': stuff
+					},
+					success: function(data) {
+						tinyMCE.activeEditor.insertContent(data);
+					}
+				});
+			}(jQuery));
+		} else {
 			tinyMCE.activeEditor.insertContent(stuff);
-//		}
+		}
 	}
 	
 }(this));
@@ -30,7 +30,7 @@
 	
 	$(document).ready(function() {
 		
-		var post_id = wp_front_end_editor.post_id;
+		var post_id = wp_fee.post_id;
 		
 		var $title = '#fee-edit-title-' + post_id;
 		var $content = '#fee-edit-content-' + post_id;
@@ -96,12 +96,20 @@
 				$('.mce-floatpanel').hide();
 			}
 		});
-		
-		$('a').not('#wp-admin-bar-wp-fee-close a, .post-edit-link').on('click', function(e) {
+
+		$(document).on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, .post-edit-link)', function(e) {
 			e.preventDefault();
 		});
 		
-		$('.insert-media.add_media a').data('editor', 'fee-edit-content-' + wp_front_end_editor.post_id)
+		$(document).on( 'hover', '.wp-fee-shortcode-container', function(e) {
+			$(this).find('.wp-fee-shortcode-options').fadeToggle();
+		});
+		
+		$(document).on( 'click', '.wp-fee-shortcode-remove', function(e) {
+			$(this).parents('.wp-fee-shortcode-container').remove();
+		});
+		
+		$('.insert-media.add_media a').data('editor', 'fee-edit-content-' + wp_fee.post_id)
 		$('.insert-media.add_media a').addClass('insert-media add_media');
 		
 		$('.fee-edit-thumbnail').mouseenter(function() {
@@ -160,7 +168,11 @@
 			$($saving).show();
 			post_title = $($title).text();
 			post_content = tinyMCE.activeEditor.getContent();
-			post_content = post_content.replace(/>\s+</g,'><');
+			post_content = $('<div>' + post_content + '</div>');
+			post_content.find('.wp-fee-shortcode').each(function(i, val) {
+				$(this).parents('.wp-fee-shortcode-container').replaceWith($(this).text());
+			});
+			post_content = $(post_content).html();
 			post_category = $('input[name="post_category[]"]:checked').map(function() {
 				return this.value;
 			}).get();
@@ -172,10 +184,10 @@
 			_wpnonce = $('#_wpnonce').val();
 			$.ajax({
 				type: 'POST',
-				url: wp_front_end_editor.ajax_url,
+				url: wp_fee.ajax_url,
 				data: {
 					'action': 'wpfee_post',
-					'ID': wp_front_end_editor.post_id,
+					'ID': wp_fee.post_id,
 					'post_title': post_title,
 					'post_content': post_content,
 					'post_category': post_category,

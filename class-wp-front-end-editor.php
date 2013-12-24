@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.3.2';
+	public $version = '0.4.1';
 	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
@@ -138,7 +138,7 @@ class WP_Front_End_Editor {
 		
 		add_filter( 'the_title', array( $this, 'the_title' ), 20, 2 );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
-		add_filter( 'wp_link_pages', array( $this, 'wp_link_pages' ), 20 );
+		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
 //		add_filter( 'comments_template', array( $this, 'comments_template' ) );
 		
@@ -179,7 +179,7 @@ class WP_Front_End_Editor {
 		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), $this->version_tinymce, true );
 		wp_enqueue_script( 'wp-front-end-editor', $this->url() . 'js/wp-front-end-editor.js', array(), $this->version, true );
 		
-		wp_localize_script( 'wp-front-end-editor', 'wp_front_end_editor', array( 'post_id' => $post->ID, 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+		wp_localize_script( 'wp-front-end-editor', 'wp_fee', array( 'post_id' => $post->ID, 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 		
 	}
 	
@@ -321,16 +321,13 @@ class WP_Front_End_Editor {
 		global $post;
 		
 		$content = $post->post_content;
+		$content = wpautop( $content );
+		$content = shortcode_unautop( $content );
+		$content = $this->do_shortcode( $content );
 		$content = str_replace( array( '<!--nextpage-->', '<!--more-->' ), array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), $content );
 		$content = '<div id="fee-edit-content-' . $post->ID . '" class="contenteditable">' . $content . '</div>';
 			
 		return $content;
-		
-	}
-	
-	public function wp_link_pages( $output ) {
-		
-		return '';
 		
 	}
 	
@@ -391,9 +388,49 @@ class WP_Front_End_Editor {
 		
 	}
 	
+	// http://core.trac.wordpress.org/browser/trunk/src/wp-includes/shortcodes.php
+	public function do_shortcode( $content ) {
+		
+		global $shortcode_tags;
+		
+		if ( empty( $shortcode_tags ) || ! is_array( $shortcode_tags ) )
+			return $content;
+		
+		$pattern = get_shortcode_regex();
+		
+		return preg_replace_callback( "/$pattern/s", array( $this, 'do_shortcode_tag' ), $content );
+				
+	}
+	
+	// http://core.trac.wordpress.org/browser/trunk/src/wp-includes/shortcodes.php
+	public function do_shortcode_tag( $m ) {
+		
+		global $shortcode_tags;
+		
+		// allow [[foo]] syntax for escaping a tag
+		if ( $m[1] == '[' && $m[6] == ']' )
+			return substr($m[0], 1, -1);
+		
+		$tag = $m[2];
+		$attr = shortcode_parse_atts( $m[3] );
+		
+		$m[5] = isset( $m[5] ) ? $m[5] : null;
+		
+		if ( $tag == 'gallery' ) {
+			
+			return '<div class="wp-fee-shortcode-container" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6] . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+			
+		} else {
+			
+			return $m[0];
+			
+		}
+		
+	}
+	
 	public function wpfee_shortcode() {
 		
-		$this->response( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
+		$this->response( '<div class="wp-fee-shortcode-container" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . wp_unslash( $_POST['shortcode'] ) . '</div>' . do_shortcode( wp_unslash( $_POST['shortcode'] ) ) . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
 		
 	}
 	
