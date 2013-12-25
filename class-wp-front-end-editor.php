@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.4.1';
+	public $version = '0.4.2';
 	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';

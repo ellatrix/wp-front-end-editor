@@ -63,6 +63,7 @@
 			relative_urls: false,
 			convert_urls: false,
 			valid_elements: '*[*]',
+			valid_children : '+div[style]',
 			setup: function(editor) {
 		        editor.on('focus', function(e) {
 		        	$('.fee-element.fee-active').removeClass('fee-active');
