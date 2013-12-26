@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.4.2';
+	public $version = '0.4.3';
 	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
@@ -103,10 +103,12 @@ class WP_Front_End_Editor {
 		
 		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
 		
-		add_action( 'wp_ajax_wpfee_post', array( $this, 'wpfee_post' ) );
-		add_action( 'wp_ajax_wpfee_shortcode', array( $this, 'wpfee_shortcode' ) );
-		add_action( 'wp_ajax_wpfee_thumbnail', array( $this, 'wpfee_thumbnail' ) );
+		add_action( 'wp_ajax_wp_fee_post', array( $this, 'wp_fee_post' ) );
+		add_action( 'wp_ajax_wp_fee_shortcode', array( $this, 'wp_fee_shortcode' ) );
+		add_action( 'wp_ajax_wp_fee_thumbnail', array( $this, 'wp_fee_thumbnail' ) );
+		add_action( 'wp_ajax_wp_fee_embed', array( $this, 'wp_fee_embed' ) );
 		add_action( 'wp', array( $this, 'wp' ) );
+		add_filter( 'admin_post_thumbnail_html', array( $this, 'admin_post_thumbnail_html' ), 10, 2 );
 		
 	}
 	
@@ -140,7 +142,8 @@ class WP_Front_End_Editor {
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
 		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
-//		add_filter( 'comments_template', array( $this, 'comments_template' ) );
+		// Sneakily turn has_post_thumbnail() true.
+		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
 		
 	}
 	
@@ -187,7 +190,20 @@ class WP_Front_End_Editor {
 		
 		global $post;
 		
-		require_once( 'editor-template.php' );
+		echo '
+		<div id="fee-saving" class="fee-reset"></div>
+		<div id="fee-success" class="wp-core-ui fee-reset">
+			<div id="fee-message">
+				<p id="fee-ajax-message">Post Updated.</p>
+				<a id="fee-continue" class="button button-large" href="#">Continue editing</a>
+				<a class="button button-primary button-large wp-fee-cancel" href="' . get_permalink( $post->ID ) . '">View ' . $post->post_type . '</a>
+			</div>
+		</div>
+		<div id="fee-mce-toolbar" class="fee-reset fee-element"></div>
+		';
+		
+		wp_nonce_field( 'fee_update_post_' . $post->ID );
+		media_buttons( 'fee-edit-content-' . $post->ID );
 		
 	}
 	
@@ -321,6 +337,7 @@ class WP_Front_End_Editor {
 		global $post;
 		
 		$content = $post->post_content;
+		$content = $this->autoembed( $content );
 		$content = wpautop( $content );
 		$content = shortcode_unautop( $content );
 		$content = $this->do_shortcode( $content );
@@ -334,31 +351,98 @@ class WP_Front_End_Editor {
 	public function post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
 		
 		global $post;
-		
-		if ( $post->ID === $post_id && in_the_loop() )
+				
+		if ( $post->ID === $post_id && in_the_loop() ) {
+						
+			require_once( ABSPATH . '/wp-admin/includes/post.php' );
+			
+			// It'd be good if we could set the $size with _wp_post_thumbnail_html().
 			return '
-			<div id="fee-edit-thumbnail-' . $post->ID . '" class="fee-edit-thumbnail">
+			<div id="fee-edit-thumbnail-' . $post->ID . '" class="wp-fee-shortcode-container fee-edit-thumbnail' .  ( $post_thumbnail_id === true ? ' empty' : '' ) . '">
 				<div id="postimagediv">
 					<div class="inside">
-						' . $html . '
-					</div>
-					<div id="set-post-thumbnail" class="fee-edit-thumbnail-button">
-						<div id="fee-edit-thumbnail-icon" class="has-dashicon"></div>
+						' . _wp_post_thumbnail_html( get_post_thumbnail_id( $post_id ), $post_id ) . '
 					</div>
 				</div>
+				<div class="wp-fee-shortcode-options">
+					<a href="#" id="wp-fee-set-post-thumbnail"></a>
+				</div>
 			</div>
-			<input type="hidden" name="fee_post_thumbnail_size" value="' . $size . '" />
 			';
+			
+		}
 		
 	}
 	
-//	public function comments_template( $file ) {
-//		
-//		return $this->path() . 'comments.php';
-//		
-//	}
+	// Not sure if this is a good idea, this could have unexpected consequences. But otherwise nothing shows up if the featured image is set in edit mode.
+	public function get_post_metadata( $n, $object_id, $meta_key, $single ) {
+		
+		global $wp_fee;
+		
+		if ( ! in_the_loop() )
+			return;
+		
+		if ( $meta_key === '_thumbnail_id' && ! $wp_fee['filtering_get_post_metadata'] && $single ) {
+			
+			$wp_fee['filtering_get_post_metadata'] = true;
+			
+			if ( $thumbnail_id = get_post_thumbnail_id( $object_id ) ) {
+				
+				$wp_fee['filtering_get_post_metadata'] = false;
+				
+				return $thumbnail_id;
+				
+			} else {
+				
+				$wp_fee['filtering_get_post_metadata'] = false;
+				
+				return true;
+				
+			}
+			
+		}
+		
+	}
 	
-	public function wpfee_post() {
+	// Do not change anything else here, this also affects the fetured image meta box on the back-end.
+	// http://core.trac.wordpress.org/browser/trunk/src/wp-admin/includes/post.php
+	public function admin_post_thumbnail_html( $content, $post_id ) {
+		
+		global $content_width, $_wp_additional_image_sizes;
+		
+		$thumbnail_id = get_post_thumbnail_id( $post_id );
+		$post = get_post( $post_id );
+	
+		$upload_iframe_src = esc_url( get_upload_iframe_src('image', $post->ID ) );
+		$set_thumbnail_link = '<p class="hide-if-no-js"><a title="' . esc_attr__( 'Set featured image' ) . '" href="%s" id="set-post-thumbnail" class="thickbox">%s</a></p>';
+		$content = sprintf( $set_thumbnail_link, $upload_iframe_src, esc_html__( 'Set featured image' ) );
+	
+		if ( $thumbnail_id && get_post( $thumbnail_id ) ) {
+			
+			if ( ! isset( $_wp_additional_image_sizes['post-thumbnail'] ) ) {
+				
+				$thumbnail_html = wp_get_attachment_image( $thumbnail_id, array( $content_width, $content_width ) );
+				
+			} else {
+				
+				$thumbnail_html = wp_get_attachment_image( $thumbnail_id, 'post-thumbnail' );
+			}
+			
+			if ( ! empty( $thumbnail_html ) ) {
+				
+				$ajax_nonce = wp_create_nonce( 'set_post_thumbnail-' . $post->ID );
+				$content = sprintf( $set_thumbnail_link, $upload_iframe_src, $thumbnail_html );
+				$content .= '<p class="hide-if-no-js"><a href="#" id="remove-post-thumbnail" onclick="WPRemoveThumbnail(\'' . $ajax_nonce . '\');return false;">' . esc_html__( 'Remove featured image' ) . '</a></p>';
+				
+			}
+			
+		}
+		
+		return $content;
+		
+	}
+	
+	public function wp_fee_post() {
 		
 		global $wpdb;
 		
@@ -416,9 +500,9 @@ class WP_Front_End_Editor {
 		
 		$m[5] = isset( $m[5] ) ? $m[5] : null;
 		
-		if ( $tag == 'gallery' ) {
+		if ( in_array( $tag, array( 'gallery', 'caption' ) ) ) {
 			
-			return '<div class="wp-fee-shortcode-container" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6] . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+			return '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6] . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
 			
 		} else {
 			
@@ -428,15 +512,49 @@ class WP_Front_End_Editor {
 		
 	}
 	
-	public function wpfee_shortcode() {
+	public function autoembed( $content ) {
 		
-		$this->response( '<div class="wp-fee-shortcode-container" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . wp_unslash( $_POST['shortcode'] ) . '</div>' . do_shortcode( wp_unslash( $_POST['shortcode'] ) ) . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
+		return preg_replace_callback( '|^\s*(https?://[^\s"]+)\s*$|im', array( $this, 'autoembed_callback' ), $content );
 		
 	}
 	
-	public function wpfee_thumbnail() {
+	public function autoembed_callback( $m ) {
 		
-		$this->response( wp_get_attachment_image_src( get_post_thumbnail_id( $_POST['ID'] ), $_POST['size'] ) );
+		global $wp_embed;
+		
+		$oldval = $wp_embed->linkifunknown;
+		$wp_embed->linkifunknown = false;
+		$return = $wp_embed->shortcode( array(), $m[1] );
+		$wp_embed->linkifunknown = $oldval;
+
+		return '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $return . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+	}
+	
+	public function wp_fee_shortcode() {
+		
+		$this->response( '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . wp_unslash( $_POST['shortcode'] ) . '</div>' . do_shortcode( wp_unslash( $_POST['shortcode'] ) ) . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
+		
+	}
+	
+	public function wp_fee_thumbnail() {
+		
+		$src = wp_get_attachment_image_src( get_post_thumbnail_id( $_POST['ID'] ) );
+		
+		$this->response( $src[0] );
+		
+	}
+	
+	public function wp_fee_embed() {
+		
+		if ( $embed = wp_oembed_get( $_POST['content'] ) ) {
+			
+			$this->response( '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $_POST['content'] . '</div>' . $embed . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
+			
+		} else {
+			
+			$this->response( $_POST['content'] );
+			
+		}
 		
 	}
 	

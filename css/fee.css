@@ -260,6 +260,7 @@
 
 .wp-fee-shortcode-container {
 	position: relative;
+	cursor: default;
 }
 .wp-fee-shortcode-options {
 	background: rgba(0, 0, 0, 0.75);
@@ -270,23 +271,35 @@
 	left: 0;
 	display: none;
 	text-align: center;
+	min-height: 52px;
 }
 .wp-fee-shortcode-container:hover {
 	outline: 2px dashed #0074a2;
 }
-.wp-fee-shortcode-remove {
+.wp-fee-container img:hover {
+	outline: 2px dashed #0074a2;
+}
+.wp-fee-shortcode-remove,
+#remove-post-thumbnail,
+#wp-fee-set-post-thumbnail {
 	width: 32px;
 	height: 32px;
 	position: absolute;
 	top: 10px;
 	right: 10px;
-	content: '\f153';
 	cursor: pointer;
+	display: block;
 }
-.wp-fee-shortcode-remove:before {
+#wp-fee-set-post-thumbnail {
+	right: 52px;
+}
+.wp-fee-shortcode-remove:before,
+#remove-post-thumbnail:before,
+#wp-fee-set-post-thumbnail:before {
 	position: relative;
+	display: block;
 	float: left;
-	font: normal 32px/1 'dashicons';
+	font: normal 32px 'dashicons';
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	height: 32px;
@@ -294,6 +307,34 @@
 	width: 32px;
 	content: '\f158';
 	color: #fff;
+}
+#wp-fee-set-post-thumbnail:before {
+	font-size: 24px;
+	content: '\f327';
+}
+.wp-fee-shortcode-loader {
+	width: 100%;
+	height: 100px;
+	background: rgba(0, 0, 0, 0.75) url('../img/hour.svg') no-repeat center;
+	background-size: 50px 50px!important;
+}
+.fee-edit-thumbnail.empty {
+	min-height: 52px;
+	outline: 2px dashed #0074a2;
+}
+.fee-edit-thumbnail.empty #set-post-thumbnail {
+	display: none;
+}
+.fee-edit-thumbnail.empty #wp-fee-set-post-thumbnail {
+	left: 10px;
+}
+.fee-edit-thumbnail p {
+	margin: 0;
+}
+#remove-post-thumbnail {
+	z-index: 10;
+	overflow: hidden;
+	display: none;
 }
 
 /*@media (max-width: 600px) {
