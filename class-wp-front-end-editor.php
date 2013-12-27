@@ -349,12 +349,12 @@ class WP_Front_End_Editor {
 	
 	public function the_title( $title, $id ) {
 		
-		global $post, $wp_fee;
+		global $post, $wp_the_query, $wp_fee;
 		
 		// This checks if we're in the loop, the_title is actually this post's title and this is the first time we're filtering.
 		// There can only be one editable title, so that we know which one to save. Imagine the case were a different post's title is being displayed in the loop.
 		// Only do this once because it's possible that the theme calls the_title twice.
-		if ( $post->ID === $id && in_the_loop() && empty( $wp_fee['the_title'] ) ) {
+		if ( is_main_query() && $wp_the_query->queried_object->ID == $id && in_the_loop() && empty( $wp_fee['the_title'] ) ) {
 			
 			$wp_fee['the_title'] = true;
 			
@@ -370,7 +370,7 @@ class WP_Front_End_Editor {
 		
 		global $post, $wp_fee;
 		
-		if ( in_the_loop() && empty( $wp_fee['the_content'] ) ) {
+		if ( is_main_query() && in_the_loop() && empty( $wp_fee['the_content'] ) ) {
 			
 			$wp_fee['the_content'] = true;
 			
@@ -390,9 +390,9 @@ class WP_Front_End_Editor {
 	
 	public function post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
 		
-		global $post, $wp_fee;
+		global $post, $wp_the_query, $wp_fee;
 				
-		if ( $post->ID === $post_id && in_the_loop() && empty( $wp_fee['the_post_thumbnail'] ) ) {
+		if ( is_main_query() && $wp_the_query->queried_object->ID == $id && in_the_loop() && empty( $wp_fee['the_post_thumbnail'] ) ) {
 			
 			$wp_fee['the_post_thumbnail'] = true;
 			
