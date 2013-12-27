@@ -1,0 +1,321 @@
+.fee-reset {
+	font-family: "Open Sans", sans-serif;
+	font-size: 14px;
+	line-height: 14px;
+}
+.fee-reset a,
+.fee-reset a:link,
+.fee-reset a:hover,
+.fee-reset a:active,
+.fee-reset a:visited {
+	text-decoration: none;
+	border: none;
+}
+
+#wpadminbar #fee-save.button {
+	height: 22px;
+	line-height: 22px;
+	padding: 0 10px 1px;
+	border-radius: 3px;
+	margin: 3px 0;
+}
+#wpadminbar .ab-top-menu > #wp-admin-bar-wp-fee-save:hover > .ab-item {
+	background-color: transparent;
+}
+#wpadminbar #wp-admin-bar-wp-fee-media > .ab-item .ab-icon::before {
+	content: '\f104';
+	top: 2px;
+}
+#wpadminbar #wp-admin-bar-wp-fee-tags > .ab-item .ab-icon::before {
+	content: '\f323';
+	top: 2px;
+}
+#wpadminbar #wp-admin-bar-wp-fee-cats > .ab-item .ab-icon::before {
+	content: '\f318';
+	top: 2px;
+}
+#wpadminbar .ab-item > .ab-icon {
+	margin-right: 0;
+}
+#wpadminbar .ab-icon.wp-fee-remove-tag::before {
+	content: '\f153';
+	top: 2px;
+}
+#wpadminbar .ab-icon.wp-fee-remove-tag {
+	padding-bottom: 0!important;
+	cursor: pointer;
+	margin-right: 6px;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon::before {
+	content: '\f158';
+	top: 2px;
+	color: #eee;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon {
+	margin: 0;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-item {
+	padding: 0 8px;
+}
+#wpadminbar #wp-admin-bar-wp-fee-close {
+	background-color: #333;
+}
+#wpadminbar #input-tags,
+#wpadminbar #input-cats {
+	padding: 0;
+	margin: 0;
+	border: none;
+	background: transparent;
+	color: #fff;
+	font-size: 13px;
+	height: 22px;
+	line-height: 22px;
+	max-width: 140px;
+}
+
+.fee-element {
+	display: none;
+}
+.fee-active {
+	display: block;
+}
+
+#fee-mce-toolbar {
+	position: fixed;
+	top: 54px;
+	left: 20px;
+	z-index: 100000;
+	padding: 5px;
+	background: #222;
+	border-radius: 2px;
+	cursor: move;
+}
+
+:focus,
+.contenteditable img {
+	outline: none!important;
+}
+
+.mce-widget.mce-tooltip {
+    display: none !important;
+}
+.mce-btn {
+	float: left;
+}
+.mce-btn-group {
+	margin: 0;
+	width: 100%;
+}
+
+#fee-mce-toolbar button {
+	border-radius: 0!important;
+	background: none!important;
+	box-shadow: none!important;
+	border: none!important;
+}
+
+#insert-media-button {
+	display: none;
+}
+
+.fee-edit-thumbnail {
+	position: relative;
+}
+.fee-edit-thumbnail-button {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+	height: 34px;
+	width: 34px;
+	border-radius: 2px;
+	background-color: #222;
+	display: none;
+	cursor: pointer;
+}
+#fee-edit-thumbnail-icon:before {
+	display: inline-block;
+	-webkit-font-smoothing: antialiased;
+	font: normal 22px/1 'genericons';
+	vertical-align: top;
+	height: 24px;
+	line-height: 24px;
+	padding: 5px 7px;
+	width: 20px;
+	content: '\f411';
+	color: #ccc;
+}
+
+#wpadminbar label.selectit {
+	padding: 0 10px!important;
+	white-space: nowrap;
+}
+
+#wpadminbar input[type="checkbox"] {
+	border-width: 0;
+	border-style: solid;
+	clear: none;
+	cursor: pointer;
+	display: inline-block;
+	line-height: 0;
+	height: 16px!important;
+	margin: -4px 4px 0 0;
+	outline: 0;
+	padding: 0 !important;
+	text-align: center;
+	vertical-align: middle;
+	width: 16px!important;
+	min-width: 16px;
+	-webkit-appearance: none;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#wpadminbar input[type=checkbox]:disabled,
+#wpadminbar input[type=checkbox]:disabled:checked:before {
+	opacity: 0.7;
+}
+
+#wpadminbar input[type=checkbox]:checked:before {
+	float: left;
+	display: inline-block;
+	vertical-align: middle;
+	width: 16px;
+	font: normal 21px/1 'dashicons';
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+#wpadminbar input[type=checkbox]:checked:before {
+	content: '\f147';
+	margin: -3px 0 0 -4px;
+}
+
+#wpadminbar input[type=checkbox]:checked:before {
+	color: #1e8cbe;
+}
+
+#wpadminbar ul.children {
+	padding-left: 10px!important;
+}
+
+::-webkit-input-placeholder {
+	color: #ccc;
+	font-style: italic;
+}
+
+:-moz-placeholder {
+	color: #ccc;
+	font-style: italic;
+}
+
+::-moz-placeholder {
+	color: #ccc;
+	font-style: italic;
+}
+
+:-ms-input-placeholder {
+	color: #ccc;
+	font-style: italic;
+}
+
+.mce-last mce-abs-layout-item {
+	position: relative!important;
+}
+
+.wp-fee-shortcode-container {
+	position: relative;
+	cursor: default;
+}
+.wp-fee-shortcode-options {
+	background: rgba(0, 0, 0, 0.75);
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	text-align: center;
+	min-height: 52px;
+}
+.wp-fee-shortcode-container:hover {
+	outline: 2px dashed #0074a2;
+}
+.wp-fee-container img:hover {
+	outline: 2px dashed #0074a2;
+}
+.wp-fee-shortcode-remove,
+#remove-post-thumbnail,
+#wp-fee-set-post-thumbnail {
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	cursor: pointer;
+	display: block;
+}
+#wp-fee-set-post-thumbnail {
+	right: 52px;
+}
+.wp-fee-shortcode-remove:before,
+#remove-post-thumbnail:before,
+#wp-fee-set-post-thumbnail:before {
+	position: relative;
+	display: block;
+	float: left;
+	font: normal 32px 'dashicons';
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	height: 32px;
+	line-height: 32px;
+	width: 32px;
+	content: '\f158';
+	color: #fff;
+}
+#wp-fee-set-post-thumbnail:before {
+	font-size: 24px;
+	content: '\f327';
+}
+.wp-fee-shortcode-loader {
+	width: 100%;
+	height: 100px;
+	background: rgba(0, 0, 0, 0.75) url('../img/hour.svg') no-repeat center;
+	background-size: 50px 50px!important;
+}
+.fee-edit-thumbnail.empty {
+	min-height: 52px;
+	outline: 2px dashed #0074a2;
+}
+.fee-edit-thumbnail.empty #set-post-thumbnail {
+	display: none;
+}
+.fee-edit-thumbnail.empty #wp-fee-set-post-thumbnail {
+	left: 10px;
+}
+.fee-edit-thumbnail p {
+	margin: 0;
+}
+#remove-post-thumbnail {
+	z-index: 10;
+	overflow: hidden;
+	display: none;
+}
+
+/*@media (max-width: 600px) {
+	#fee-mce-toolbar {
+		top: 0!important;
+		left: 0!important;
+		width: 100%;
+		padding-left: 0;
+		padding-right: 0;
+	}
+	.mce-tinymce,
+	.mce-abs-layout,
+	.mce-abs-layout-item,
+	.mce-stack-layout,
+	.mce-toolbar,
+	.mce-flow-layout {
+		width: 100%!important;
+	}
+}*/
