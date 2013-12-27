@@ -72,23 +72,11 @@
 				.parents( '.wp-fee-shortcode-container' )
 				.replaceWith( '<p></p>' );
 		} )
-//		.on( 'mouseenter', '.wp-fee-content img', function() {
-//			$( this )
-//				.find( '.wp-fee-shortcode-options' )
-//				.fadeIn();
-//		} )
-//		.on( 'mouseleave', '.wp-fee-shortcode-container', function() {
-//			$( this )
-//				.find( '.wp-fee-shortcode-options' )
-//				.fadeOut();
-//		} )
 		.ready( function() {
 			var post_content, post_category, tags_input, _wpnonce,
 				title = '#fee-edit-title-' + wp_fee.post_id,
 				content = '#fee-edit-content-' + wp_fee.post_id,
 				mce_toolbar = '#fee-mce-toolbar',
-				saving = '#fee-saving',
-				success = '#fee-success',
 				post_title = $( title ).text(),
 				doc_title = document.title.replace( post_title, '<!--replace-->' ),
 				menupop_height = ( $(window).height() ) - 42;
@@ -248,7 +236,7 @@
 			
 			$( '#input-tags' )
 				.keypress( function( event ) {
-					if ( eevent.which === 13 ) {
+					if ( event.which === 13 ) {
 						var tag = $( this ).val();
 						$( this ).val('');
 						var newtag = '<li class="wp-fee-tags"><div class="ab-item ab-empty-item"><span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' + tag + '</span></div></li>';
@@ -276,21 +264,15 @@
 						.parent()
 						.remove();
 				} );
-			
-			$( '#fee-continue' )
-				.on( 'click', function( event ) {
-					event
-						.preventDefault();
-					$( success )
-						.fadeOut( 'slow' );
-				} );
 					
 			$( '#fee-save' )
 				.on( 'click', function( event ) {
-					event
-						.preventDefault();
-					$( saving )
-						.show();
+					if ( $( this ).hasClass( 'button-primary-disabled' ) )
+						return;
+					$( this )
+						.addClass( 'button-primary-disabled' )
+						.text( 'Saving...' );
+					$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
 					post_title = $( title ).text();
 					post_content = tinyMCE.activeEditor.getContent();
 					post_content = $( '<div>' + post_content + '</div>' );
@@ -327,10 +309,18 @@
 							'_wpnonce': _wpnonce
 						},
 						success: function( data ) {
-							$( success )
-								.show();
-							$( saving )
-								.hide();
+							console.log( data );
+							$( '#fee-save' )
+								.text( 'Saved!' );
+							setTimeout( function() {
+								$( '#fee-save' )
+									.text( 'Save' )
+									.removeClass( 'button-primary-disabled' );
+									$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
+							}, 600 );
+						},
+						error: function() {
+							alert( 'An error occurred.' )
 						}
 					} );
 				} );

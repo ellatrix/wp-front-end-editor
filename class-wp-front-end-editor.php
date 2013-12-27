@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.4.4';
+	public $version = '0.4.5';
 	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
@@ -32,6 +32,12 @@ class WP_Front_End_Editor {
 		
 		global $wp_query;
 		
+		if ( ! is_singular() )
+			return false;
+		
+		if ( is_front_page() && isset( $_GET['editing'] ) )
+			return true;
+		
 		return ( isset( $wp_query->query_vars['edit'] ) ) ? true : false;
 		
 	}
@@ -42,9 +48,12 @@ class WP_Front_End_Editor {
 		
 		if ( ! $post)
 			return false;
-			
+		
+		if ( $id == get_option( 'page_on_front' ) )
+			return home_url( '?editing' );
+		
 		$permalink = get_permalink( $post->ID );
-			
+		
 		if ( strpos( $permalink, '?' ) !== false )
 			return add_query_arg( 'edit', '', $permalink );
 		
@@ -92,7 +101,7 @@ class WP_Front_End_Editor {
 	
 	public function admin_notices() {
 		
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8-alpha and 3.9-alpha.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8 and 3.9-alpha.</p></div>';
 		
 		if ( isset( $_GET['activate'] ) )
 			unset( $_GET['activate'] );
@@ -121,7 +130,7 @@ class WP_Front_End_Editor {
 			return;
 		
 		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
-		
+				
 		add_action( 'wp', array( $this, 'wp' ) );
 		
 		if( is_admin() && $pagenow == 'post.php' || $pagenow == 'post-new.php' )
@@ -216,17 +225,7 @@ class WP_Front_End_Editor {
 		
 		global $post;
 		
-		echo '
-		<div id="fee-saving" class="fee-reset"></div>
-		<div id="fee-success" class="wp-core-ui fee-reset">
-			<div id="fee-message">
-				<p id="fee-ajax-message">Post Updated.</p>
-				<a id="fee-continue" class="button button-large" href="#">Continue editing</a>
-				<a class="button button-primary button-large wp-fee-cancel" href="' . get_permalink( $post->ID ) . '">View ' . $post->post_type . '</a>
-			</div>
-		</div>
-		<div id="fee-mce-toolbar" class="fee-reset fee-element"></div>
-		';
+		echo '<div id="fee-mce-toolbar" class="fee-reset fee-element"></div>';
 		
 		wp_nonce_field( 'fee_update_post_' . $post->ID );
 		media_buttons( 'fee-edit-content-' . $post->ID );
