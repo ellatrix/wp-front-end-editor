@@ -392,7 +392,7 @@ class WP_Front_End_Editor {
 		
 		global $post, $wp_the_query, $wp_fee;
 				
-		if ( is_main_query() && $wp_the_query->queried_object->ID == $id && in_the_loop() && empty( $wp_fee['the_post_thumbnail'] ) ) {
+		if ( is_main_query() && $wp_the_query->queried_object->ID == $post_id && in_the_loop() && empty( $wp_fee['the_post_thumbnail'] ) ) {
 			
 			$wp_fee['the_post_thumbnail'] = true;
 			
