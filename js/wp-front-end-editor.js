@@ -23,6 +23,7 @@
 				.insertContent( content );
 		}
 	};
+	globals.wpActiveEditor = null;
 } ( this ) );
 ( function( $ ) {
 	'use strict';
