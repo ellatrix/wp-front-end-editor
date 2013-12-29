@@ -185,7 +185,10 @@ class WP_Front_End_Editor {
 	public function get_edit_post_link( $link, $id, $context ) {
 		
 		$post = get_post( $id );
-		
+		$post_type = get_post_type_object( $post->post_type );
+		if( !$post_type->public)
+			return $link;
+			
 		if ( $this->is_edit() )
 			return get_permalink( $id );
 		
