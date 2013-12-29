@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 	
-	public $version = '0.4.6';
+	public $version = '0.5';
 	public $version_tinymce = '4.0.10';
 	
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
@@ -213,7 +213,6 @@ class WP_Front_End_Editor {
 		wp_enqueue_style( 'buttons' );
 		
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'jquery-ui-draggable' );
 		wp_enqueue_script( 'tinymce-4', $this->url() . 'js/tinymce/tinymce.min.js', array(), $this->version_tinymce, true );
 		wp_enqueue_script( 'wp-front-end-editor', $this->url() . 'js/wp-front-end-editor.js', array(), $this->version, true );
 		
@@ -224,9 +223,7 @@ class WP_Front_End_Editor {
 	public function wp_footer() {
 		
 		global $post;
-		
-		echo '<div id="fee-mce-toolbar" class="fee-reset fee-element"></div>';
-		
+				
 		wp_nonce_field( 'fee_update_post_' . $post->ID );
 		media_buttons( 'fee-edit-content-' . $post->ID );
 		
@@ -248,15 +245,6 @@ class WP_Front_End_Editor {
 		$nodes[$id]['parent'] = 'top-secondary';
 		$nodes[$id]['title'] = '<span id="fee-save" class="button button-primary" href="#">Save</span>';
 		$nodes[$id]['meta']['class'] = 'wp-core-ui';
-		$nodes[$id]['fee'] = true;
-		
-		$id = 'wp-fee-media';
-		$nodes[$id]['id'] = $id;
-		$nodes[$id]['href'] = '#';
-		$nodes[$id]['parent'] = 'top-secondary';
-		$nodes[$id]['title'] = '<span class="ab-icon"></span>';
-		$nodes[$id]['meta']['class'] = 'insert-media add_media';
-		$nodes[$id]['meta']['title'] = 'Manage Media';
 		$nodes[$id]['fee'] = true;
 		
 		$id = 'wp-fee-tags';

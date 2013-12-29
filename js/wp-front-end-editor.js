@@ -59,7 +59,7 @@
 				.click();
 		} )
 		.on( 'click', '.media-modal-close', function() {
-			if ( $( '.fee-edit-thumbnail:has(img)' ).length == 0 ) {
+			if ( $( '.fee-edit-thumbnail:has(img)' ).length === 0 ) {
 				$( '.fee-edit-thumbnail' ).addClass( 'empty' );
 			}
 		} )
@@ -77,7 +77,7 @@
 			var post_content, post_category, tags_input, _wpnonce,
 				title = '#fee-edit-title-' + wp_fee.post_id,
 				content = '#fee-edit-content-' + wp_fee.post_id,
-				mce_toolbar = '#fee-mce-toolbar',
+				mce_toolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
 				post_title = $( title ).text(),
 				doc_title = document.title.replace( post_title, '<!--replace-->' ),
 				menupop_height = ( $(window).height() ) - 42;
@@ -91,63 +91,60 @@
 			$( content )
 				.attr( 'contenteditable', 'true' );
 	
-			tinymce
+			tinyMCE
 				.init( {
 					selector: content,
 					inline: true,
 					plugins: 'autolink lists link charmap anchor table paste textcolor noneditable',
-					toolbar1: 'bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist kitchensink',
-					toolbar2: 'undo redo removeformat formatselect subscript superscript alignjustify outdent indent forecolor backcolor table',
+					toolbar1: 'kitchensink bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist media undo redo',
+					toolbar2: 'kitchensink removeformat alignjustify outdent indent', // formatselect forecolor backcolor table
 					menubar: false,
 					fixed_toolbar_container: mce_toolbar,
-					skin: 'wordpress',
+					skin: false,
 					object_resizing: false,
 					relative_urls: false,
 					convert_urls: false,
 					valid_elements: '*[*]',
 					valid_children : '+div[style],+div[script]',
 					setup: function( editor ) {
-						editor
-							.on( 'focus', function() {
-								$( '.fee-element.fee-active' )
-									.removeClass( 'fee-active' );
-								$( mce_toolbar )
-									.addClass( 'fee-active' )
-									.show();
-							} )
-							.on( 'blur', function() {
-								$( mce_toolbar )
-									.removeClass( 'fee-active' )
-									.hide();
-							} )
-//							.on( 'PreInit', function() {
-//								$( content ).find( 'script' ).each( function( i, val ) {
-//									$.getScript( $( val ).attr( 'src' ) );
-//								} );
-//							} )
-							.addButton( 'kitchensink', {
-								title: 'more...',
-								onclick: function() {
-									$( '.mce-tinymce, .mce-abs-layout, .mce-abs-layout-item, .mce-stack-layout' )
-										.removeAttr( 'style' );
-									$( '.mce-toolbar:not(:first-child)' )
-										.toggle();
+						// Temporary, until we have a hook.
+						setTimeout( function() {
+							editor.focus();
+						}, 1000 );
+						editor.addButton( 'kitchensink', {
+							title: 'More...',
+							onclick: function( event ) {
+								var toolbar = $( event.srcElement ).parents( '.mce-toolbar' );
+								toolbar.hide();
+								if ( toolbar.next().length > 0 ) {
+									toolbar
+										.next()
+										.show();
+								} else {
+									toolbar
+										.parent()
+										.children()
+										.first()
+										.show();
 								}
-							} );
-						$( '#fee-mce-toolbar' )
-							.on( 'DOMNodeInserted', function() {
-								if ( ! $( '.mce-tinymce' ).hasClass( 'fee-style-removed' ) ) {
-									$( '.mce-tinymce, .mce-abs-layout, .mce-abs-layout-item, .mce-stack-layout' )	
-										.removeAttr( 'style' );
-									$( '.mce-toolbar:not(:first-child)' )
-										.hide();
-								}
-							} );
-						
+							}
+						} );
+						editor.addButton( 'media', {
+							title: 'Add Media'
+						} );
 						$( window )
 							.on( 'resize', function() {
-								$( '.mce-tinymce, .mce-tinymce .mce-abs-layout, .mce-tinymce .mce-abs-layout-item, .mce-tinymce .mce-stack-layout' )
+								$( mce_toolbar )
+									.find('*:not(.mce-toolbar)')
 									.removeAttr( 'style' );
+							} )
+							.on( 'DOMNodeInserted', function() {
+								$( mce_toolbar )
+									.find('*:not(.mce-toolbar)')
+									.removeAttr( 'style' );
+								$( '.mce-i-media' )
+									.data( 'editor', 'fee-edit-content-' + wp_fee.post_id )
+									.addClass( 'insert-media add_media' );
 							} );
 					},
 					paste_preprocess: function( plugin, args ) {
@@ -174,19 +171,6 @@
 						}
 					}
 				} );
-					
-			$( mce_toolbar )
-				.draggable( {
-					containment: 'document',
-					start: function() {
-						$( '.mce-floatpanel' )
-							.hide();
-					}
-				} );
-			
-			$( '.insert-media.add_media a' )
-				.data( 'editor', 'fee-edit-content-' + wp_fee.post_id )
-				.addClass( 'insert-media add_media' );
 			
 			$( '.fee-edit-thumbnail' )
 				.on( 'mouseenter', function() {
@@ -225,7 +209,7 @@
 			$( '.menupop' )
 				.on( 'mouseenter', function() {
 					$( '.hover' )
-						.not( this )
+						.not( this ).not( $(this).parents( '.menupop' ) ).not( $(this).find( '.menupop' ) )
 						.removeClass( 'hover' );
 				} );
 					
@@ -321,14 +305,14 @@
 							}, 600 );
 						},
 						error: function() {
-							alert( 'An error occurred.' )
+							alert( 'An error occurred.' );
 						}
 					} );
 				} );
 		} );
 	
 } ( jQuery ) );
-WPRemoveThumbnail = function( nonce ) {
+var WPRemoveThumbnail = function( nonce ) {
 	jQuery.post( wp_fee.ajax_url, {
 		action: 'set-post-thumbnail',
 		post_id: wp_fee.post_id,

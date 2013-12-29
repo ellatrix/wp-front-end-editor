@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.4.6.1
+Stable tag: 0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,6 @@ Warning: this plugin is very experimental and not safe to use outside a test env
 
 [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
 [Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
-[Plugin](http://wordpress.org/plugins/wp-front-end-editor/)  
 [GitHub Mirror](https://github.com/avryl/wp-front-end-editor)  
 [Tasks](https://docs.google.com/spreadsheet/ccc?key=0AjPkPpRo7PoWdERlR096M3RtRnpXOS10X2l3T0JXa2c)
 
@@ -27,6 +26,10 @@ We're still looking for more people to join us - developers, UI designers and Wo
 This is just an experiment!
 
 == Changelog ==
+
+= 0.5 =
+
+* Moves the TinyMCE tool bar into the admin bar.
 
 = 0.4.6 =
 
