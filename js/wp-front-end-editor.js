@@ -1,32 +1,52 @@
-( function( globals ) {
+( function( $, globals ) {
 	'use strict';
+	var postTitle,
+		postContent,
+		postCategory,
+		tagsInput,
+		title = '#wp-fee-title-' + wpFee.postId,
+		content = '#wp-fee-content-' + wpFee.postId,
+		mceToolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
+		docTitle = document.title.replace( $( title ).text(), '<!--replace-->' ),
+		menupopHeight = ( $(window).height() ) - 42;
+	globals.wpActiveEditor = null;
 	globals.send_to_editor = function( content ) {
 		if ( content.slice( 0, 8 ) === '[gallery' || content.slice( 0, 8 ) === '[caption' ) {
-			( function( $ ) {
-				$.ajax( {
-					type: 'POST',
-					url: wp_fee.ajax_url,
-					data: {
-						'action': 'wp_fee_shortcode',
-						'shortcode': content
-					},
-					success: function( data ) {
-						tinyMCE
-							.activeEditor
-							.insertContent( data );
-					}
-				} );
-			} ( jQuery ) );
+			$.ajax( {
+				type: 'POST',
+				url: wpFee.ajaxUrl,
+				data: {
+					'action': 'wp_fee_shortcode',
+					'shortcode': content
+				},
+				success: function( data ) {
+					tinyMCE
+						.activeEditor
+						.insertContent( data );
+				}
+			} );
 		} else {
 			tinyMCE
 				.activeEditor
 				.insertContent( content );
 		}
 	};
-	globals.wpActiveEditor = null;
-} ( this ) );
-( function( $ ) {
-	'use strict';
+	globals.WPRemoveThumbnail = function( nonce ) {
+		$.post( wpFee.ajaxUrl, {
+			action: 'set-post-thumbnail',
+			post_id: wpFee.postId,
+			thumbnail_id: -1,
+			_ajax_nonce: nonce,
+			cookie: encodeURIComponent( document.cookie )
+		}, function( html ){
+			if ( html == '0' ) {
+				alert( setPostThumbnailL10n.error );
+			} else {
+				$( '.inside', '#postimagediv' ).html( html );
+				$( '.fee-edit-thumbnail' ).addClass( 'empty' );
+			}
+		} );
+	};
 	$( document )
 		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, .post-edit-link)', function( event ) {
 			event
@@ -74,32 +94,25 @@
 				.replaceWith( '<p></p>' );
 		} )
 		.ready( function() {
-			var post_content, post_category, tags_input, _wpnonce,
-				title = '#fee-edit-title-' + wp_fee.post_id,
-				content = '#fee-edit-content-' + wp_fee.post_id,
-				mce_toolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
-				post_title = $( title ).text(),
-				doc_title = document.title.replace( post_title, '<!--replace-->' ),
-				menupop_height = ( $(window).height() ) - 42;
-			
 			$( title )
 				.attr( 'contenteditable', 'true' )
 				.on( 'keyup', function() {
-					document.title = doc_title.replace( '<!--replace-->', $( this ).text() );
+					document.title = docTitle.replace( '<!--replace-->', $( this ).text() );
+				} )
+				.keypress( function( event ) {
+					return event.which !== 13;
 				} );
-	
 			$( content )
 				.attr( 'contenteditable', 'true' );
-	
 			tinyMCE
 				.init( {
 					selector: content,
 					inline: true,
-					plugins: 'autolink lists link charmap anchor table paste textcolor noneditable',
+					plugins: 'link charmap paste textcolor',
 					toolbar1: 'kitchensink bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist media undo redo',
 					toolbar2: 'kitchensink removeformat alignjustify outdent indent', // formatselect forecolor backcolor table
 					menubar: false,
-					fixed_toolbar_container: mce_toolbar,
+					fixed_toolbar_container: mceToolbar,
 					skin: false,
 					object_resizing: false,
 					relative_urls: false,
@@ -134,16 +147,16 @@
 						} );
 						$( window )
 							.on( 'resize', function() {
-								$( mce_toolbar )
+								$( mceToolbar )
 									.find('*:not(.mce-toolbar)')
 									.removeAttr( 'style' );
 							} )
 							.on( 'DOMNodeInserted', function() {
-								$( mce_toolbar )
+								$( mceToolbar )
 									.find('*:not(.mce-toolbar)')
 									.removeAttr( 'style' );
 								$( '.mce-i-media' )
-									.data( 'editor', 'fee-edit-content-' + wp_fee.post_id )
+									.data( 'editor', 'fee-edit-content-' + wpFee.postId )
 									.addClass( 'insert-media add_media' );
 							} );
 					},
@@ -151,7 +164,7 @@
 						if ( args.content.match( /^\s*(https?:\/\/[^\s"]+)\s*$/im ) ) {
 							$.ajax( {
 								type: 'POST',
-								url: wp_fee.ajax_url,
+								url: wpFee.ajaxUrl,
 								data: {
 									'action': 'wp_fee_embed',
 									'content': args.content
@@ -171,7 +184,6 @@
 						}
 					}
 				} );
-			
 			$( '.fee-edit-thumbnail' )
 				.on( 'mouseenter', function() {
 					$( this )
@@ -183,7 +195,6 @@
 						.find( '.fee-edit-thumbnail-button' )
 						.fadeOut( 'slow' );  
 				} );
-			
 			$( 'a[rel~="category"]' )
 				.on( 'click', function( event ) {
 					event
@@ -194,7 +205,6 @@
 					$( '#wp-admin-bar-wp-fee-cats' )
 						.toggleClass( 'hover' );
 				} );
-			
 			$( 'a[rel="tag"]' )
 				.on( 'click', function( event ) {
 					event
@@ -205,29 +215,26 @@
 					$( '#wp-admin-bar-wp-fee-tags' )
 						.toggleClass( 'hover' );
 				} );
-			
 			$( '.menupop' )
 				.on( 'mouseenter', function() {
 					$( '.hover' )
 						.not( this ).not( $(this).parents( '.menupop' ) ).not( $(this).find( '.menupop' ) )
 						.removeClass( 'hover' );
 				} );
-					
 			$('.ab-sub-wrapper')
 				.css( {
-					'max-height' : menupop_height + 'px',
+					'max-height' : menupopHeight + 'px',
 					'overflow' : 'scroll'
 				} );
-			
 			$( '#input-tags' )
 				.keypress( function( event ) {
 					if ( event.which === 13 ) {
 						var tag = $( this ).val();
 						$( this ).val('');
-						var newtag = '<li class="wp-fee-tags"><div class="ab-item ab-empty-item"><span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' + tag + '</span></div></li>';
-						if ( tag !== '' ) {
+						var htmlTag = '<li class="wp-fee-tags"><div class="ab-item ab-empty-item"><span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' + tag + '</span></div></li>';
+						if ( tag ) {
 							$( '#wp-admin-bar-wp-fee-tags-default' )
-								.append( newtag );
+								.append( htmlTag );
 						}
 						$( '.wp-fee-remove-tag' ).on( 'click', function( event ) {
 							event
@@ -236,11 +243,8 @@
 								.parent()
 								.remove();
 						} );
-						
 					}
-					
 				} );
-			
 			$( '.wp-fee-remove-tag' )
 				.on( 'click', function( event ) {
 					event
@@ -249,7 +253,6 @@
 						.parent()
 						.remove();
 				} );
-					
 			$( '#fee-save' )
 				.on( 'click', function( event ) {
 					if ( $( this ).hasClass( 'button-primary-disabled' ) )
@@ -258,51 +261,53 @@
 						.addClass( 'button-primary-disabled' )
 						.text( 'Saving...' );
 					$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
-					post_title = $( title ).text();
-					post_content = tinyMCE.activeEditor.getContent();
-					post_content = $( '<div>' + post_content + '</div>' );
-					post_content
+					postTitle = $( title ).text();
+					postContent = tinyMCE.activeEditor.getContent();
+					postContent = $( '<div>' + postContent + '</div>' );
+					postContent
 						.find( '.wp-fee-shortcode' )
 						.each( function() {
 							$( this )
 								.parents( '.wp-fee-shortcode-container' )
 								.replaceWith( $( this ).html() );
 						} );
-					post_content = $( post_content ).html();
-					post_category = $( 'input[name="post_category[]"]:checked' )
+					postContent = $( postContent ).html();
+					postCategory = $( 'input[name="post_category[]"]:checked' )
 						.map( function() {
 							return this.value;
 						} )
 						.get();
-					tags_input = '';
+					tagsInput = '';
 					$( '.wp-fee-tag' )
 						.each( function() {
-							tags_input += $( this ).text() + ', ';
+							tagsInput += $( this ).text() + ', ';
 						} );
-					tags_input = tags_input.slice( 0, -2 );
-					_wpnonce = $( '#_wpnonce' ).val();
+					tagsInput = tagsInput.slice( 0, -2 );
 					$.ajax({
 						type: 'POST',
-						url: wp_fee.ajax_url,
+						url: wpFee.ajaxUrl,
 						data: {
 							'action': 'wp_fee_post',
-							'ID': wp_fee.post_id,
-							'post_title': post_title,
-							'post_content': post_content,
-							'post_category': post_category,
-							'tags_input': tags_input,
-							'_wpnonce': _wpnonce
+							'ID': wpFee.postId,
+							'post_title': postTitle,
+							'post_content': postContent,
+							'post_category': postCategory,
+							'tags_input': tagsInput,
+							'_wpnonce': wpFee.updatePostNonce
 						},
 						success: function( data ) {
-							console.log( data );
 							$( '#fee-save' )
 								.text( 'Saved!' );
-							setTimeout( function() {
-								$( '#fee-save' )
-									.text( 'Save' )
-									.removeClass( 'button-primary-disabled' );
-									$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
-							}, 600 );
+							if ( wpFee.redirectPostLocation ) {
+								window.location.href = wpFee.redirectPostLocation;
+							} else {
+								setTimeout( function() {
+									$( '#fee-save' )
+										.text( 'Save' )
+										.removeClass( 'button-primary-disabled' );
+										$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
+								}, 600 );
+							}
 						},
 						error: function() {
 							alert( 'An error occurred.' );
@@ -310,21 +315,4 @@
 					} );
 				} );
 		} );
-	
-} ( jQuery ) );
-var WPRemoveThumbnail = function( nonce ) {
-	jQuery.post( wp_fee.ajax_url, {
-		action: 'set-post-thumbnail',
-		post_id: wp_fee.post_id,
-		thumbnail_id: -1,
-		_ajax_nonce: nonce,
-		cookie: encodeURIComponent( document.cookie )
-	}, function( html ){
-		if ( html == '0' ) {
-			alert( setPostThumbnailL10n.error );
-		} else {
-			jQuery( '.inside', '#postimagediv' ).html( html );
-			jQuery( '.fee-edit-thumbnail' ).addClass( 'empty' );
-		}
-	} );
-};
+} ( jQuery, this ) );

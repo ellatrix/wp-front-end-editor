@@ -1,9 +1,3 @@
-/* General */
-
-#insert-media-button {
-	display: none;
-}
-
 /* Content */
 
 div[contenteditable="true"]:focus,
@@ -467,4 +461,12 @@ div[contenteditable="true"]:focus,
 .attachment.details .check {
 	background-color: #1e8cbe!important;
 	box-shadow: 0 0 0 1px #fff, 0 0 0 2px #1e8cbe!important;
+}
+
+/* Auth Check */
+
+*[id^=wp-auth-check] {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
 }

@@ -13,9 +13,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 if ( ! class_exists( 'WP_Front_End_Editor' ) ) {
-	
+
 	require_once( 'class-wp-front-end-editor.php' );
-	
+
 	WP_Front_End_Editor::instance();
-		
+
 }
