@@ -1,6 +1,6 @@
 /* Content */
 
-div[contenteditable="true"]:focus,
+*[contenteditable="true"]:focus,
 .mce-content-body img[data-mce-selected],
 .mce-content-body hr[data-mce-selected] {
 	outline: none;

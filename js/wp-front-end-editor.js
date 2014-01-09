@@ -7,7 +7,7 @@
 		title = '#wp-fee-title-' + wpFee.postId,
 		content = '#wp-fee-content-' + wpFee.postId,
 		mceToolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
-		docTitle = document.title.replace( $( title ).text(), '<!--replace-->' ),
+		docTitle = ( $( title ).text().length ? document.title.replace( $( title ).text(), '<!--replace-->' ) : document.title ),
 		menupopHeight = ( $(window).height() ) - 42;
 	globals.wpActiveEditor = null;
 	globals.send_to_editor = function( content ) {
@@ -92,6 +92,19 @@
 			$( this )
 				.parents( '.wp-fee-shortcode-container' )
 				.replaceWith( '<p></p>' );
+		} )
+		.on( 'keydown', function( event ) {
+			if ( event.keyCode === 83 && ( navigator.platform.match( 'Mac' ) ? event.metaKey : event.ctrlKey ) ) {
+				event.preventDefault();
+				event.stopPropagation();
+				$( '#fee-save' )
+					.trigger( 'click' );
+			}
+			if ( event.keyCode === 27 ) {
+				event.preventDefault();
+				event.stopPropagation();
+				window.location.href = $( '#wp-admin-bar-wp-fee-close a' ).attr( 'href' );
+			}
 		} )
 		.ready( function() {
 			$( title )

@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.5';
+	public $version = '0.5.1';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -250,13 +250,16 @@ class WP_Front_End_Editor {
 			'href' => get_permalink( $post->ID ),
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
+			'meta' => array(
+				'title' => 'Cancel (Esc)'
+			),
 			'fee' => true
 		) );
 
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-save',
 			'parent' => 'top-secondary',
-			'title' => '<span id="fee-save" class="button button-primary" href="#">Save</span>',
+			'title' => '<span id="fee-save" class="button button-primary" title="Save (Ctrl + S)">Save</span>',
 			'meta' => array(
 				'class' => 'wp-core-ui'
 			),
@@ -376,7 +379,7 @@ class WP_Front_End_Editor {
 
 			$wp_fee['the_title'] = true;
 
-			$title = '<div id="wp-fee-title-' . $post->ID . '" class="wp-fee-title">' . $title . '</div>';
+			$title = '<div id="wp-fee-title-' . $post->ID . '" class="wp-fee-title">' . $post->post_title . '</div>';
 
 		}
 
@@ -444,15 +447,12 @@ class WP_Front_End_Editor {
 
 		global $wp_the_query, $wp_fee;
 
-		if ( ! in_the_loop()
-			|| ! is_main_query()
-			|| $wp_the_query->queried_object->ID !== $object_id )
-
-			return;
-
-		if ( $meta_key === '_thumbnail_id'
-			&& empty( $wp_fee['filtering_get_post_metadata'] )
-			&& $single ) {
+		if ( is_main_query()
+			&& in_the_loop()
+			&& $wp_the_query->queried_object->ID === $object_id
+			&& $meta_key === '_thumbnail_id'
+			&& $single
+			&& empty( $wp_fee['filtering_get_post_metadata'] ) ) {
 
 			$wp_fee['filtering_get_post_metadata'] = true;
 
