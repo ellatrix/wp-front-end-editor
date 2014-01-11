@@ -128,9 +128,9 @@
 				.init( {
 					selector: content,
 					inline: true,
-					plugins: 'link charmap paste textcolor',
+					plugins: 'link charmap paste textcolor table',
 					toolbar1: 'kitchensink bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist media undo redo',
-					toolbar2: 'kitchensink formatselect removeformat alignjustify outdent indent', // forecolor backcolor table
+					toolbar2: 'kitchensink formatselect removeformat alignjustify forecolor backcolor outdent indent table',
 					menubar: false,
 					fixed_toolbar_container: mceToolbar,
 					skin: false,
@@ -182,12 +182,16 @@
 						$( window )
 							.on( 'resize', function() {
 								$( mceToolbar )
-									.find('*:not(.mce-toolbar)')
+									.find( '*' )
+									.not( '.mce-toolbar' )
+									.not( '.mce-preview' )
 									.removeAttr( 'style' );
 							} )
 							.on( 'DOMNodeInserted', function() {
 								$( mceToolbar )
-									.find('*:not(.mce-toolbar)')
+									.find( '*' )
+									.not( '.mce-toolbar' )
+									.not( '.mce-preview' )
 									.removeAttr( 'style' );
 								$( '.mce-i-media' )
 									.data( 'editor', 'fee-edit-content-' + wpFee.postId )
