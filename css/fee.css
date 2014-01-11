@@ -6,6 +6,21 @@
 	outline: none;
 }
 
+.wp-fee-content-holder {
+	position: relative;
+}
+
+.wp-fee-content-placeholder {
+	position: absolute;
+	opacity: 0.5;
+	display: none;
+}
+
+.wp-fee-title:empty:not(:focus):before {
+	content: 'Title';
+	opacity: 0.5;
+}
+
 .wp-fee-shortcode-container {
 	position: relative;
 	cursor: default;
@@ -93,7 +108,7 @@
 
 /* Admin Bar */
 
-#wpadminbar #fee-save {
+#wpadminbar .button {
 	height: 22px;
 	line-height: 22px;
 	padding: 0 10px 1px;

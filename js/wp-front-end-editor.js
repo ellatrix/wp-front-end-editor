@@ -97,7 +97,7 @@
 			if ( event.keyCode === 83 && ( navigator.platform.match( 'Mac' ) ? event.metaKey : event.ctrlKey ) ) {
 				event.preventDefault();
 				event.stopPropagation();
-				$( '#fee-save' )
+				$( '#wp-fee-save' )
 					.trigger( 'click' );
 			}
 			if ( event.keyCode === 27 ) {
@@ -114,6 +114,13 @@
 				} )
 				.keypress( function( event ) {
 					return event.which !== 13;
+				} )
+				.on( 'blur', function() {
+					var titleOnBlur;
+					$( this ).find( '*' ).each( function() {
+					    titleOnBlur = $( this ).contents();
+					    $(this).replaceWith( titleOnBlur );
+					});
 				} );
 			$( content )
 				.attr( 'contenteditable', 'true' );
@@ -158,6 +165,20 @@
 						editor.addButton( 'media', {
 							title: 'Add Media'
 						} );
+						editor
+							.on( 'focus', function() {
+								$( 'p.wp-fee-content-placeholder' ).hide();
+							} )
+							.on( 'blur', function() {
+								var contentOnBlur = editor.getContent();
+								contentOnBlur = contentOnBlur.replace( /\s/g, '' );
+								contentOnBlur = contentOnBlur.replace( /&nbsp;/g, '' );
+								contentOnBlur = contentOnBlur.replace( /<br>/g, '' );
+								contentOnBlur = contentOnBlur.replace( /<p><\/p>/g, '' );
+								if ( ! contentOnBlur ) {
+									$( 'p.wp-fee-content-placeholder' ).show();
+								}
+							} );
 						$( window )
 							.on( 'resize', function() {
 								$( mceToolbar )
@@ -266,13 +287,14 @@
 						.parent()
 						.remove();
 				} );
-			$( '#fee-save' )
+			$( '.wp-fee-submit' )
 				.on( 'click', function( event ) {
-					if ( $( this ).hasClass( 'button-primary-disabled' ) )
+					var sumbitButton = $( this );
+					if ( sumbitButton.hasClass( 'button-primary-disabled' ) || sumbitButton.hasClass( 'button-disabled' ) )
 						return;
-					$( this )
-						.addClass( 'button-primary-disabled' )
-						.text( 'Saving...' );
+					sumbitButton
+						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
+						.text( sumbitButton.data( 'working' ) );
 					$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
 					postTitle = $( title ).text();
 					postContent = tinyMCE.activeEditor.getContent();
@@ -301,24 +323,25 @@
 						url: wpFee.ajaxUrl,
 						data: {
 							'action': 'wp_fee_post',
-							'ID': wpFee.postId,
+							'post_ID': wpFee.postId,
 							'post_title': postTitle,
 							'post_content': postContent,
 							'post_category': postCategory,
 							'tags_input': tagsInput,
+							'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : null,
 							'_wpnonce': wpFee.updatePostNonce
 						},
 						success: function( data ) {
-							$( '#fee-save' )
-								.text( 'Saved!' );
+							sumbitButton
+								.text( sumbitButton.data( 'done' ) );
 							if ( wpFee.redirectPostLocation ) {
 								window.location.href = wpFee.redirectPostLocation;
 							} else {
 								setTimeout( function() {
-									$( '#fee-save' )
-										.text( 'Save' )
-										.removeClass( 'button-primary-disabled' );
-										$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
+									sumbitButton
+										.removeClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
+										.text( sumbitButton.data( 'default' ) );
+									$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
 								}, 600 );
 							}
 						},

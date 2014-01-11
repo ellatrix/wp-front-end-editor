@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.5.1';
+	public $version = '0.6';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -127,11 +127,14 @@ class WP_Front_End_Editor {
 
 	public function init() {
 
-		global $pagenow;
+		global $pagenow, $wp_post_statuses;
 
 		if ( ! current_theme_supports( 'front-end-editor' ) )
 
 			return;
+
+		// Lets auto-drafts pass as drafts by WP_Query.
+		$wp_post_statuses['auto-draft']->protected = true;
 
 		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
 
@@ -153,12 +156,15 @@ class WP_Front_End_Editor {
 		add_action( 'wp_ajax_wp_fee_post', array( $this, 'wp_fee_post' ) );
 		add_action( 'wp_ajax_wp_fee_shortcode', array( $this, 'wp_fee_shortcode' ) );
 		add_action( 'wp_ajax_wp_fee_embed', array( $this, 'wp_fee_embed' ) );
+		add_action( 'wp_ajax_wp_fee_new', array( $this, 'wp_fee_new' ) );
 
 	}
 
 	public function wp() {
 
 		global $post;
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 		add_filter( 'edit_post_link', array( $this, 'edit_post_link' ), 10, 2 );
@@ -175,9 +181,12 @@ class WP_Front_End_Editor {
 
 			wp_die( __( 'You are not allowed to edit this item.' ) );
 
+		if ( $post->post_status === 'auto-draft' )
+
+			$post->post_title = '';
+
 		add_filter( 'show_admin_bar', '__return_true' );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10 );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
@@ -218,26 +227,41 @@ class WP_Front_End_Editor {
 
 		global $post;
 
-		wp_enqueue_style( 'buttons' );
-		wp_enqueue_style( 'wp-auth-check' );
-		wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
+		if ( $this->is_edit() ) {
 
-		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'heartbeat' );
-		wp_enqueue_script( 'wp-auth-check' );
-		wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce.min.js' ), array(), $this->version, true );
-		wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), $this->version, true );
+			wp_enqueue_style( 'buttons' );
+			wp_enqueue_style( 'wp-auth-check' );
+			wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
 
-		$vars = array(
-			'postId' => $post->ID,
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'updatePostNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
-			'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) )
-		);
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'heartbeat' );
+			wp_enqueue_script( 'wp-auth-check' );
+			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce.min.js' ), array(), $this->version, true );
+			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), $this->version, true );
 
-		wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
+			$vars = array(
+				'postId' => $post->ID,
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'updatePostNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
+				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) )
+			);
 
-		wp_enqueue_media( array( 'post' => $post ) );
+			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
+
+			wp_enqueue_media( array( 'post' => $post ) );
+
+		} else {
+
+			wp_enqueue_script( 'wp-fee-adminbar', $this->url( '/js/wp-fee-adminbar.js' ), array(), $this->version, true );
+
+			$vars = array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'homeUrl' => home_url( '/' )
+			);
+
+			wp_localize_script( 'wp-fee-adminbar', 'wpFee', $vars );
+
+		}
 
 	}
 
@@ -247,7 +271,7 @@ class WP_Front_End_Editor {
 
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-close',
-			'href' => get_permalink( $post->ID ),
+			'href' => $post->post_status === 'auto-draft' ? home_url() : get_permalink( $post->ID ),
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
@@ -256,10 +280,24 @@ class WP_Front_End_Editor {
 			'fee' => true
 		) );
 
+		if ( $unpublished = in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) {
+
+			$wp_admin_bar->add_node( array(
+				'id' => 'wp-fee-publish',
+				'parent' => 'top-secondary',
+				'title' => '<span id="wp-fee-publish" class="wp-fee-submit button button-primary" title="' . __( 'Publish' ) . ' (Ctrl + S)" data-default="' . __( 'Publish' ) . '" data-working="' . __( 'Publishing&hellip;' ) . '" data-done="' . __( 'Published!' ) . '">' . __( 'Publish' ) . '</span>',
+				'meta' => array(
+					'class' => 'wp-core-ui'
+				),
+				'fee' => true
+			) );
+
+		}
+
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-save',
 			'parent' => 'top-secondary',
-			'title' => '<span id="fee-save" class="button button-primary" title="Save (Ctrl + S)">Save</span>',
+			'title' => '<span id="wp-fee-save" class="wp-fee-submit button' . ( $unpublished ? '' : ' button-primary' ) . '" title="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . ' (Ctrl + S)" data-default="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '" data-working="' . ( $unpublished ? __( 'Saving&hellip;' ) : __( 'Updating&hellip;' ) ) . '" data-done="' . ( $unpublished ? __( 'Saved!' ) : __( 'Updated!' ) ) . '">' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '</span>',
 			'meta' => array(
 				'class' => 'wp-core-ui'
 			),
@@ -379,7 +417,17 @@ class WP_Front_End_Editor {
 
 			$wp_fee['the_title'] = true;
 
-			$title = '<div id="wp-fee-title-' . $post->ID . '" class="wp-fee-title">' . $post->post_title . '</div>';
+			if ( $post->post_status === 'auto-draft' ) {
+
+				$title = apply_filters( 'default_title', '', $post );
+
+			} else {
+
+				$title = $post->post_title;
+
+			}
+
+			$title = '<div id="wp-fee-title-' . $post->ID . '" class="wp-fee-title">' . $title . '</div>';
 
 		}
 
@@ -397,13 +445,22 @@ class WP_Front_End_Editor {
 
 			$wp_fee['the_content'] = true;
 
-			$content = $post->post_content;
+			if ( $post->post_status === 'auto-draft' ) {
+
+				$content = apply_filters( 'default_content', '', $post );
+
+			} else {
+
+				$content = $post->post_content;
+
+			}
+
 			$content = $this->autoembed( $content );
 			$content = wpautop( $content );
 			$content = shortcode_unautop( $content );
 			$content = $this->do_shortcode( $content );
 			$content = str_replace( array( '<!--nextpage-->', '<!--more-->' ), array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), $content );
-			$content = '<div id="wp-fee-content-' . $post->ID . '" class="wp-fee-content">' . $content . '</div>';
+			$content = '<div class="wp-fee-content-holder"><p class="wp-fee-content-placeholder">&hellip;</p><div id="wp-fee-content-' . $post->ID . '" class="wp-fee-content">' . $content . '</div></div>';
 
 		}
 
@@ -518,27 +575,16 @@ class WP_Front_End_Editor {
 
 		global $wpdb;
 
-		if ( ! current_user_can( 'edit_post', $_POST['ID'] ) )
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['post_ID'] ) )
 
 			$this->response( __( 'You are not allowed to edit this item.' ) );
-
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['ID'] ) )
-
-			$this->response( __( 'You are not allowed to edit this item.' ) );
-
-		if ( ! isset( $_POST['ID'] ) )
-
-			$this->response( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
 
 		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
 		$_POST['post_content'] = str_replace( array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), array( '<!--nextpage-->', '<!--more-->' ), $_POST['post_content'] );
 
-		$id = wp_update_post( $_POST, true );
-
-		if ( is_wp_error( $id ) )
-			$this->response( __( $id->get_error_message() ) );
-
-		$this->response( $id );
+		$this->response( edit_post() );
 
 	}
 
@@ -619,6 +665,16 @@ class WP_Front_End_Editor {
 		$wp_embed->linkifunknown = $oldval;
 
 		return '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $return . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+
+	}
+
+	public function wp_fee_new() {
+
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
+
+		$this->response( $post->ID );
 
 	}
 
