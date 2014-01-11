@@ -270,6 +270,7 @@
 
 #wpadminbar .mce-btn button {
 	cursor: pointer;
+	color: #999;
 }
 
 #wpadminbar .mce-btn:hover > button,
@@ -292,7 +293,6 @@
 	border: none;
 	display: block;
 	height: 32px;
-	display: block;
 	padding: 0 10px;
 	margin: 0;
 }
@@ -314,6 +314,31 @@
 	-moz-transition: all .1s ease-in-out;
 	-webkit-transition: all .1s ease-in-out;
 	transition: all .1s ease-in-out;
+}
+
+.mce-panel {
+	background: #333;
+}
+
+.mce-floatpanel {
+	position: absolute;
+}
+
+.mce-floatpanel.mce-fixed {
+	position: fixed;
+}
+
+.mce-floatpanel.mce-fixed .mce-container-body {
+	padding: 10px 0;
+}
+
+.mce-menu-item {
+	cursor: pointer;
+	padding: 0 10px;
+}
+
+.mce-text {
+	color: #999!important; /* TinyMCE adapt the color of the theme's HTML elements, which isn't always readable on a black background. */
 }
 
 .mce-i-caret:before {

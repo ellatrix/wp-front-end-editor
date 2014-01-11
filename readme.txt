@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.6
+Stable tag: 0.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,6 +26,10 @@ We're still looking for more people to join us - developers, UI designers and Wo
 This is just an experiment!
 
 == Changelog ==
+
+= 0.6.1 =
+
+* Adds TinyMCE's formatselect.
 
 = 0.6 =
 

@@ -112,7 +112,7 @@
 				.on( 'keyup', function() {
 					document.title = docTitle.replace( '<!--replace-->', $( this ).text() );
 				} )
-				.keypress( function( event ) {
+				.on( 'keypress', function( event ) {
 					return event.which !== 13;
 				} )
 				.on( 'blur', function() {
@@ -130,7 +130,7 @@
 					inline: true,
 					plugins: 'link charmap paste textcolor',
 					toolbar1: 'kitchensink bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist media undo redo',
-					toolbar2: 'kitchensink removeformat alignjustify outdent indent', // formatselect forecolor backcolor table
+					toolbar2: 'kitchensink formatselect removeformat alignjustify outdent indent', // forecolor backcolor table
 					menubar: false,
 					fixed_toolbar_container: mceToolbar,
 					skin: false,
