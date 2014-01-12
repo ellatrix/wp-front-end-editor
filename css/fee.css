@@ -256,6 +256,28 @@
 
 /* TinyMCE */
 
+.mce-panel * {
+	height: auto;
+	width: auto;
+	margin: 0;
+	padding: 0;
+	position: static;
+	text-shadow: none;
+	text-transform: none;
+	letter-spacing: normal;
+	font: normal 13px/32px 'Open Sans', sans-serif;
+	border-radius: 0;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+	-webkit-transition: none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
+	opacity: 1;
+	-webkit-font-smoothing: subpixel-antialiased; /* Prevent Safari from switching to standard antialiasing on hover */
+}
+
 #wpadminbar #wp-admin-bar-wp-fee-mce-toolbar > .ab-item {
 	display: none;
 }
@@ -271,7 +293,7 @@
 
 #wpadminbar .mce-btn button {
 	cursor: pointer;
-	color: #999;
+	color: #eee;
 }
 
 #wpadminbar .mce-btn button.mce-open {
@@ -325,8 +347,8 @@
 
 .mce-panel {
 	background: #333;
-	-webkit-box-shadow: 0 3px 5px rgba(0,0,0,.2);
-	box-shadow: 0 3px 5px rgba(0,0,0,.2);
+	-webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+	box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
 }
 
 .mce-floatpanel {
@@ -341,6 +363,10 @@
 	cursor: pointer;
 	padding: 0 10px;
 	white-space: nowrap;
+}
+
+.mce-menu-item:hover .mce-text {
+	color: #2ea2cc!important;
 }
 
 .mce-menu-item .mce-ico {
@@ -366,10 +392,14 @@
 
 .mce-text,
 .mce-text-center {
-	color: #999!important; /* TinyMCE adapts the color of the theme's HTML elements, which isn't always readable on a dark background. */
+	background: none!important;
+	border: none!important;
+	line-height: normal;
+	color: #eee!important; /* TinyMCE adapts the color of the theme's HTML elements, which isn't always readable on a dark background. */
 }
 
-.mce-disabled * {
+.mce-disabled *,
+.mce-disabled:hover .mce-text {
 	cursor: default!important;
 	color: #555!important;
 }
@@ -428,8 +458,14 @@
 	cursor: pointer;
 }
 
+.mce-grid td div:hover,
+.mce-grid td a:hover {
+	border: 1px solid #2ea2cc;
+}
+
 .mce-grid-border a.mce-active {
 	background: #2ea2cc;
+	border: 1px solid #2ea2cc;
 }
 
 .mce-btn:not(.mce-colorbutton) .mce-caret,
@@ -484,52 +520,52 @@
 }
 
 .mce-i-alignjustify:before {
-	content: "\f214";
+	content: '\f214';
 }
 
 .mce-i-bullist:before {
-	content: "\f203";
+	content: '\f203';
 }
 
 .mce-i-numlist:before {
-	content: "\f204";
+	content: '\f204';
 }
 
 .mce-i-indent:before {
-	content: "\f222";
+	content: '\f222';
 }
 
 .mce-i-outdent:before {
-	content: "\f221";
+	content: '\f221';
 }
 
 .mce-i-undo:before {
-	content: "\f171";
+	content: '\f171';
 }
 
 .mce-i-redo:before {
-	content: "\f172";
+	content: '\f172';
 }
 
 .mce-i-link:before {
-	content: "\f103";
+	content: '\f103';
 }
 
 .mce-i-unlink:before {
-	content: "\f225";
+	content: '\f225';
 }
 
 .mce-i-forecolor:before {
-	content: "\f215";
+	content: '\f215';
 }
 
 .mce-i-backcolor:before {
-	content: "\f215";
+	content: '\f215';
 	background: #555;
 }
 
 .mce-i-removeformat:before {
-	content: "\f218";
+	content: '\f218';
 }
 
 .mce-i-table:before {
