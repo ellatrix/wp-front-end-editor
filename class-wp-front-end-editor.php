@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.7';
+	public $version = '0.7.1';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -254,7 +254,7 @@ class WP_Front_End_Editor {
 
 	public function wp_enqueue_scripts() {
 
-		global $post;
+		global $post, $wp_version;
 
 		if ( $this->is_edit() ) {
 
@@ -264,7 +264,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), $this->version, true );
-			wp_enqueue_script( 'post', admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
+			wp_enqueue_script( 'post', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
 			
 			$vars = array(
 				'ok' => __('OK'),
