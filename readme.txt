@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.6.3
+Stable tag: 0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,12 @@ This is just an experiment!
 
 == Changelog ==
 
+= 0.7 =
+
+* Maximum version to 4.0-alpha.
+* Meta modal.
+* Only filter the_content etc. after wp_head.
+
 = 0.6.3 =
 
 * CSS reset for TinyMCE's panels.
@@ -41,7 +47,7 @@ This is just an experiment!
 
 = 0.6 =
 
-* Allows new posts and pages being created on the front-end.
+* Allows new posts and pages to be created on the front-end.
 * Adds placeholder for title and content.
 
 = 0.5.1 =

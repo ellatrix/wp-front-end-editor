@@ -2,8 +2,6 @@
 	'use strict';
 	var postTitle,
 		postContent,
-		postCategory,
-		tagsInput,
 		title = '#wp-fee-title-' + wpFee.postId,
 		content = '#wp-fee-content-' + wpFee.postId,
 		mceToolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
@@ -47,8 +45,23 @@
 			}
 		} );
 	};
+	$.fn.serializeObject = function() {
+		var o = {};
+		var a = this.serializeArray();
+		$.each( a, function() {
+			if ( o[this.name] !== undefined ) {
+				if ( ! o[this.name].push ) {
+					o[this.name] = [o[this.name]];
+				}
+				o[this.name].push( this.value || '' );
+			} else {
+				o[this.name] = this.value || '';
+			}
+		} );
+		return o;
+	};
 	$( document )
-		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, .post-edit-link)', function( event ) {
+		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, .wp-core-ui *, .post-edit-link)', function( event ) {
 			event
 				.preventDefault();
 		} )
@@ -118,8 +131,8 @@
 				.on( 'blur', function() {
 					var titleOnBlur;
 					$( this ).find( '*' ).each( function() {
-					    titleOnBlur = $( this ).contents();
-					    $(this).replaceWith( titleOnBlur );
+						titleOnBlur = $( this ).contents();
+						$(this).replaceWith( titleOnBlur );
 					});
 				} );
 			$( content )
@@ -129,8 +142,8 @@
 					selector: content,
 					inline: true,
 					plugins: 'link charmap paste textcolor table',
-					toolbar1: 'kitchensink bold italic underline strikethrough blockquote alignleft aligncenter alignright bullist numlist media undo redo',
-					toolbar2: 'kitchensink formatselect removeformat alignjustify forecolor backcolor outdent indent table',
+					toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify media undo redo',
+					toolbar2: 'kitchensink removeformat bullist numlist outdent indent forecolor backcolor table',
 					menubar: false,
 					fixed_toolbar_container: mceToolbar,
 					skin: false,
@@ -143,7 +156,7 @@
 						// Temporary, until we have a hook.
 						setTimeout( function() {
 							editor.focus();
-						}, 1000 );
+						}, 1500 );
 						editor.addButton( 'kitchensink', {
 							title: 'More...',
 							onclick: function( event ) {
@@ -233,63 +246,40 @@
 						.find( '.fee-edit-thumbnail-button' )
 						.fadeOut( 'slow' );  
 				} );
-			$( 'a[rel~="category"]' )
+			$( '#wp-fee-meta-modal .media-menu a' )
 				.on( 'click', function( event ) {
 					event
 						.preventDefault();
-					$( '.hover' )
-						.not( '#wp-admin-bar-wp-fee-cats' )
-						.removeClass( 'hover' );
-					$( '#wp-admin-bar-wp-fee-cats' )
-						.toggleClass( 'hover' );
+					$( this ).siblings().removeClass( 'active' );
+					$( this ).addClass( 'active' );
+					$( '.wp-fee-box' ).hide();
+					$( '#wp-fee-box-' + $( this ).data( 'box' ) ).show();
 				} );
-			$( 'a[rel="tag"]' )
+			$( '#wp-admin-bar-wp-fee-meta a' )
 				.on( 'click', function( event ) {
 					event
 						.preventDefault();
-					$( '.hover' )
-						.not( '#wp-admin-bar-wp-fee-tags' )
-						.removeClass( 'hover' );
-					$( '#wp-admin-bar-wp-fee-tags' )
-						.toggleClass( 'hover' );
+					$( '#wp-fee-meta-modal' ).show();
 				} );
-			$( '.menupop' )
-				.on( 'mouseenter', function() {
-					$( '.hover' )
-						.not( this ).not( $(this).parents( '.menupop' ) ).not( $(this).find( '.menupop' ) )
-						.removeClass( 'hover' );
-				} );
-			$('.ab-sub-wrapper')
-				.css( {
-					'max-height' : menupopHeight + 'px',
-					'overflow' : 'scroll'
-				} );
-			$( '#input-tags' )
-				.keypress( function( event ) {
-					if ( event.which === 13 ) {
-						var tag = $( this ).val();
-						$( this ).val('');
-						var htmlTag = '<li class="wp-fee-tags"><div class="ab-item ab-empty-item"><span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' + tag + '</span></div></li>';
-						if ( tag ) {
-							$( '#wp-admin-bar-wp-fee-tags-default' )
-								.append( htmlTag );
-						}
-						$( '.wp-fee-remove-tag' ).on( 'click', function( event ) {
-							event
-								.preventDefault();
-							$( this )
-								.parent()
-								.remove();
-						} );
-					}
-				} );
-			$( '.wp-fee-remove-tag' )
+			$( '#wp-admin-bar-wp-fee-cats a, a[rel~="category"]' )
 				.on( 'click', function( event ) {
 					event
 						.preventDefault();
-					$( this )
-						.parent()
-						.remove();
+					$( '#wp-fee-meta-modal' ).show();
+					$( '#media-menu-categorydiv' ).trigger( 'click' );
+				} );
+			$( '#wp-admin-bar-wp-fee-tags a, a[rel="tag"]' )
+				.on( 'click', function( event ) {
+					event
+						.preventDefault();
+					$( '#wp-fee-meta-modal' ).show();
+					$( '#media-menu-tagsdiv-post_tag' ).trigger( 'click' );
+				} );
+			$( '#wp-fee-meta-modal .media-modal-close, #wp-fee-met-continue' )
+				.on( 'click', function( event ) {
+					event
+						.preventDefault();
+					$( '#wp-fee-meta-modal' ).hide();
 				} );
 			$( '.wp-fee-submit' )
 				.on( 'click', function( event ) {
@@ -300,7 +290,9 @@
 						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 						.text( sumbitButton.data( 'working' ) );
 					$( '#wp-admin-bar-wp-fee-close' ).animate( { width: 'toggle' }, 300 );
+
 					postTitle = $( title ).text();
+
 					postContent = tinyMCE.activeEditor.getContent();
 					postContent = $( '<div>' + postContent + '</div>' );
 					postContent
@@ -311,31 +303,24 @@
 								.replaceWith( $( this ).html() );
 						} );
 					postContent = $( postContent ).html();
-					postCategory = $( 'input[name="post_category[]"]:checked' )
-						.map( function() {
-							return this.value;
-						} )
-						.get();
-					tagsInput = '';
-					$( '.wp-fee-tag' )
-						.each( function() {
-							tagsInput += $( this ).text() + ', ';
-						} );
-					tagsInput = tagsInput.slice( 0, -2 );
+
+					var postData = {
+						'action': 'wp_fee_post',
+						'post_ID': wpFee.postId,
+						'post_title': postTitle,
+						'post_content': postContent,
+						'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : null,
+						'_wpnonce': wpFee.updatePostNonce
+					};
+					var metaData = $( 'form' ).serializeObject();
+
+					$.extend( postData, metaData );
+
 					$.ajax({
 						type: 'POST',
 						url: wpFee.ajaxUrl,
-						data: {
-							'action': 'wp_fee_post',
-							'post_ID': wpFee.postId,
-							'post_title': postTitle,
-							'post_content': postContent,
-							'post_category': postCategory,
-							'tags_input': tagsInput,
-							'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : null,
-							'_wpnonce': wpFee.updatePostNonce
-						},
-						success: function( data ) {
+						data: postData,
+						success: function() {
 							sumbitButton
 								.text( sumbitButton.data( 'done' ) );
 							if ( wpFee.redirectPostLocation ) {

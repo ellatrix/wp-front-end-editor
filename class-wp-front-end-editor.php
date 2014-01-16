@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.6.3';
+	public $version = '0.7';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -90,7 +90,7 @@ class WP_Front_End_Editor {
 
 		if ( empty( $wp_version )
 			|| version_compare( $wp_version, '3.8', '<' )
-			|| version_compare( $wp_version, '3.9-alpha', '>' ) ) {
+			|| version_compare( $wp_version, '4.0-alpha', '>' ) ) {
 
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 
@@ -107,7 +107,7 @@ class WP_Front_End_Editor {
 
 	public function admin_notices() {
 
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8 and 3.9-alpha.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8 and 4.0-alpha.</p></div>';
 
 	}
 
@@ -162,7 +162,7 @@ class WP_Front_End_Editor {
 
 	public function wp() {
 
-		global $post;
+		global $post, $post_type, $post_type_object;
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 
@@ -185,9 +185,19 @@ class WP_Front_End_Editor {
 
 			$post->post_title = '';
 
-		add_filter( 'show_admin_bar', '__return_true' );
+		$post_type = $post->post_type;
+		$post_type_object = get_post_type_object( $post_type );
 
+		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
+		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
+		
+		set_current_screen( $post_type );
+
+		add_filter( 'show_admin_bar', '__return_true' );
+		
+		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
+		add_action( 'wp_print_footer_scripts', array( $this, 'meta_modal' ) );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10 );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
 
@@ -222,6 +232,25 @@ class WP_Front_End_Editor {
 		return $link;
 
 	}
+	
+	public function wp_head() {
+		
+		global $post, $wp_locale, $hook_suffix, $current_screen;
+				
+		$admin_body_class = preg_replace( '/[^a-z0-9_-]+/i', '-', $hook_suffix );
+		
+		?><script type="text/javascript">
+		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
+		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php', 'relative' ); ?>',
+			pagenow = '<?php echo $current_screen->id; ?>',
+			typenow = '<?php echo $current_screen->post_type; ?>',
+			adminpage = '<?php echo $admin_body_class; ?>',
+			thousandsSeparator = '<?php echo addslashes( $wp_locale->number_format['thousands_sep'] ); ?>',
+			decimalPoint = '<?php echo addslashes( $wp_locale->number_format['decimal_point'] ); ?>',
+			isRtl = <?php echo (int) is_rtl(); ?>;
+		</script><?php
+		
+	}
 
 	public function wp_enqueue_scripts() {
 
@@ -231,10 +260,37 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_style( 'buttons' );
 			wp_enqueue_style( 'wp-auth-check' );
-			wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
 
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'heartbeat' );
+			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), $this->version, true );
+			wp_enqueue_script( 'post', admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
+			
+			$vars = array(
+				'ok' => __('OK'),
+				'cancel' => __('Cancel'),
+				'publishOn' => __('Publish on:'),
+				'publishOnFuture' =>  __('Schedule for:'),
+				'publishOnPast' => __('Published on:'),
+				'dateFormat' => __('%1$s %2$s, %3$s @ %4$s : %5$s'),
+				'showcomm' => __('Show more comments'),
+				'endcomm' => __('No more comments found.'),
+				'publish' => __('Publish'),
+				'schedule' => __('Schedule'),
+				'update' => __('Update'),
+				'savePending' => __('Save as Pending'),
+				'saveDraft' => __('Save Draft'),
+				'private' => __('Private'),
+				'public' => __('Public'),
+				'publicSticky' => __('Public, Sticky'),
+				'password' => __('Password Protected'),
+				'privatelyPublished' => __('Privately Published'),
+				'published' => __('Published'),
+				'comma' => _x( ',', 'tag delimiter' ),
+			);
+			
+			wp_localize_script( 'post', 'postL10n', $vars );
+
 			wp_enqueue_script( 'wp-auth-check' );
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce.min.js' ), array(), $this->version, true );
 			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), $this->version, true );
@@ -249,6 +305,8 @@ class WP_Front_End_Editor {
 			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
 
 			wp_enqueue_media( array( 'post' => $post ) );
+			
+			wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
 
 		} else {
 
@@ -305,62 +363,47 @@ class WP_Front_End_Editor {
 		) );
 
 		$wp_admin_bar->add_node( array(
-			'id' => 'wp-fee-tags',
+			'id' => 'wp-fee-meta',
+			'href' => '#',
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
-				'title' => 'Manage Tags'
+				'title' => 'More Options'
 			),
 			'fee' => true
 		) );
 
-		$wp_admin_bar->add_node( array(
-			'id' => 'tags-input',
-			'parent' => 'wp-fee-tags',
-			'title' => '<input id="input-tags" class="fee-tag" placeholder="add...">',
-			'fee' => true
-		) );
+		$taxonomies = get_object_taxonomies( $post );
 
-		$tags = get_the_tags( $post->ID );
+		if ( in_array( 'post_tag', $taxonomies ) ) {
 
-		if ( ! empty( $tags )
-			&& is_array( $tags ) ) {
-
-			foreach( $tags as $tag ) {
-
-				$wp_admin_bar->add_node( array(
-					'id' => 'tag-' . $tag->term_id,
-					'parent' => 'wp-fee-tags',
-					'title' => '<span class="ab-icon wp-fee-remove-tag"></span> <span class="wp-fee-tag">' . $tag->name . '</span>',
-					'meta' => array(
-						'class' => 'wp-fee-tags'
-					),
-					'fee' => true
-				) );
-
-			}
+			$wp_admin_bar->add_node( array(
+				'id' => 'wp-fee-tags',
+				'href' => '#',
+				'parent' => 'top-secondary',
+				'title' => '<span class="ab-icon"></span>',
+				'meta' => array(
+					'title' => 'Manage Tags'
+				),
+				'fee' => true
+			) );
 
 		}
 
-		$wp_admin_bar->add_node( array(
-			'id' => 'wp-fee-cats',
-			'parent' => 'top-secondary',
-			'title' => '<span class="ab-icon"></span>',
-			'meta' => array(
-				'title' => 'Manage Categories'
-			),
-			'fee' => true
-		) );
+		if ( in_array( 'category', $taxonomies ) ) {
 
-		$wp_admin_bar->add_node( array(
-			'id' => 'cats-input',
-			'parent' => 'wp-fee-cats',
-			'title' => '<input id="input-cats" placeholder="add..."><input type="hidden" name="post_category[]" value="0">',
-			'meta' => array(
-				'html' => $this->wp_terms_checklist( $post )
-			),
-			'fee' => true
-		) );
+			$wp_admin_bar->add_node( array(
+				'id' => 'wp-fee-cats',
+				'href' => '#',
+				'parent' => 'top-secondary',
+				'title' => '<span class="ab-icon"></span>',
+				'meta' => array(
+					'title' => 'Manage Categories'
+				),
+				'fee' => true
+			) );
+
+		}
 
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-mce-toolbar',
@@ -413,6 +456,7 @@ class WP_Front_End_Editor {
 		if ( is_main_query()
 			&& in_the_loop()
 			&& $wp_the_query->queried_object->ID === $id
+			&& $this->really_did_action( 'wp_head' )
 			&& empty( $wp_fee['the_title'] ) ) {
 
 			$wp_fee['the_title'] = true;
@@ -441,6 +485,7 @@ class WP_Front_End_Editor {
 
 		if ( is_main_query()
 			&& in_the_loop()
+			&& $this->really_did_action( 'wp_head' )
 			&& empty( $wp_fee['the_content'] ) ) {
 
 			$wp_fee['the_content'] = true;
@@ -475,6 +520,7 @@ class WP_Front_End_Editor {
 		if ( is_main_query()
 			&& in_the_loop()
 			&& $wp_the_query->queried_object->ID === $post_id
+			&& $this->really_did_action( 'wp_head' )
 			&& empty( $wp_fee['the_post_thumbnail'] ) ) {
 
 			$wp_fee['the_post_thumbnail'] = true;
@@ -507,6 +553,7 @@ class WP_Front_End_Editor {
 		if ( is_main_query()
 			&& in_the_loop()
 			&& $wp_the_query->queried_object->ID === $object_id
+			&& $this->really_did_action( 'wp_head' )
 			&& $meta_key === '_thumbnail_id'
 			&& $single
 			&& empty( $wp_fee['filtering_get_post_metadata'] ) ) {
@@ -573,8 +620,6 @@ class WP_Front_End_Editor {
 
 	public function wp_fee_post() {
 
-		global $wpdb;
-
 		require_once( ABSPATH . '/wp-admin/includes/post.php' );
 
 		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['post_ID'] ) )
@@ -584,7 +629,13 @@ class WP_Front_End_Editor {
 		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
 		$_POST['post_content'] = str_replace( array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), array( '<!--nextpage-->', '<!--more-->' ), $_POST['post_content'] );
 
-		$this->response( edit_post() );
+		$post_id = edit_post();
+	
+		if ( isset( $_COOKIE['wp-saving-post-' . $post_id] ) )
+
+			setcookie( 'wp-saving-post-' . $post_id, 'saved' );
+		
+		$this->response( $post_id );
 
 	}
 
@@ -687,6 +738,316 @@ class WP_Front_End_Editor {
 	public function redirect_post_location( $location, $post_id ) {
 
 		return $this->edit_link( $post_id );
+
+	}
+	
+	public function meta_modal() {
+
+		global $post, $post_type, $post_type_object, $current_screen, $wp_meta_modal_sections;
+
+		$this->add_meta_modal_section( 'submitdiv', __( 'Publish' ) , array( $this, 'meta_section_publish' ), 10, 10 );
+
+		if ( post_type_supports( $post_type, 'revisions' )
+			&& 'auto-draft' !== $post->post_status ) {
+
+			$revisions = wp_get_post_revisions( $post->ID );
+
+			$count = count( $revisions );
+
+			if ( $count > 1 ) {
+
+				$this->add_meta_modal_section( 'revisionsdiv', __( 'Revisions' ) . ' (' . $count . ')', 'post_revisions_meta_box', 30, 50 );
+
+			}
+
+		}
+
+		if ( current_theme_supports( 'post-formats' )
+			&& post_type_supports( $post_type, 'post-formats' ) )
+
+			$this->add_meta_modal_section( 'formatdiv', _x( 'Format', 'post format' ), 'post_format_meta_box', 20, 10 );
+
+		foreach ( get_object_taxonomies( $post ) as $tax_name ) {
+
+			$taxonomy = get_taxonomy( $tax_name );
+
+			if ( ! $taxonomy->show_ui
+				|| false === $taxonomy->meta_box_cb )
+
+				continue;
+
+			$label = $taxonomy->labels->name;
+
+			if ( ! is_taxonomy_hierarchical( $tax_name ) ) {
+
+				$tax_meta_box_id = 'tagsdiv-' . $tax_name;
+
+			} else {
+
+				$tax_meta_box_id = $tax_name . 'div';
+
+			}
+
+			$this->add_meta_modal_section( $tax_meta_box_id, $label, $taxonomy->meta_box_cb, 20, 20, array( 'taxonomy' => $tax_name ) );
+
+		}
+
+		if ( post_type_supports( $post_type, 'page-attributes' ) )
+
+			$this->add_meta_modal_section( 'pageparentdiv', 'page' == $post_type ? __( 'Page Attributes' ) : __( 'Attributes' ), 'page_attributes_meta_box', 10, 10 );
+
+		if ( post_type_supports( $post_type, 'excerpt' ) )
+
+			$this->add_meta_modal_section( 'postexcerpt', __( 'Excerpt' ), 'post_excerpt_meta_box', 30, 10 );
+
+		if ( post_type_supports( $post_type, 'trackbacks' ) )
+
+			$this->add_meta_modal_section( 'trackbacksdiv', __( 'Send Trackbacks' ), 'post_trackback_meta_box', 30, 20 );
+
+		if ( post_type_supports( $post_type, 'custom-fields' ) )
+
+			$this->add_meta_modal_section( 'postcustom', __( 'Custom Fields' ), 'post_custom_meta_box', 30, 30 );
+
+		if ( post_type_supports( $post_type, 'comments' ) )
+
+			$this->add_meta_modal_section( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', 30, 40 );
+
+		require_once( 'meta-modal-template.php' );
+
+	}
+
+	public function add_meta_modal_section( $id, $title, $callback, $context = 20, $priority = 10, $args = null ) {
+
+		global $wp_meta_modal_sections;
+
+		if ( ! isset( $wp_meta_modal_sections ) )
+
+			$wp_meta_modal_sections = array();
+
+		if ( ! isset( $wp_meta_modal_sections[$context] ) )
+
+			$wp_meta_modal_sections[$context] = array();
+
+		foreach ( array_keys( $wp_meta_modal_sections ) as $a_context ) {
+
+			foreach ( array_keys( $wp_meta_modal_sections[$a_context] ) as $a_priority ) {
+
+				if ( ! isset( $wp_meta_modal_sections[$a_context][$a_priority][$id] ) )
+
+					continue;
+
+				if ( false === $wp_meta_modal_sections[$a_context][$a_priority][$id] )
+
+					return;
+
+				if ( $priority != $a_priority
+					|| $context != $a_context )
+
+					unset( $wp_meta_modal_sections[$a_context][$a_priority][$id] );
+
+			}
+
+        }
+
+        if ( ! isset( $wp_meta_modal_sections[$context][$priority]) )
+
+			$wp_meta_modal_sections[$context][$priority] = array();
+
+        $wp_meta_modal_sections[$context][$priority][$id] = array(
+        	'id' => $id,
+        	'title' => $title,
+        	'callback' => $callback,
+        	'args' => $args
+        );
+
+	}
+
+	public function meta_section_publish( $post, $args = array() ) {
+
+			global $action;
+
+			$post_type = $post->post_type;
+			$post_type_object = get_post_type_object($post_type);
+			$can_publish = current_user_can($post_type_object->cap->publish_posts);
+
+		?>
+		<div class="submitbox" id="submitpost">
+			<div id="minor-publishing">
+				<div id="misc-publishing-actions">
+					<div class="misc-pub-section misc-pub-post-status">
+						<label for="post_status"><?php _e( 'Status:' ) ?></label>
+						<span id="post-status-display">
+						<?php
+							switch ( $post->post_status ) {
+								case 'private':
+									_e('Privately Published');
+									break;
+								case 'publish':
+									_e('Published');
+									break;
+								case 'future':
+									_e('Scheduled');
+									break;
+								case 'pending':
+									_e('Pending Review');
+									break;
+								case 'draft':
+								case 'auto-draft':
+									_e('Draft');
+									break;
+							}
+						?>
+						</span>
+						<?php if ( 'publish' == $post->post_status || 'private' == $post->post_status || $can_publish ) { ?>
+						<a href="#post_status"<?php 'private' == $post->post_status ? ' style="display:none;"' : ''; ?> class="edit-post-status hide-if-no-js"><?php _e( 'Edit' ) ?></a>
+						<div id="post-status-select" class="hide-if-js">
+							<input type="hidden" name="hidden_post_status" id="hidden_post_status" value="<?php echo esc_attr( ('auto-draft' == $post->post_status ) ? 'draft' : $post->post_status); ?>" />
+							<select name='post_status' id='post_status'>
+								<?php if ( 'publish' == $post->post_status ) : ?>
+								<option<?php selected( $post->post_status, 'publish' ); ?> value='publish'><?php _e('Published') ?></option>
+								<?php elseif ( 'private' == $post->post_status ) : ?>
+								<option<?php selected( $post->post_status, 'private' ); ?> value='publish'><?php _e('Privately Published') ?></option>
+								<?php elseif ( 'future' == $post->post_status ) : ?>
+								<option<?php selected( $post->post_status, 'future' ); ?> value='future'><?php _e('Scheduled') ?></option>
+								<?php endif; ?>
+								<option<?php selected( $post->post_status, 'pending' ); ?> value='pending'><?php _e('Pending Review') ?></option>
+								<?php if ( 'auto-draft' == $post->post_status ) : ?>
+								<option<?php selected( $post->post_status, 'auto-draft' ); ?> value='draft'><?php _e('Draft') ?></option>
+								<?php else : ?>
+								<option<?php selected( $post->post_status, 'draft' ); ?> value='draft'><?php _e('Draft') ?></option>
+								<?php endif; ?>
+							</select>
+							 <a href="#post_status" class="save-post-status hide-if-no-js button"><?php _e( 'OK' ); ?></a>
+							 <a href="#post_status" class="cancel-post-status hide-if-no-js"><?php _e( 'Cancel' ); ?></a>
+						</div>
+						<?php } ?>
+					</div>
+					<div class="misc-pub-section misc-pub-visibility" id="visibility">
+					<?php _e('Visibility:'); ?> <span id="post-visibility-display"><?php
+					if ( 'private' == $post->post_status ) {
+						$post->post_password = '';
+						$visibility = 'private';
+						$visibility_trans = __('Private');
+					} elseif ( !empty( $post->post_password ) ) {
+						$visibility = 'password';
+						$visibility_trans = __('Password protected');
+					} elseif ( $post_type == 'post' && is_sticky( $post->ID ) ) {
+						$visibility = 'public';
+						$visibility_trans = __('Public, Sticky');
+					} else {
+						$visibility = 'public';
+						$visibility_trans = __('Public');
+					}
+
+					echo esc_html( $visibility_trans ); ?></span>
+					<?php if ( $can_publish ) { ?>
+					<a href="#visibility" class="edit-visibility hide-if-no-js"><?php _e('Edit'); ?></a>
+
+					<div id="post-visibility-select" class="hide-if-js">
+					<input type="hidden" name="hidden_post_password" id="hidden-post-password" value="<?php echo esc_attr($post->post_password); ?>" />
+					<?php if ($post_type == 'post'): ?>
+					<input type="checkbox" style="display:none" name="hidden_post_sticky" id="hidden-post-sticky" value="sticky" <?php checked(is_sticky($post->ID)); ?> />
+					<?php endif; ?>
+					<input type="hidden" name="hidden_post_visibility" id="hidden-post-visibility" value="<?php echo esc_attr( $visibility ); ?>" />
+					<input type="radio" name="visibility" id="visibility-radio-public" value="public" <?php checked( $visibility, 'public' ); ?> /> <label for="visibility-radio-public" class="selectit"><?php _e('Public'); ?></label><br />
+					<?php if ( $post_type == 'post' && current_user_can( 'edit_others_posts' ) ) : ?>
+					<span id="sticky-span"><input id="sticky" name="sticky" type="checkbox" value="sticky" <?php checked( is_sticky( $post->ID ) ); ?> /> <label for="sticky" class="selectit"><?php _e( 'Stick this post to the front page' ); ?></label><br /></span>
+					<?php endif; ?>
+					<input type="radio" name="visibility" id="visibility-radio-password" value="password" <?php checked( $visibility, 'password' ); ?> /> <label for="visibility-radio-password" class="selectit"><?php _e('Password protected'); ?></label><br />
+					<span id="password-span"><label for="post_password"><?php _e('Password:'); ?></label> <input type="text" name="post_password" id="post_password" value="<?php echo esc_attr($post->post_password); ?>"  maxlength="20" /><br /></span>
+					<input type="radio" name="visibility" id="visibility-radio-private" value="private" <?php checked( $visibility, 'private' ); ?> /> <label for="visibility-radio-private" class="selectit"><?php _e('Private'); ?></label><br />
+
+					<p>
+					 <a href="#visibility" class="save-post-visibility hide-if-no-js button"><?php _e('OK'); ?></a>
+					 <a href="#visibility" class="cancel-post-visibility hide-if-no-js"><?php _e('Cancel'); ?></a>
+					</p>
+					</div>
+					<?php } ?>
+					</div><!-- .misc-pub-section -->
+					<?php
+					$datef = __( 'M j, Y @ G:i' );
+					if ( 0 != $post->ID ) {
+						if ( 'future' == $post->post_status ) { // scheduled for publishing at a future date
+							$stamp = __('Scheduled for: <b>%1$s</b>');
+						} else if ( 'publish' == $post->post_status || 'private' == $post->post_status ) { // already published
+							$stamp = __('Published on: <b>%1$s</b>');
+						} else if ( '0000-00-00 00:00:00' == $post->post_date_gmt ) { // draft, 1 or more saves, no date specified
+							$stamp = __('Publish <b>immediately</b>');
+						} else if ( time() < strtotime( $post->post_date_gmt . ' +0000' ) ) { // draft, 1 or more saves, future date specified
+							$stamp = __('Schedule for: <b>%1$s</b>');
+						} else { // draft, 1 or more saves, date specified
+							$stamp = __('Publish on: <b>%1$s</b>');
+						}
+						$date = date_i18n( $datef, strtotime( $post->post_date ) );
+					} else { // draft (no saves, and thus no date specified)
+						$stamp = __('Publish <b>immediately</b>');
+						$date = date_i18n( $datef, strtotime( current_time('mysql') ) );
+					}
+
+					if ( $can_publish ) : // Contributors don't get to choose the date of publish ?>
+					<div class="misc-pub-section curtime misc-pub-curtime">
+						<span id="timestamp">
+						<?php printf($stamp, $date); ?></span>
+						<a href="#edit_timestamp" class="edit-timestamp hide-if-no-js"><?php _e('Edit') ?></a>
+						<div id="timestampdiv" class="hide-if-js"><?php touch_time(($action == 'edit'), 1); ?></div>
+					</div>
+					<?php endif; ?>
+					<?php do_action('post_submitbox_misc_actions'); ?>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+		<?php
+
+		if ( ! ( 'pending' == get_post_status( $post )
+				&& ! current_user_can( $post_type_object->cap->publish_posts ) ) ) {
+
+		?>
+		<p>
+			<label for="post_name"><?php _e('Slug') ?></label>
+			<input name="post_name" type="text" size="13" id="post_name" value="<?php echo esc_attr( apply_filters( 'editable_slug', $post->post_name ) ); ?>">
+		</p>
+		<?php
+
+		}
+
+		if ( post_type_supports( $post_type, 'author' )
+			&& ( is_super_admin()
+				|| current_user_can( $post_type_object->cap->edit_others_posts ) ) ) {
+
+		?>
+		<p>
+			<label for="post_author_override"><?php _e( 'Author' ); ?></label>
+			<?php
+			
+			wp_dropdown_users( array(
+				'who' => 'authors',
+				'name' => 'post_author_override',
+				'selected' => empty( $post->ID ) ? $user_ID : $post->post_author,
+				'include_selected' => true
+			) );
+			
+			?>
+		</p>
+		<?php
+
+		}
+
+	}
+
+	public function really_did_action( $tag ) {
+
+		$count = did_action( $tag );
+
+		return $this->doing_action( $tag ) ? $count - 1 : $count;
+
+	}
+
+	public function doing_action( $tag ) {
+
+		global $wp_current_filter;
+
+		return in_array( $tag, $wp_current_filter );
 
 	}
 
