@@ -6,6 +6,10 @@
 	outline: none;
 }
 
+.wp-fee-content p:empty {
+	height: 1.5em;
+}
+
 .wp-fee-content-holder {
 	position: relative;
 }
@@ -47,6 +51,7 @@
 }
 
 .wp-fee-shortcode-remove,
+.wp-fee-shortcode-edit,
 #remove-post-thumbnail,
 #wp-fee-set-post-thumbnail {
 	width: 32px;
@@ -58,11 +63,13 @@
 	display: block;
 }
 
+.wp-fee-shortcode-edit,
 #wp-fee-set-post-thumbnail {
 	right: 52px;
 }
 
 .wp-fee-shortcode-remove:before,
+.wp-fee-shortcode-edit:before,
 #remove-post-thumbnail:before,
 #wp-fee-set-post-thumbnail:before {
 	position: relative;
@@ -71,6 +78,7 @@
 	font: normal 32px 'dashicons';
 	speak: none;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	height: 32px;
 	line-height: 32px;
 	width: 32px;
@@ -78,6 +86,7 @@
 	color: #fff;
 }
 
+.wp-fee-shortcode-edit:before,
 #wp-fee-set-post-thumbnail:before {
 	font-size: 24px;
 	content: '\f327';
@@ -1202,6 +1211,7 @@ a.post-format-icon:hover:before {
 	text-align: center;
 	width: 20px;
 	-webkit-font-smoothing: antialiased !important;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .wp-core-ui .tagchecklist {

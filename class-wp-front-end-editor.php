@@ -652,11 +652,14 @@ class WP_Front_End_Editor {
 
 	public function wp_fee_shortcode() {
 
-		$this->response( '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . wp_unslash( $_POST['shortcode'] ) . '</div>' . do_shortcode( wp_unslash( $_POST['shortcode'] ) ) . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
+		$r = $_POST['shortcode'];
+		$r = wp_unslash( $r );
+		$r = $this->do_shortcode( $r );
+
+		$this->response( $r );
 
 	}
 
-	// http://core.trac.wordpress.org/browser/trunk/src/wp-includes/shortcodes.php
 	public function do_shortcode( $content ) {
 
 		global $shortcode_tags;
@@ -672,12 +675,10 @@ class WP_Front_End_Editor {
 
 	}
 
-	// http://core.trac.wordpress.org/browser/trunk/src/wp-includes/shortcodes.php
 	public function do_shortcode_tag( $m ) {
 
 		global $shortcode_tags;
 
-		// allow [[foo]] syntax for escaping a tag
 		if ( $m[1] == '[' && $m[6] == ']' )
 
 			return substr($m[0], 1, -1);
@@ -689,7 +690,18 @@ class WP_Front_End_Editor {
 
 		if ( in_array( $tag, array( 'gallery', 'caption' ) ) ) {
 
-			return '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6] . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+			$r = '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false">';
+				$r .= '<div style="display:none" class="wp-fee-shortcode">';
+					$r .= $m[0];
+				$r .= '</div>';
+				$r .= $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
+				$r .= '<div class="wp-fee-shortcode-options">';
+					$r .= '<div class="wp-fee-shortcode-remove"></div>';
+					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '"></div>';
+				$r .= '</div>';
+			$r .= '</div>';
+
+			return $r;
 
 		}
 
@@ -699,7 +711,8 @@ class WP_Front_End_Editor {
 
 	public function wp_fee_embed() {
 
-		$embed = wp_oembed_get( $_POST['content'] );
+		// Strict standards notice when url can't be embeded.
+		$embed = @wp_oembed_get( $_POST['content'] );
 
 		if ( $embed ) {
 
