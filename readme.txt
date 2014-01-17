@@ -1,10 +1,10 @@
 === WordPress Front-end Editor ===
 
-Contributors: avryl, wordpressdotorg, Joen, shaunandrews
+Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,14 +12,16 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Warning: this plugin is very experimental and not safe to use outside a test environment.
 
-[Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
-[Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
-[GitHub Mirror](https://github.com/avryl/wp-front-end-editor)  
-[Tasks](https://docs.google.com/spreadsheet/ccc?key=0AjPkPpRo7PoWdERlR096M3RtRnpXOS10X2l3T0JXa2c)
+If you found a bug or if you have ideas, add them to [the plugins Trac](https://plugins.trac.wordpress.org/plugin/wp-front-end-editor). We’ll also keep a list of tasks there.
 
 **Weekly IRC Chat:** Mondays, 16:00 UTC, #wordpress-ui
 
-We're still looking for more people to join us - developers, UI designers and WordPress users/trainers for testing/feedback. Please get in touch on IRC, or leave a comment on one of the [Make WordPress UI](http://make.wordpress.org/ui/tag/front-end-editor/) blog posts.
+[Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
+[Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
+[GitHub Mirror](https://github.com/avryl/wp-front-end-editor)  
+[Trac](https://plugins.trac.wordpress.org/plugin/wp-front-end-editor)
+
+We're still looking for more people to join us - developers, UI designers and users/testers for feedback. Please get in touch on IRC or leave a comment on one of the [Make WordPress UI](http://make.wordpress.org/ui/tag/front-end-editor/) blog posts.
 
 == Installation ==
 
@@ -27,7 +29,13 @@ This is just an experiment!
 
 == Changelog ==
 
-= 0.7 =
+= 0.7.2 =
+
+* Button to back-end.
+* TinyMCE 4.0.12.
+* Editable galleries and captions.
+
+= 0.7.1 =
 
 * Added post.js replacement for versions lower than 3.9-alpha because it's incompatible with TinyMCE 4.x.
 
