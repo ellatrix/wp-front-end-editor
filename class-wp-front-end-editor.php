@@ -73,7 +73,7 @@ class WP_Front_End_Editor {
 		return trailingslashit( $permalink ) . 'edit';
 
 	}
-	
+
 	public static function instance() {
 
 		if ( ! self::$instance )
@@ -190,11 +190,11 @@ class WP_Front_End_Editor {
 
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
-		
+
 		set_current_screen( $post_type );
 
 		add_filter( 'show_admin_bar', '__return_true' );
-		
+
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 		add_action( 'wp_print_footer_scripts', array( $this, 'meta_modal' ) );
@@ -232,13 +232,13 @@ class WP_Front_End_Editor {
 		return $link;
 
 	}
-	
+
 	public function wp_head() {
-		
+
 		global $post, $wp_locale, $hook_suffix, $current_screen;
-				
+
 		$admin_body_class = preg_replace( '/[^a-z0-9_-]+/i', '-', $hook_suffix );
-		
+
 		?><script type="text/javascript">
 		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
 		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php', 'relative' ); ?>',
@@ -249,7 +249,7 @@ class WP_Front_End_Editor {
 			decimalPoint = '<?php echo addslashes( $wp_locale->number_format['decimal_point'] ); ?>',
 			isRtl = <?php echo (int) is_rtl(); ?>;
 		</script><?php
-		
+
 	}
 
 	public function wp_enqueue_scripts() {
@@ -265,7 +265,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), $this->version, true );
 			wp_enqueue_script( 'post', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
-			
+
 			$vars = array(
 				'ok' => __('OK'),
 				'cancel' => __('Cancel'),
@@ -288,7 +288,7 @@ class WP_Front_End_Editor {
 				'published' => __('Published'),
 				'comma' => _x( ',', 'tag delimiter' ),
 			);
-			
+
 			wp_localize_script( 'post', 'postL10n', $vars );
 
 			wp_enqueue_script( 'wp-auth-check' );
@@ -305,7 +305,7 @@ class WP_Front_End_Editor {
 			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
 
 			wp_enqueue_media( array( 'post' => $post ) );
-			
+
 			wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
 
 		} else {
@@ -334,6 +334,17 @@ class WP_Front_End_Editor {
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
 				'title' => 'Cancel (Esc)'
+			),
+			'fee' => true
+		) );
+
+		$wp_admin_bar->add_node( array(
+			'id' => 'wp-fee-backend',
+			'href' => get_admin_url() . 'post.php?action=edit&post='. $post->ID ,
+			'parent' => 'top-secondary',
+			'title' => '<span class="ab-icon"></span>',
+			'meta' => array(
+				'title' => 'Edit in /wp-admin/'
 			),
 			'fee' => true
 		) );
@@ -581,7 +592,7 @@ class WP_Front_End_Editor {
 		global $content_width, $_wp_additional_image_sizes;
 
 		add_filter( 'wp_get_attachment_image_attributes', '_wp_post_thumbnail_class_filter' );
-		
+
 		$post = get_post( $post_id );
 
 		$thumbnail_id = get_post_thumbnail_id( $post_id );
@@ -606,7 +617,7 @@ class WP_Front_End_Editor {
 			if ( ! empty( $thumbnail_html ) ) {
 
 				$ajax_nonce = wp_create_nonce( 'set_post_thumbnail-' . $post->ID );
-				
+
 				$content = sprintf( $set_thumbnail_link, $upload_iframe_src, $thumbnail_html );
 				$content .= '<p class="hide-if-no-js"><a href="#" id="remove-post-thumbnail" onclick="WPRemoveThumbnail(\'' . $ajax_nonce . '\');return false;">' . esc_html__( 'Remove featured image' ) . '</a></p>';
 
@@ -630,11 +641,11 @@ class WP_Front_End_Editor {
 		$_POST['post_content'] = str_replace( array( esc_html( '<!--nextpage-->' ), esc_html( '<!--more-->' ) ), array( '<!--nextpage-->', '<!--more-->' ), $_POST['post_content'] );
 
 		$post_id = edit_post();
-	
+
 		if ( isset( $_COOKIE['wp-saving-post-' . $post_id] ) )
 
 			setcookie( 'wp-saving-post-' . $post_id, 'saved' );
-		
+
 		$this->response( $post_id );
 
 	}
@@ -740,7 +751,7 @@ class WP_Front_End_Editor {
 		return $this->edit_link( $post_id );
 
 	}
-	
+
 	public function meta_modal() {
 
 		global $post, $post_type, $post_type_object, $current_screen, $wp_meta_modal_sections;
@@ -1019,14 +1030,14 @@ class WP_Front_End_Editor {
 		<p>
 			<label for="post_author_override"><?php _e( 'Author' ); ?></label>
 			<?php
-			
+
 			wp_dropdown_users( array(
 				'who' => 'authors',
 				'name' => 'post_author_override',
 				'selected' => empty( $post->ID ) ? $user_ID : $post->post_author,
 				'include_selected' => true
 			) );
-			
+
 			?>
 		</p>
 		<?php

@@ -11,66 +11,66 @@
 						<?php
 
 						$i = 0;
-						
+
 						ksort( $wp_meta_modal_sections );
-						
+
 						$array_keys = array_keys( $wp_meta_modal_sections );
-						
+
 						foreach ( $wp_meta_modal_sections as $context => $priorities ) {
-							
+
 							if ( is_array( $priorities ) ) {
-								
+
 								ksort( $priorities );
-								
+
 								foreach ( $priorities as $priority => $sections ) {
-									
+
 									if ( is_array( $sections ) ) {
-																				
+
 										foreach ( $sections as $section ) {
-											
+
 											$i++;
-											
+
 											?>
 											<a id="media-menu-<?php echo $section['id']; ?>" class="media-menu-item<?php echo $i === 1 ? ' active' : ''; ?>" href="#"  data-box="<?php echo $section['id']; ?>"><?php echo $section['title']; ?></a>
 											<?php
-											
+
 										}
-																				
+
 									}
-									
+
 								}
-																								
+
 								if ( $context !== end( $array_keys ) ) {
-									
+
 									?>
 									<div class="separator"></div>
 									<?php
-									
+
 								}
-																
+
 							}
-						
+
 						}
-						
+
 						?>
 					</div>
 				</div>
 				<?php
-				
+
 				$i = 0;
-				
+
 				foreach ( $wp_meta_modal_sections as $context => $priorities ) {
-					
+
 					if ( is_array( $priorities ) ) {
-												
+
 						foreach ( $priorities as $priority => $sections ) {
-							
+
 							if ( is_array( $sections ) ) {
-																		
+
 								foreach ( $sections as $section ) {
-									
+
 									$i++;
-									
+
 									?>
 									<div id="wp-fee-box-<?php echo $section['id'] ?>" class="wp-fee-box" style="display: <?php echo $i === 1 ? 'block' : 'none'; ?>;">
 										<div class="media-frame-title">
@@ -96,17 +96,17 @@
 										</div>
 									</div>
 									<?php
-									
+
 								}
-																		
+
 							}
-							
+
 						}
-														
+
 					}
-				
+
 				}
-				
+
 				?>
 			</div>
 		</div>
