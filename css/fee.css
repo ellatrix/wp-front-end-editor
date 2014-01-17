@@ -271,6 +271,7 @@
 	speak: none;
 	padding: 4px 0;
 	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 #wpadminbar .mce-btn .mce-ico:before,
