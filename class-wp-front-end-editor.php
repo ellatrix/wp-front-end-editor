@@ -264,7 +264,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'jquery' );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), $this->version, true );
-			wp_enqueue_script( 'post', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
+			wp_enqueue_script( 'post-custom', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), $this->version, true );
 
 			$vars = array(
 				'ok' => __('OK'),
@@ -289,7 +289,7 @@ class WP_Front_End_Editor {
 				'comma' => _x( ',', 'tag delimiter' ),
 			);
 
-			wp_localize_script( 'post', 'postL10n', $vars );
+			wp_localize_script( 'post-custom', 'postL10n', $vars );
 
 			wp_enqueue_script( 'wp-auth-check' );
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce.min.js' ), array(), $this->version, true );
