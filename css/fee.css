@@ -149,6 +149,11 @@
 	color: #eee;
 }
 
+#wpadminbar #wp-admin-bar-wp-fee-backend .ab-icon:before {
+	content: "\f310";
+	color: #eee;
+}
+
 #wpadminbar #wp-admin-bar-wp-fee-close .ab-item {
 	padding: 0 8px;
 }

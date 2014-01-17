@@ -61,7 +61,7 @@
 		return o;
 	};
 	$( document )
-		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, .wp-core-ui *, .post-edit-link)', function( event ) {
+		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, #wp-admin-bar-wp-fee-backend a, .wp-core-ui *, .post-edit-link)', function( event ) {
 			event
 				.preventDefault();
 		} )
@@ -244,7 +244,7 @@
 				.on( 'mouseleave', function() {
 					$( this )
 						.find( '.fee-edit-thumbnail-button' )
-						.fadeOut( 'slow' );  
+						.fadeOut( 'slow' );
 				} );
 			$( '#wp-fee-meta-modal .media-menu a' )
 				.on( 'click', function( event ) {
