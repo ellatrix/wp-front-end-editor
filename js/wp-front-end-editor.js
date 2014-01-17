@@ -76,7 +76,7 @@
 		} );
 	};
 	$( document )
-		.on( 'click', 'a:not(#wp-admin-bar-wp-fee-close a, .wp-fee-cancel, #wp-admin-bar-wp-fee-backend a, .wp-core-ui *, .post-edit-link)', function( event ) {
+		.on( 'click', 'a:not(#wpadminbar a, .wp-core-ui a, .post-edit-link)', function( event ) {
 			event
 				.preventDefault();
 		} )

@@ -340,11 +340,11 @@ class WP_Front_End_Editor {
 
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-backend',
-			'href' => get_admin_url() . 'post.php?action=edit&post='. $post->ID ,
+			'href' => admin_url( 'post.php?action=edit&post=' . $post->ID ),
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
-				'title' => 'Edit in /wp-admin/'
+				'title' => 'Edit in Admin'
 			),
 			'fee' => true
 		) );

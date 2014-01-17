@@ -153,21 +153,31 @@
 	content: '\f111';
 }
 
-#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon::before {
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon:before {
 	content: '\f158';
-	color: #eee;
 }
 
 #wpadminbar #wp-admin-bar-wp-fee-backend .ab-icon:before {
 	content: "\f310";
+}
+
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon:before,
+#wpadminbar #wp-admin-bar-wp-fee-backend .ab-icon:before {
 	color: #eee;
 }
 
-#wpadminbar #wp-admin-bar-wp-fee-close .ab-item {
+#wpadminbar #wp-admin-bar-wp-fee-close:hover .ab-icon:before,
+#wpadminbar #wp-admin-bar-wp-fee-backend:hover .ab-icon:before {
+	color: #2ea2cc;
+}
+
+#wpadminbar #wp-admin-bar-wp-fee-close .ab-item,
+#wpadminbar #wp-admin-bar-wp-fee-backend .ab-item {
 	padding: 0 8px;
 }
 
-#wpadminbar #wp-admin-bar-wp-fee-close {
+#wpadminbar #wp-admin-bar-wp-fee-close,
+#wpadminbar #wp-admin-bar-wp-fee-backend {
 	background-color: #333;
 }
 
