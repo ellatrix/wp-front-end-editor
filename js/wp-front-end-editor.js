@@ -239,8 +239,8 @@
 				.init( {
 					selector: content,
 					inline: true,
-					plugins: 'link charmap paste textcolor table',
-					toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify media undo redo',
+					plugins: 'wpfeelink charmap paste textcolor table',
+					toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify link media undo redo',
 					toolbar2: 'kitchensink removeformat bullist numlist outdent indent forecolor backcolor table',
 					menubar: false,
 					fixed_toolbar_container: mceToolbar,
