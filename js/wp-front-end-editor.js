@@ -404,8 +404,8 @@
 					sumbitButton
 						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 						.text( sumbitButton.data( 'working' ) );
-					$( '#wp-admin-bar-wp-fee-close' )
-						.animate( { width: 'toggle' }, 300 );
+//					$( '#wp-admin-bar-wp-fee-close, #wp-admin-bar-wp-fee-backend' )
+//						.animate( { width: 'toggle' }, 300 );
 
 					postTitle = $( title )
 						.text();
@@ -447,8 +447,8 @@
 								sumbitButton
 									.removeClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 									.text( sumbitButton.data( 'default' ) );
-								$( '#wp-admin-bar-wp-fee-close' )
-									.animate( { width: 'toggle' }, 300 );
+//								$( '#wp-admin-bar-wp-fee-close, #wp-admin-bar-wp-fee-backend' )
+//									.animate( { width: 'toggle' }, 300 );
 							}, 600 );
 						}
 					} )
