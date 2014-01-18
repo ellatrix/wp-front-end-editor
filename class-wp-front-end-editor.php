@@ -211,6 +211,12 @@ class WP_Front_End_Editor {
 
 	public function get_edit_post_link( $link, $id, $context ) {
 
+		$post = get_post( $id );
+
+		if ( $post->post_type === 'revision' )
+
+			return $link;
+
 		if ( $this->is_edit() )
 
 			return get_permalink( $id );
