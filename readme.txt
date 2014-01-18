@@ -29,6 +29,11 @@ This is just an experiment!
 
 == Changelog ==
 
+= 0.7.3 =
+
+* Fixed revision links.
+* Simple temporary link button.
+
 = 0.7.2 =
 
 * Button to back-end.
