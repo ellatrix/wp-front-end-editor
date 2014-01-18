@@ -1,0 +1,143 @@
+/**
+ * This file takes the most general selecors from /wp-admin/css/colors.css
+ * and prefixes them with .wp-core-ui.
+ */
+
+.wp-core-ui input[type=checkbox],
+.wp-core-ui input[type=radio] {
+	background: #fff;
+	border-color: #bbb;
+	color: #555;
+	-webkit-box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
+	box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
+}
+
+.wp-core-ui input[type=checkbox]:checked:before {
+	color: #1e8cbe;
+}
+
+.wp-core-ui input[type=radio]:checked:before {
+	background-color: #1e8cbe;
+}
+
+.wp-core-ui input[type="reset"]:hover,
+.wp-core-ui input[type="reset"]:active {
+	color: #2ea2cc;
+}
+
+.wp-ui-primary {
+	color: #fff;
+	background-color: #333;
+}
+.wp-ui-text-primary {
+	color: #333;
+}
+
+.wp-ui-highlight {
+	color: white;
+	background-color: #1e8cbe;
+}
+.wp-ui-text-highlight {
+	color: #1e8cbe;
+}
+
+.wp-ui-notification {
+	color: #fff;
+	background-color: #D54E21;
+}
+.wp-ui-text-notification {
+	color: #D54E21;
+}
+
+.wp-ui-text-icon {
+	color: #999;
+}
+
+.wp-core-ui kbd,
+.wp-core-ui code {
+	background: #eaeaea;
+	background: rgba(0,0,0,0.07);
+}
+
+.wp-core-ui textarea,
+.wp-core-ui input[type="text"],
+.wp-core-ui input[type="password"],
+.wp-core-ui input[type="email"],
+.wp-core-ui input[type="number"],
+.wp-core-ui input[type="search"],
+.wp-core-ui input[type="tel"],
+.wp-core-ui input[type="url"],
+.wp-core-ui select {
+	border-color: #ddd;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.07);
+}
+
+.wp-core-ui textarea:focus,
+.wp-core-ui input[type="text"]:focus,
+.wp-core-ui input[type="password"]:focus,
+.wp-core-ui input[type="email"]:focus,
+.wp-core-ui input[type="number"]:focus,
+.wp-core-ui input[type="search"]:focus,
+.wp-core-ui input[type="tel"]:focus,
+.wp-core-ui input[type="url"]:focus,
+.wp-core-ui input[type="checkbox"]:focus,
+.wp-core-ui input[type="radio"]:focus,
+.wp-core-ui select:focus {
+	border-color: #999;
+}
+
+.wp-core-ui input:disabled,
+.wp-core-ui input.disabled,
+.wp-core-ui textarea:disabled,
+.wp-core-ui textarea.disabled {
+	-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+	box-shadow:         inset 0 1px 2px rgba(0,0,0,0.04);
+	border-color: rgba(222, 222, 222, .75);
+	background: rgba(255, 255, 255, .5);
+	color: rgba(51, 51, 51, .5);
+}
+
+.wp-core-ui h2,
+.wp-core-ui h3 {
+	color: #222;
+}
+
+.wp-core-ui .submit {
+	border: none;
+}
+
+.wp-core-ui .highlight {
+	background-color: #e4f2fd;
+	color: #000;
+}
+
+.wp-core-ui .howto {
+	color: #666;
+}
+
+.wp-core-ui a:hover,
+.wp-core-ui a:active {
+	color: #2ea2cc;
+}
+
+.wp-core-ui a:focus {
+	color: #124964;
+}
+
+.wp-core-ui a {
+	color: #0074a2;
+	-webkit-transition-property: border, background, color;
+	-moz-transition-property:    border, background, color;
+	transition-property:         border, background, color;
+	-webkit-transition-duration: .05s;
+	-moz-transition-duration:    .05s;
+	transition-duration:         .05s;
+	-webkit-transition-timing-function: ease-in-out;
+	-moz-transition-timing-function:    ease-in-out;
+	transition-timing-function:         ease-in-out;
+}
+
+.wp-core-ui input.readonly,
+.wp-core-ui textarea.readonly {
+	background-color: #ddd;
+}

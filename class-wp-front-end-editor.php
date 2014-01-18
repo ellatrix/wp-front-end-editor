@@ -264,6 +264,8 @@ class WP_Front_End_Editor {
 
 		if ( $this->is_edit() ) {
 
+			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, $this->version, 'screen' );
+			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, $this->version, 'screen' );
 			wp_enqueue_style( 'buttons' );
 			wp_enqueue_style( 'wp-auth-check' );
 
@@ -312,7 +314,7 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
-			wp_enqueue_style( 'wp-fee-style' , $this->url( '/css/fee.css' ), false, $this->version, 'screen' );
+			wp_enqueue_style( 'wp-fee' , $this->url( '/css/wp-fee.css' ), false, $this->version, 'screen' );
 
 		} else {
 
@@ -905,7 +907,7 @@ class WP_Front_End_Editor {
 			<div id="minor-publishing">
 				<div id="misc-publishing-actions">
 					<div class="misc-pub-section misc-pub-post-status">
-						<label for="post_status"><?php _e( 'Status:' ) ?></label>
+						<?php _e( 'Status:' ) ?>
 						<span id="post-status-display">
 						<?php
 							switch ( $post->post_status ) {
