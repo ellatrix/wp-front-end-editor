@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.7.3
+Stable tag: 0.7.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,10 @@ We're still looking for more people to join us - developers, UI designers and us
 This is just an experiment!
 
 == Changelog ==
+
+= 0.7.3 =
+
+* Update CSS resets for .wp-core-ui.
 
 = 0.7.3 =
 
