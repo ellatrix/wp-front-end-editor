@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.7.4';
+	public $version = '0.7.5';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -163,7 +163,7 @@ class WP_Front_End_Editor {
 	public function wp() {
 
 		global $post, $post_type, $post_type_object;
-
+		
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
@@ -172,7 +172,7 @@ class WP_Front_End_Editor {
 		if ( ! $this->is_edit() )
 
 			return;
-
+		
 		if ( ! $post )
 
 			wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
@@ -191,8 +191,6 @@ class WP_Front_End_Editor {
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
 
-		set_current_screen( $post_type );
-
 		add_filter( 'show_admin_bar', '__return_true' );
 
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
@@ -201,7 +199,8 @@ class WP_Front_End_Editor {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10 );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
 
-		add_filter( 'the_title', array( $this, 'the_title' ), 20, 2 );
+		add_filter( 'post_class', array( $this, 'post_class' ) );
+		add_filter( 'body_class', array( $this, 'body_class' ) );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
 		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
@@ -241,7 +240,9 @@ class WP_Front_End_Editor {
 
 	public function wp_head() {
 
-		global $post, $wp_locale, $hook_suffix, $current_screen;
+		global $post, $post_type, $wp_locale, $hook_suffix, $current_screen;
+
+		set_current_screen( $post_type );
 
 		$admin_body_class = preg_replace( '/[^a-z0-9_-]+/i', '-', $hook_suffix );
 
@@ -256,6 +257,8 @@ class WP_Front_End_Editor {
 			isRtl = <?php echo (int) is_rtl(); ?>;
 		</script><?php
 
+		unset( $current_screen );
+
 	}
 
 	public function wp_enqueue_scripts() {
@@ -263,7 +266,7 @@ class WP_Front_End_Editor {
 		global $post, $wp_version;
 
 		if ( $this->is_edit() ) {
-
+			
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, $this->version, 'screen' );
 			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, $this->version, 'screen' );
 			wp_enqueue_style( 'buttons' );
@@ -294,7 +297,7 @@ class WP_Front_End_Editor {
 				'password' => __('Password Protected'),
 				'privatelyPublished' => __('Privately Published'),
 				'published' => __('Published'),
-				'comma' => _x( ',', 'tag delimiter' ),
+				'comma' => _x( ',', 'tag delimiter' )
 			);
 
 			wp_localize_script( 'post-custom', 'postL10n', $vars );
@@ -305,6 +308,7 @@ class WP_Front_End_Editor {
 
 			$vars = array(
 				'postId' => $post->ID,
+				'postTitle' => $post->post_title,
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'updatePostNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
 				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) )
@@ -318,7 +322,7 @@ class WP_Front_End_Editor {
 
 		} else {
 
-			wp_enqueue_script( 'wp-fee-adminbar', $this->url( '/js/wp-fee-adminbar.js' ), array(), $this->version, true );
+			wp_enqueue_script( 'wp-fee-adminbar', $this->url( '/js/wp-fee-adminbar.js' ), array( 'jquery' ), $this->version, true );
 
 			$vars = array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
@@ -456,45 +460,19 @@ class WP_Front_End_Editor {
 
 	}
 
-	public function wp_terms_checklist( $post ) {
+	public function post_class( $classes ) {
 
-		ob_start();
+        $classes[] = 'wp-fee-post';
 
-		require_once( ABSPATH . 'wp-admin/includes/template.php' );
-
-		wp_terms_checklist( $post->ID, array( 'taxonomy' => 'category' ) );
-
-		return ob_get_clean();
+        return $classes;
 
 	}
 
-	public function the_title( $title, $id ) {
+	public function body_class( $classes ) {
 
-		global $post, $wp_the_query, $wp_fee;
+        $classes[] = 'wp-fee-body';
 
-		if ( is_main_query()
-			&& in_the_loop()
-			&& $wp_the_query->queried_object->ID === $id
-			&& $this->really_did_action( 'wp_head' )
-			&& empty( $wp_fee['the_title'] ) ) {
-
-			$wp_fee['the_title'] = true;
-
-			if ( $post->post_status === 'auto-draft' ) {
-
-				$title = apply_filters( 'default_title', '', $post );
-
-			} else {
-
-				$title = $post->post_title;
-
-			}
-
-			$title = '<div id="wp-fee-title-' . $post->ID . '" class="wp-fee-title">' . $title . '</div>';
-
-		}
-
-		return $title;
+        return $classes;
 
 	}
 
@@ -777,6 +755,8 @@ class WP_Front_End_Editor {
 
 		global $post, $post_type, $post_type_object, $current_screen, $wp_meta_modal_sections;
 
+		set_current_screen( $post_type );
+
 		$this->add_meta_modal_section( 'submitdiv', __( 'Publish' ) , array( $this, 'meta_section_publish' ), 10, 10 );
 
 		if ( post_type_supports( $post_type, 'revisions' )
@@ -845,6 +825,8 @@ class WP_Front_End_Editor {
 			$this->add_meta_modal_section( 'commentstatusdiv', __( 'Discussion' ), 'post_comment_status_meta_box', 30, 40 );
 
 		require_once( 'meta-modal-template.php' );
+		
+		unset( $current_screen );
 
 	}
 

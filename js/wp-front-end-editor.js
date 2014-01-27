@@ -1,12 +1,9 @@
 ( function( $, globals ) {
 	'use strict';
-	var postTitle,
+	var postTitle = wpFee.postTitle,
 		postContent,
-		title = '#wp-fee-title-' + wpFee.postId,
 		content = '#wp-fee-content-' + wpFee.postId,
 		mceToolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
-		docTitle = ( $( title ).text().length ? document.title.replace( $( title ).text(), '<!--replace-->' ) : document.title ),
-		menupopHeight = ( $(window).height() ) - 42,
 		convertReplace,
 		frame;
 	globals.wpActiveEditor = null;
@@ -83,22 +80,22 @@
 		.on( 'mouseenter', '.wp-fee-shortcode-container', function() {
 			$( this )
 				.find( '.wp-fee-shortcode-options' )
-				.fadeIn();
+				.fadeIn( 'fast' );
 		} )
 		.on( 'mouseleave', '.wp-fee-shortcode-container', function() {
 			$( this )
 				.find( '.wp-fee-shortcode-options' )
-				.fadeOut();
+				.fadeOut( 'fast' );
 		} )
 		.on( 'mouseenter', '.fee-edit-thumbnail', function() {
 			$( this )
 				.find( '#remove-post-thumbnail' )
-				.fadeIn();
+				.fadeIn( 'fast' );
 		} )
 		.on( 'mouseleave', '.fee-edit-thumbnail', function() {
 			$( this )
 				.find( '#remove-post-thumbnail' )
-				.fadeOut();
+				.fadeOut( 'fast' );
 		} )
 		.on( 'click', '#wp-fee-set-post-thumbnail', function() {
 			$( '.fee-edit-thumbnail' )
@@ -114,7 +111,7 @@
 		.on( 'click', '.wp-fee-shortcode-container', function() {
 			$( this )
 				.find( '.wp-fee-shortcode-options' )
-				.fadeOut();
+				.fadeOut( 'fast' );
 		} )
 		.on( 'click', '.wp-fee-shortcode-remove', function() {
 			$( this )
@@ -213,26 +210,42 @@
 			}
 		} )
 		.ready( function() {
-			$( title )
-				.attr( 'contenteditable', 'true' )
-				.on( 'keyup', function() {
-					document.title = docTitle
-						.replace( '<!--replace-->', $( this ).text() );
-				} )
-				.on( 'keypress', function( event ) {
-					return event.which !== 13;
-				} )
-				.on( 'blur', function() {
-					var titleOnBlur;
-					$( this )
-						.find( '*' )
-						.each( function() {
-							titleOnBlur = $( this )
-								.contents();
-							$(this)
-								.replaceWith( titleOnBlur );
-						} );
-				} );
+			
+			var title = false;
+			
+			if ( $( '.wp-fee-post' ).length
+				&& $( '.wp-fee-post .entry-title' ).length ) {
+				title = $( '.wp-fee-post .entry-title' ).first();
+			} else if ( $( '.entry-title' ).length ) {
+				title = $( '.entry-title' ).first();
+			}
+			
+			var docTitle = ( ( title && title.text().length ) ? document.title.replace( title.text(), '<!--replace-->' ) : document.title );
+			
+			if ( title ) {
+				title
+					.text( postTitle )
+					.attr( 'contenteditable', 'true' )
+					.on( 'keyup', function() {
+						document.title = docTitle
+							.replace( '<!--replace-->', $( this ).text() );
+					} )
+					.on( 'keypress', function( event ) {
+						return event.which !== 13;
+					} )
+					.on( 'blur', function() {
+						var titleOnBlur;
+						$( this )
+							.find( '*' )
+							.each( function() {
+								titleOnBlur = $( this )
+									.contents();
+								$(this)
+									.replaceWith( titleOnBlur );
+							} );
+					} );
+			}
+			
 			$( content )
 				.attr( 'contenteditable', 'true' );
 			tinyMCE
@@ -342,12 +355,12 @@
 				.on( 'mouseenter', function() {
 					$( this )
 						.find( '.fee-edit-thumbnail-button' )
-						.fadeIn( 'slow' );
+						.fadeIn( 'fast' );
 				} )
 				.on( 'mouseleave', function() {
 					$( this )
 						.find( '.fee-edit-thumbnail-button' )
-						.fadeOut( 'slow' );
+						.fadeOut( 'fast' );
 				} );
 			$( '#wp-fee-meta-modal .media-menu a' )
 				.on( 'click', function( event ) {
@@ -404,25 +417,27 @@
 					sumbitButton
 						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 						.text( sumbitButton.data( 'working' ) );
-//					$( '#wp-admin-bar-wp-fee-close, #wp-admin-bar-wp-fee-backend' )
-//						.animate( { width: 'toggle' }, 300 );
 
-					postTitle = $( title )
-						.text();
+					if ( title.length ) {
+						postTitle = title
+							.text();
+					}
 
-					postContent = tinyMCE
-						.activeEditor
-						.getContent();
-					postContent = $( '<div>' + postContent + '</div>' );
-					postContent
-						.find( '.wp-fee-shortcode' )
-						.each( function() {
-							$( this )
-								.parents( '.wp-fee-shortcode-container' )
-								.replaceWith( $( this ).html() );
-						} );
-					postContent = $( postContent )
-						.html();
+					if ( $( content ).length ) {
+						postContent = tinyMCE
+							.activeEditor
+							.getContent();
+						postContent = $( '<div>' + postContent + '</div>' );
+						postContent
+							.find( '.wp-fee-shortcode' )
+							.each( function() {
+								$( this )
+									.parents( '.wp-fee-shortcode-container' )
+									.replaceWith( $( this ).html() );
+							} );
+						postContent = $( postContent )
+							.html();
+					}
 
 					var postData = {
 						'action': 'wp_fee_post',
@@ -443,13 +458,12 @@
 						if ( wpFee.redirectPostLocation ) {
 							window.location.href = wpFee.redirectPostLocation;
 						} else {
-							setTimeout( function() {
-								sumbitButton
-									.removeClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
-									.text( sumbitButton.data( 'default' ) );
-//								$( '#wp-admin-bar-wp-fee-close, #wp-admin-bar-wp-fee-backend' )
-//									.animate( { width: 'toggle' }, 300 );
-							}, 600 );
+//							setTimeout( function() {
+//								sumbitButton
+//									.removeClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
+//									.text( sumbitButton.data( 'default' ) );
+//							}, 600 );
+							window.location.href = window.location.href;
 						}
 					} )
 					.fail( function() {

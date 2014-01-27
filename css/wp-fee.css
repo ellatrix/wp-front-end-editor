@@ -20,7 +20,7 @@
 	display: none;
 }
 
-.wp-fee-title:empty:not(:focus):before {
+.entry-title:empty:not(:focus):before {
 	content: 'Title';
 	opacity: 0.5;
 }

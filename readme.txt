@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8
-Stable tag: 0.7.4
+Stable tag: 0.7.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,7 +29,15 @@ This is just an experiment!
 
 == Changelog ==
 
-= 0.7.3 =
+= 0.7.5 =
+
+* Fade fast for inline TinyMCE containers.
+* Title now editable based on .entry-title instead of php filter.
+* Refresh page on update.
+* Unset $current_screen because it causes is_admin() to return true.
+* Require jQuery for wp-fee-adminbar.js.
+
+= 0.7.4 =
 
 * Update CSS resets for .wp-core-ui.
 
