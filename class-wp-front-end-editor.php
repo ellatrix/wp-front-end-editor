@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.7.5';
+	public $version = '0.7.6';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -257,7 +257,7 @@ class WP_Front_End_Editor {
 			isRtl = <?php echo (int) is_rtl(); ?>;
 		</script><?php
 
-		unset( $current_screen );
+		unset( $GLOBALS['current_screen'] );
 
 	}
 
@@ -826,7 +826,7 @@ class WP_Front_End_Editor {
 
 		require_once( 'meta-modal-template.php' );
 		
-		unset( $current_screen );
+		unset( $GLOBALS['current_screen'] );
 
 	}
 

@@ -408,6 +408,23 @@
 					$( '#wp-fee-meta-modal' )
 						.hide();
 				} );
+			var postFormat = ( $( 'input[name=post_format]:checked' ).val() === '0'
+				? 'standard'
+				: $( 'input[name=post_format]:checked' ).val() );
+			$( 'input[name=post_format]' )
+				.change( function () {
+					$( '.wp-fee-post' )
+						.removeClass( 'format-' + postFormat );
+					$( '.wp-fee-body' )
+						.removeClass( 'single-format-' + postFormat );
+					postFormat = ( $( this ).val() === '0'
+						? 'standard'
+						: $( this ).val() );
+					$( '.wp-fee-post' )
+						.addClass( 'format-' + postFormat );
+					$( '.wp-fee-body' )
+						.addClass( 'single-format-' + postFormat );
+				} );
 			$( '.wp-fee-submit' )
 				.on( 'click', function( event ) {
 					var sumbitButton = $( this );
