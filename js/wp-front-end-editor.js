@@ -1,15 +1,10 @@
 ( function( $, globals ) {
 	'use strict';
-	var postTitle = wpFee.postTitle,
-		postContent,
-		content = '#wp-fee-content-' + wpFee.postId,
-		mceToolbar = '#wp-admin-bar-wp-fee-mce-toolbar',
-		convertReplace,
-		frame;
+	var content = '#wp-fee-content-' + wpFee.postId,
+		convertReplace, frame;
 	globals.wpActiveEditor = null;
 	globals.send_to_editor = function( content ) {
-		if ( content.slice( 0, 8 ) === '[gallery'
-			|| content.slice( 0, 8 ) === '[caption' ) {
+		if ( content.slice( 0, 8 ) === '[gallery' || content.slice( 0, 8 ) === '[caption' ) {
 			var data = {
 				'action': 'wp_fee_shortcode',
 				'shortcode': content
@@ -210,22 +205,52 @@
 			}
 		} )
 		.ready( function() {
+
+			var content = $( '#wp-fee-content-' + wpFee.postId ),
+				postBody = $( '.wp-fee-post' ),
+				title = false,
+				title1, title2, title3, title4, title5;
 			
-			var title = false;
-			
-			if ( $( '.wp-fee-post' ).length
-				&& $( '.wp-fee-post .entry-title' ).length ) {
-				title = $( '.wp-fee-post .entry-title' ).first();
-			} else if ( $( '.entry-title' ).length ) {
-				title = $( '.entry-title' ).first();
+			// Most likely case and safest bet.
+			if ( ( title1 = $( '.wp-fee-post .entry-title' ) ) && postBody.length && title1.length ) {
+				title = title1.first();
+			// If there are multiple elements with a entry-title class (which is *very* unlikely), it will only use the first one anyway.
+			} else if ( ( title2 = $( '.entry-title' ) ) && title2.length ) {
+				title = title2.first();
+			// Try h1, h2 and h3, but not in the content. Themes should be recommended to use entry-title.
+			} else if ( ( title3 = $( 'h1' ).not( '.wp-fee-content h1' ) ) && title3.length ) {
+				title3.each( function() {
+					if ( $( this ).text() === wpFee.postTitle ) {
+						title = $( this );
+						return;
+					}
+				} );
+				if ( ! title && ( title4 = $( 'h2' ).not( '.wp-fee-content h2' ) ) && title4.length ) {
+					title4.each( function() {
+						if ( $( this ).text() === wpFee.postTitle ) {
+							title = $( this );
+							return;
+						}
+					} );
+					if ( ! title && ( title5 = $( 'h3' ).not( '.wp-fee-content h3' ) ) && title5.length ) {
+						title5.each( function() {
+							if ( $( this ).text() === wpFee.postTitle ) {
+								title = $( this );
+								return;
+							}
+						} );
+					}
+				}
 			}
-			
-			var docTitle = ( ( title && title.text().length ) ? document.title.replace( title.text(), '<!--replace-->' ) : document.title );
-			
+
 			if ( title ) {
+
+				var docTitle = ( title.text().length ? document.title.replace( title.text(), '<!--replace-->' ) : document.title );
+
 				title
-					.text( postTitle )
+					.text( wpFee.postTitleRaw )
 					.attr( 'contenteditable', 'true' )
+					.addClass( 'wp-fee-title' )
 					.on( 'keyup', function() {
 						document.title = docTitle
 							.replace( '<!--replace-->', $( this ).text() );
@@ -246,17 +271,18 @@
 					} );
 			}
 			
-			$( content )
+			content
 				.attr( 'contenteditable', 'true' );
+
 			tinyMCE
 				.init( {
-					selector: content,
+					selector: '#wp-fee-content-' + wpFee.postId,
 					inline: true,
 					plugins: 'wpfeelink charmap paste textcolor table',
 					toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify link media undo redo',
 					toolbar2: 'kitchensink removeformat bullist numlist outdent indent forecolor backcolor table',
 					menubar: false,
-					fixed_toolbar_container: mceToolbar,
+					fixed_toolbar_container: '#wp-admin-bar-wp-fee-mce-toolbar',
 					skin: false,
 					object_resizing: false,
 					relative_urls: false,
@@ -310,14 +336,14 @@
 							} );
 						$( window )
 							.on( 'resize', function() {
-								$( mceToolbar )
+								$( '#wp-admin-bar-wp-fee-mce-toolbar' )
 									.find( '*' )
 									.not( '.mce-toolbar' )
 									.not( '.mce-preview' )
 									.removeAttr( 'style' );
 							} )
 							.on( 'DOMNodeInserted', function() {
-								$( mceToolbar )
+								$( '#wp-admin-bar-wp-fee-mce-toolbar' )
 									.find( '*' )
 									.not( '.mce-toolbar' )
 									.not( '.mce-preview' )
@@ -408,18 +434,14 @@
 					$( '#wp-fee-meta-modal' )
 						.hide();
 				} );
-			var postFormat = ( $( 'input[name=post_format]:checked' ).val() === '0'
-				? 'standard'
-				: $( 'input[name=post_format]:checked' ).val() );
+			var postFormat = ( $( 'input[name=post_format]:checked' ).val() === '0' ? 'standard' : $( 'input[name=post_format]:checked' ).val() );
 			$( 'input[name=post_format]' )
 				.change( function () {
 					$( '.wp-fee-post' )
 						.removeClass( 'format-' + postFormat );
 					$( '.wp-fee-body' )
 						.removeClass( 'single-format-' + postFormat );
-					postFormat = ( $( this ).val() === '0'
-						? 'standard'
-						: $( this ).val() );
+					postFormat = ( $( this ).val() === '0' ? 'standard' : $( this ).val() );
 					$( '.wp-fee-post' )
 						.addClass( 'format-' + postFormat );
 					$( '.wp-fee-body' )
@@ -428,20 +450,19 @@
 			$( '.wp-fee-submit' )
 				.on( 'click', function( event ) {
 					var sumbitButton = $( this );
-					if ( sumbitButton.hasClass( 'button-primary-disabled' )
-						|| sumbitButton.hasClass( 'button-disabled' ) )
+					if ( sumbitButton.hasClass( 'button-primary-disabled' ) || sumbitButton.hasClass( 'button-disabled' ) )
 						return;
 					sumbitButton
 						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 						.text( sumbitButton.data( 'working' ) );
 
 					if ( title.length ) {
-						postTitle = title
+						var postTitle = title
 							.text();
 					}
 
 					if ( $( content ).length ) {
-						postContent = tinyMCE
+						var postContent = tinyMCE
 							.activeEditor
 							.getContent();
 						postContent = $( '<div>' + postContent + '</div>' );

@@ -3,7 +3,11 @@
  * and prefixes them with .wp-core-ui.
  */
 
-/* --- */
+#wpadminbar * {
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+}
 
 .wp-core-ui * {
 	height: auto;
@@ -22,13 +26,16 @@
 	color: #444;
 	border: none;
 	border-radius: 0;
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 	-webkit-box-sizing: content-box;
-	-moz-box-sizing:    content-box;
-	box-sizing:         content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
 	-webkit-transition: none;
-	-moz-transition:    none;
-	-o-transition:      none;
-	transition:         none;
+	-moz-transition: none;
+	-o-transition: none;
+	transition: none;
 	-webkit-font-smoothing: subpixel-antialiased; /* Prevent Safari from switching to standard antialiasing on hover */
 }
 

@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	public $version = '0.7.6';
+	public $version = '0.7.7';
 	public $plugin = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -308,7 +308,8 @@ class WP_Front_End_Editor {
 
 			$vars = array(
 				'postId' => $post->ID,
-				'postTitle' => $post->post_title,
+				'postTitleRaw' => $post->post_title,
+				'postTitle' => get_the_title(),
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'updatePostNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
 				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) )
