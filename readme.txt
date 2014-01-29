@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 0.7.7
+Stable tag: 0.7.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,16 @@ We're still looking for more people to join us - developers, UI designers and us
 This is just an experiment!
 
 == Changelog ==
+
+= 0.7.8 =
+
+* Even better title guess.
+* Fixes media button and switch toolbar button in Firefox and IE.
+* Adds a dummy featured image to simulate to styles.
+* Avoid creating a global variable.
+* Convert version and plugin variables to constants.
+* Force get_the_title() to be true if there is no title.
+* Generalised link to back-end.
 
 = 0.7.7 =
 

@@ -115,6 +115,16 @@
 	display: none;
 }
 
+.wp-fee-thumbnail-dummy {
+	display: none!important;
+	height: 52px!important;
+	width: 100%;
+}
+
+.empty .wp-fee-thumbnail-dummy {
+	display: block!important;
+}
+
 /* Admin Bar */
 
 #wpadminbar .button {

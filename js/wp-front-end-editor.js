@@ -212,10 +212,10 @@
 				title1, title2, title3, title4, title5;
 			
 			// Most likely case and safest bet.
-			if ( ( title1 = $( '.wp-fee-post .entry-title' ) ) && postBody.length && title1.length ) {
+			if ( ( title1 = $( '.wp-fee-post .entry-title' ) ) && postBody.length && postBody.hasClass( 'post-' + wpFee.postId ) && title1.length ) {
 				title = title1.first();
 			// If there are multiple elements with a entry-title class (which is *very* unlikely), it will only use the first one anyway.
-			} else if ( ( title2 = $( '.entry-title' ) ) && title2.length ) {
+			} else if ( ( title2 = $( '.entry-title' ) ) && title2.length && title2.text() === wpFee.postTitle ) {
 				title = title2.first();
 			// Try h1, h2 and h3, but not in the content. Themes should be recommended to use entry-title.
 			} else if ( ( title3 = $( 'h1' ).not( '.wp-fee-content h1' ) ) && title3.length ) {
@@ -294,12 +294,18 @@
 						setTimeout( function() {
 							editor
 								.focus();
-						}, 1500 );
+							$( '.mce-i-media' )
+								.parent()
+								.data( 'editor', 'fee-edit-content-' + wpFee.postId )
+								.addClass( 'insert-media add_media' );
+						}, 2000 );
 						editor.addButton( 'kitchensink', {
 							title: 'More...',
 							onclick: function( event ) {
-								var toolbar = $( event.srcElement )
+								var target = event.target || event.srcElement;
+								var toolbar = $( target )
 									.parents( '.mce-toolbar' );
+								console.log( toolbar );
 								toolbar
 									.hide();
 								if ( toolbar.next().length > 0 ) {
@@ -322,6 +328,7 @@
 							.on( 'focus', function() {
 								$( 'p.wp-fee-content-placeholder' )
 									.hide();
+								
 							} )
 							.on( 'blur', function() {
 								var contentOnBlur = editor
@@ -348,9 +355,6 @@
 									.not( '.mce-toolbar' )
 									.not( '.mce-preview' )
 									.removeAttr( 'style' );
-								$( '.mce-i-media' )
-									.data( 'editor', 'fee-edit-content-' + wpFee.postId )
-									.addClass( 'insert-media add_media' );
 							} );
 					},
 					paste_preprocess: function( plugin, args ) {
@@ -377,6 +381,8 @@
 						}
 					}
 				} );
+			$( '.fee-edit-thumbnail' )
+				.append( '<img src="' + wpFee.blankGif + '" alt="" class="attachment-post-thumbnail wp-post-image wp-fee-thumbnail-dummy">' );
 			$( '.fee-edit-thumbnail' )
 				.on( 'mouseenter', function() {
 					$( this )
