@@ -410,7 +410,7 @@
 						.find( '.fee-edit-thumbnail-button' )
 						.fadeOut( 'fast' );
 				} );
-			$( '#wp-fee-meta-modal .media-menu a, #wp-fee-meta-modal .media-frame-title h1, .wp-fee-meta-modal-box' )
+			$( '#wp-fee-meta-modal .media-menu a, #wp-fee-meta-modal .media-frame-title h1, .media-frame-sub-title' )
 				.on( 'click', function( event ) {
 					event
 						.preventDefault();
