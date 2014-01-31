@@ -598,6 +598,47 @@ th.mce-item-selected {
 	box-shadow: 0 0 0 1px #fff, 0 0 0 2px #1e8cbe;
 }
 
+/* --- */
+
+#wp-fee-meta-modal .media-frame-sub-title h1 {
+	padding: 0 16px;
+	font-size: 22px;
+	line-height: 56px;
+	margin: 0;
+}
+
+#wp-fee-meta-modal .media-frame-sub-title {
+	border-bottom: 1px solid #dfdfdf;
+	border-top: 1px solid #dfdfdf;
+	background: #fcfcfc;
+	cursor: pointer;
+}
+
+#wp-fee-meta-modal .media-frame-title {
+	background: #fcfcfc;
+	cursor: pointer;
+}
+
+#wp-fee-meta-modal .media-frame-sub-title-first {
+	border-top: none;
+}
+
+@media only screen and (max-width: 900px) {
+	.media-menu > a {
+		padding: 4px 10px;
+	}
+}
+
+@media only screen and (max-width: 640px) {
+	#wp-fee-meta-modal .media-frame-menu {
+		display: none;
+	}
+}
+
+.media-frame-toolbar {
+	border-top: none;
+}
+
 /* Aligns left by the .wp-core-ui reset. */
 
 .media-frame .uploader-inline * {

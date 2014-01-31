@@ -31,7 +31,7 @@
 											$i++;
 
 											?>
-											<a id="media-menu-<?php echo $section['id']; ?>" class="media-menu-item<?php echo $i === 1 ? ' active' : ''; ?>" href="#"  data-box="<?php echo $section['id']; ?>"><?php echo $section['title']; ?></a>
+											<a id="media-menu-<?php echo $section['id']; ?>" class="media-menu-item<?php echo $i === 1 ? ' active' : ''; ?>" href="#" data-box="<?php echo $section['id']; ?>"><?php echo $section['title']; ?></a>
 											<?php
 
 										}
@@ -55,59 +55,59 @@
 						?>
 					</div>
 				</div>
-				<?php
-
-				$i = 0;
-
-				foreach ( $wp_meta_modal_sections as $context => $priorities ) {
-
-					if ( is_array( $priorities ) ) {
-
-						foreach ( $priorities as $priority => $sections ) {
-
-							if ( is_array( $sections ) ) {
-
-								foreach ( $sections as $section ) {
-
-									$i++;
-
-									?>
-									<div id="wp-fee-box-<?php echo $section['id'] ?>" class="wp-fee-box" style="display: <?php echo $i === 1 ? 'block' : 'none'; ?>;">
-										<div class="media-frame-title">
-											<h1><?php echo $section['title']; ?></h1>
-										</div>
-										<div class="media-frame-router">
-											<div class="media-router">
-												<a class="media-menu-item" href="#"></a>
+				<div class="media-frame-title">
+					<h1>Publish</h1>
+				</div>
+				<div class="media-frame-content" style="top: 0;border-top: none;">
+					<?php
+	
+					$i = 0;
+	
+					foreach ( $wp_meta_modal_sections as $context => $priorities ) {
+	
+						if ( is_array( $priorities ) ) {
+	
+							foreach ( $priorities as $priority => $sections ) {
+	
+								if ( is_array( $sections ) ) {
+	
+									foreach ( $sections as $section ) {
+	
+										$i++;
+	
+										?>
+										<div id="wp-fee-meta-modal-box-<?php echo $section['id']; ?>" class="wp-fee-meta-modal-box" data-box="<?php echo $section['id']; ?>">
+											<div class="media-frame-sub-title<?php echo $i === 1 ? ' media-frame-sub-title-first' : ''; ?>">
+												<h1><?php echo $section['title']; ?></h1>
 											</div>
-										</div>
-										<div class="media-frame-content" id="<?php echo $section['id']; ?>" style="padding: 16px;">
-											<div class="inside">
-												<?php call_user_func( $section['callback'], $post, $section ); ?>
-											</div>
-										</div>
-										<div class="media-frame-toolbar">
-											<div class="media-toolbar">
-												<div class="media-toolbar-secondary"></div>
-												<div class="media-toolbar-primary">
-													<a id="wp-fee-met-continue" class="button button-primary media-button button-large" href="#">Continue editing</a>
+											<div id="<?php echo $section['id']; ?>" style="padding: 16px;">
+												<div class="inside">
+													<?php call_user_func( $section['callback'], $post, $section ); ?>
 												</div>
 											</div>
 										</div>
-									</div>
-									<?php
-
+										<?php
+	
+									}
+	
 								}
-
+	
 							}
-
+	
 						}
-
+	
 					}
-
-				}
-
-				?>
+	
+					?>
+				</div>
+				<div class="media-frame-toolbar">
+					<div class="media-toolbar">
+						<div class="media-toolbar-secondary"></div>
+						<div class="media-toolbar-primary">
+							<a id="wp-fee-met-continue" class="button button-primary media-button button-large" href="#">Continue editing</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -102,7 +102,6 @@ class WP_Front_End_Editor {
 
 		register_activation_hook( self::PLUGIN, array( $this, 'activate' ) );
 
-		add_action( 'after_setup_theme', array( $this, 'after_setup_theme' ) ); // temporary
 		add_action( 'init', array( $this, 'init' ) );
 
 	}
@@ -115,15 +114,9 @@ class WP_Front_End_Editor {
 
 	public function activate() {
 
-		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
+		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES | EP_ROOT );
 
 		flush_rewrite_rules();
-
-	}
-
-	public function after_setup_theme() {
-
-		add_theme_support( 'front-end-editor' );
 
 	}
 
@@ -131,14 +124,10 @@ class WP_Front_End_Editor {
 
 		global $pagenow, $wp_post_statuses;
 
-		if ( ! current_theme_supports( 'front-end-editor' ) )
-
-			return;
-
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
 
-		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES );
+		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES | EP_ROOT );
 
 		add_action( 'wp', array( $this, 'wp' ) );
 
