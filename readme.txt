@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 0.7.9.1
+Stable tag: 0.7.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,10 @@ We're still looking for more people to join us - developers, UI designers and us
 This is just an experiment!
 
 == Changelog ==
+
+= 0.7.9.2 =
+
+* Fix meta modal in Chrome and Firefox.
 
 = 0.7.9 =
 

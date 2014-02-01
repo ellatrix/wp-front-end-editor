@@ -635,6 +635,12 @@ th.mce-item-selected {
 	}
 }
 
+@media screen and (max-height: 400px) {
+	#wp-fee-meta-modal .media-frame-menu {
+		display: none;
+	}
+}
+
 .media-frame-toolbar {
 	border-top: none;
 }

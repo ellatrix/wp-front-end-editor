@@ -59,6 +59,7 @@
 					<h1>Publish</h1>
 				</div>
 				<div class="media-frame-content" style="top: 0;border-top: none;">
+					<div class="media-frame-content-inner" style="position: relative;">
 					<?php
 	
 					$i = 0;
@@ -66,6 +67,8 @@
 					foreach ( $wp_meta_modal_sections as $context => $priorities ) {
 	
 						if ( is_array( $priorities ) ) {
+
+							ksort( $priorities );
 	
 							foreach ( $priorities as $priority => $sections ) {
 	
@@ -77,7 +80,7 @@
 	
 										?>
 										<div id="wp-fee-meta-modal-box-<?php echo $section['id']; ?>" class="wp-fee-meta-modal-box" data-box="<?php echo $section['id']; ?>">
-											<div class="media-frame-sub-title<?php echo $i === 1 ? ' media-frame-sub-title-first' : ''; ?>">
+											<div class="media-frame-sub-title<?php echo $i === 1 ? ' media-frame-sub-title-first' : ''; ?>" data-box="<?php echo $section['id']; ?>">
 												<h1><?php echo $section['title']; ?></h1>
 											</div>
 											<div id="<?php echo $section['id']; ?>" style="padding: 16px;">
@@ -99,6 +102,7 @@
 					}
 	
 					?>
+					</div>
 				</div>
 				<div class="media-frame-toolbar">
 					<div class="media-toolbar">
