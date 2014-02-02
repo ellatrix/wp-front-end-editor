@@ -4,7 +4,7 @@ Warning: this plugin is very experimental and not safe to use outside a test env
 
 If you found a bug or if you have ideas, add them to [the plugins Trac](https://plugins.trac.wordpress.org/plugin/wp-front-end-editor). We’ll also keep a list of tasks there.
 
-**Weekly IRC Chat:** Mondays, 16:00 UTC, #wordpress-ui
+**Weekly IRC Chat:** Tuesdays, 17:00 UTC, #wordpress-ui
 
 [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
 [Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  

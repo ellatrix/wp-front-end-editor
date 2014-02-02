@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	const VERSION = '0.7.9.2';
+	const VERSION = '0.7.10';
 	const PLUGIN = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -266,6 +266,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_style( 'wp-auth-check' );
 
 			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), self::VERSION, true );
 			wp_enqueue_script( 'post-custom', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), self::VERSION, true );
@@ -310,6 +311,13 @@ class WP_Front_End_Editor {
 			);
 
 			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
+			
+			wp_localize_script( 'wp-front-end-editor', 'autosaveL10n', array(
+				'autosaveInterval' => AUTOSAVE_INTERVAL,
+				'savingText' => __( 'Saving Draft&#8230;' ),
+				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
+				'blog_id' => get_current_blog_id(),
+			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
@@ -340,7 +348,7 @@ class WP_Front_End_Editor {
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
-				'title' => 'Cancel (Esc)'
+				'title' => 'Cancel (esc)'
 			),
 			'fee' => true
 		) );
@@ -353,7 +361,7 @@ class WP_Front_End_Editor {
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
-				'title' => 'Edit in Admin'
+				'title' => 'Edit in admin'
 			),
 			'fee' => true
 		) );
@@ -365,7 +373,7 @@ class WP_Front_End_Editor {
 			$wp_admin_bar->add_node( array(
 				'id' => 'wp-fee-publish',
 				'parent' => 'top-secondary',
-				'title' => '<span id="wp-fee-publish" class="wp-fee-submit button button-primary" title="' . __( 'Publish' ) . ' (Ctrl + S)" data-default="' . __( 'Publish' ) . '" data-working="' . __( 'Publishing&hellip;' ) . '" data-done="' . __( 'Published!' ) . '">' . __( 'Publish' ) . '</span>',
+				'title' => '<span id="wp-fee-publish" class="wp-fee-submit button button-primary" title="' . __( 'Publish' ) . ' (ctrl + S)" data-default="' . __( 'Publish' ) . '" data-working="' . __( 'Publishing&hellip;' ) . '" data-done="' . __( 'Published!' ) . '">' . __( 'Publish' ) . '</span>',
 				'meta' => array(
 					'class' => 'wp-core-ui'
 				),
@@ -377,7 +385,7 @@ class WP_Front_End_Editor {
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-save',
 			'parent' => 'top-secondary',
-			'title' => '<span id="wp-fee-save" class="wp-fee-submit button' . ( $unpublished ? '' : ' button-primary' ) . '" title="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . ' (Ctrl + S)" data-default="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '" data-working="' . ( $unpublished ? __( 'Saving&hellip;' ) : __( 'Updating&hellip;' ) ) . '" data-done="' . ( $unpublished ? __( 'Saved!' ) : __( 'Updated!' ) ) . '">' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '</span>',
+			'title' => '<span id="wp-fee-save" class="wp-fee-submit button' . ( $unpublished ? '' : ' button-primary' ) . '" title="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . ' (ctrl + S)" data-default="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '" data-working="' . ( $unpublished ? __( 'Saving&hellip;' ) : __( 'Updating&hellip;' ) ) . '" data-done="' . ( $unpublished ? __( 'Saved!' ) : __( 'Updated!' ) ) . '">' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '</span>',
 			'meta' => array(
 				'class' => 'wp-core-ui'
 			),
@@ -390,7 +398,7 @@ class WP_Front_End_Editor {
 			'parent' => 'top-secondary',
 			'title' => '<span class="ab-icon"></span>',
 			'meta' => array(
-				'title' => 'More Options'
+				'title' => 'More options'
 			),
 			'fee' => true
 		) );
@@ -405,7 +413,7 @@ class WP_Front_End_Editor {
 				'parent' => 'top-secondary',
 				'title' => '<span class="ab-icon"></span>',
 				'meta' => array(
-					'title' => 'Manage Tags'
+					'title' => 'Manage tags'
 				),
 				'fee' => true
 			) );
@@ -420,7 +428,7 @@ class WP_Front_End_Editor {
 				'parent' => 'top-secondary',
 				'title' => '<span class="ab-icon"></span>',
 				'meta' => array(
-					'title' => 'Manage Categories'
+					'title' => 'Manage categories'
 				),
 				'fee' => true
 			) );

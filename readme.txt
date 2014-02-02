@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 0.7.9.2
+Stable tag: 0.7.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ Warning: this plugin is very experimental and not safe to use outside a test env
 
 If you found a bug or if you have ideas, add them to [the plugins Trac](https://plugins.trac.wordpress.org/plugin/wp-front-end-editor). We’ll also keep a list of tasks there.
 
-**Weekly IRC Chat:** Mondays, 16:00 UTC, #wordpress-ui
+**Weekly IRC Chat:** Tuesdays, 17:00 UTC, #wordpress-ui
 
 [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
 [Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)  
@@ -28,6 +28,13 @@ We're still looking for more people to join us - developers, UI designers and us
 This is just an experiment!
 
 == Changelog ==
+
+= 0.7.10 =
+
+* Add TinyMCE tooltips.
+* Add TinyMCE paste as text button.
+* Fix title placeholder
+* Load TinyMCE toolbar on init.
 
 = 0.7.9.2 =
 
