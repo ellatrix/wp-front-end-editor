@@ -429,6 +429,7 @@
 
 					$.post( wp.fee.ajaxUrl, postData, function() {
 						sumbitButton.text( sumbitButton.data( 'done' ) );
+						window.onbeforeunload = null;
 						if ( wp.fee.redirectPostLocation ) {
 							window.location.href = wp.fee.redirectPostLocation;
 						} else {
