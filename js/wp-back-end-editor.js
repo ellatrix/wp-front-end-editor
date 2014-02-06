@@ -1,11 +1,8 @@
 ( function( $ ) {
 	'use strict';
 	$( document )
-		.on( 'click', '#content-fee', function( event ) {
-			wp_fee_redirect( event );
-		} )
 		.ready( function() {
-			$( '.wp-editor-tabs' ).prepend( '<a id="content-fee" class="wp-switch-editor hide-if-no-js">Front-end<input type="hidden" name="wp_fee_redirect" value="0"></a>' );
+			$( 'form#post' ).append( '<input type="hidden" name="wp_fee_redirect" value="0">' );
 			$( '#post-preview' ).on( 'click', function( event ) {
 				wp_fee_redirect( event );
 			} );

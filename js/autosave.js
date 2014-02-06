@@ -106,7 +106,7 @@ window.autosave = function(){};
 				var stored_obj = false;
 				// Separate local storage containers for each blog_id
 				if ( hasStorage && blog_id ) {
-					stored_obj = sessionStorage.getItem( 'wp-autosave-' + blog_id );
+					stored_obj = sessionStorage.getItem( 'wp-fee-autosave-' + blog_id );
 
 					if ( stored_obj ) {
 						stored_obj = JSON.parse( stored_obj );
@@ -129,7 +129,7 @@ window.autosave = function(){};
 				var key;
 
 				if ( hasStorage && blog_id ) {
-					key = 'wp-autosave-' + blog_id;
+					key = 'wp-fee-autosave-' + blog_id;
 					sessionStorage.setItem( key, JSON.stringify( stored_obj ) );
 					return sessionStorage.getItem( key ) !== null;
 				}

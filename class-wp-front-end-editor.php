@@ -122,7 +122,7 @@ class WP_Front_End_Editor {
 
 	public function init() {
 
-		global $pagenow, $wp_post_statuses;
+		global $wp_post_statuses;
 
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
@@ -130,12 +130,7 @@ class WP_Front_End_Editor {
 		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES | EP_ROOT );
 
 		add_action( 'wp', array( $this, 'wp' ) );
-
-		if ( is_admin()
-			&& ( $pagenow === 'post.php'
-				|| $pagenow === 'post-new.php' ) )
-
-			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 		if ( isset( $_POST['wp_fee_redirect'] )
 			&& $_POST['wp_fee_redirect'] == '1' )
@@ -148,17 +143,18 @@ class WP_Front_End_Editor {
 		add_action( 'wp_ajax_wp_fee_shortcode', array( $this, 'wp_fee_shortcode' ) );
 		add_action( 'wp_ajax_wp_fee_embed', array( $this, 'wp_fee_embed' ) );
 		add_action( 'wp_ajax_wp_fee_new', array( $this, 'wp_fee_new' ) );
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+
+		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
+		add_filter( 'edit_post_link', array( $this, 'edit_post_link' ), 10, 2 );
+		add_filter( 'admin_url', array( $this, 'admin_url' ) );
 
 	}
 
 	public function wp() {
 
 		global $post, $post_type, $post_type_object;
-		
-		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
-
-		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
-		add_filter( 'edit_post_link', array( $this, 'edit_post_link' ), 10, 2 );
 
 		if ( ! $this->is_edit() )
 
@@ -202,18 +198,22 @@ class WP_Front_End_Editor {
 
 	public function get_edit_post_link( $link, $id, $context ) {
 
+		global $pagenow;
+
 		$post = get_post( $id );
 
 		if ( $post->post_type === 'revision'
 			|| ! empty( $this->wp_fee['admin_edit_link'] ) )
 
-			return $link;
+			return add_query_arg( 'redirect', 'front', $link );
 
 		if ( $this->is_edit() )
 
 			return get_permalink( $id );
 
-		if ( ! is_admin() )
+		if ( ! is_admin()
+			|| ( $pagenow === 'revision.php'
+					&& $_GET['redirect'] === 'front' ) )
 
 			return $this->edit_link( $id );
 
@@ -228,6 +228,19 @@ class WP_Front_End_Editor {
 			return '<a class="post-edit-link" href="' . get_permalink( $id ) . '">' . __( 'Cancel' ) . '</a>';
 
 		return $link;
+
+	}
+	
+	public function admin_url( $url ) {
+
+		global $pagenow;
+
+		if ( $pagenow === 'revision.php'
+			&& $_GET['redirect'] === 'front' )
+
+			return add_query_arg( 'redirect', 'front', $url );
+
+		return $url;
 
 	}
 
@@ -811,7 +824,22 @@ class WP_Front_End_Editor {
 
 	public function admin_enqueue_scripts() {
 
-		wp_enqueue_script( 'wp-back-end-editor', $this->url( '/js/wp-back-end-editor.js' ), array(), self::VERSION, true );
+		global $pagenow, $revision;
+
+		if ( $pagenow === 'post.php'
+			|| $pagenow === 'post-new.php'  ) {
+
+			wp_enqueue_script( 'wp-back-end-editor', $this->url( '/js/wp-back-end-editor.js' ), array( 'jquery' ), self::VERSION, true );
+
+		} elseif ( $pagenow === 'revision.php' ) {
+
+			wp_enqueue_script( 'wp-fee-revision', $this->url( '/js/revision.js' ), array( 'jquery' ), self::VERSION, true );
+			
+			wp_localize_script( 'wp-fee-revision', 'wpFee', array(
+				'editLink' => $this->edit_link( $revision->post_parent )
+			) );
+
+		}
 
 	}
 

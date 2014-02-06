@@ -27,6 +27,7 @@
 					bottom: $(this).position().top + $(this).height() - 20,
 					title: $(this).find( 'h1' ).text()
 				};
+				$( this ).removeAttr( 'style' );
 				if ( i === ( boxes.length - 1 ) ) {
 					$(this).height( $(this).parent().parent().height() + 1 );
 				}
