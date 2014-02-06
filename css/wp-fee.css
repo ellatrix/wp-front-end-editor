@@ -37,29 +37,19 @@ div.error p {
 div.updated,
 div.error {
 	margin: 5px 0 15px;
-}
-
-div.updated {
 	border: none;
 	padding: 1px 12px;
-}
-
-div.error {
-	border: none;
+	background-color: #fff;
+	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
+	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
 }
 
 div.updated {
-	background-color: #fff;
 	border-left: 4px solid #7ad03a;
-	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
 }
 
 div.error {
-	background: #fff;
 	border-left: 4px solid #dd3d36;
-	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
 }
 
 *[contenteditable="true"]:focus,

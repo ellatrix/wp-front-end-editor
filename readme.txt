@@ -29,6 +29,12 @@ This is just an experiment!
 
 == Changelog ==
 
+= 0.8.1 =
+
+* Autosave to server.
+* Implemented messages.
+* Update to TinyMCE 4.0.16
+
 = 0.8 =
 
 * Autosave: Session Storage.

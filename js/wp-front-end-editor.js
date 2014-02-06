@@ -234,10 +234,7 @@
 				title = false,
 				title1, title2, title3, title4, title5;
 			
-			if ( window.location.hash === '#updated' ) {
-				window.location.hash = '';
-				$( '.wp-fee-updated' ).show().delay( 3000 ).fadeOut( 'slow' );
-			}
+			$( '#message' ).delay( 5000 ).fadeOut( 'slow' );
 			
 			// Most likely case and safest bet.
 			if ( ( title1 = $( '.wp-fee-post .entry-title' ) ) && postBody.length && postBody.hasClass( 'post-' + wp.fee.post.id() ) && title1.length ) {
@@ -465,22 +462,18 @@
 							'post_ID': wp.fee.post.id(),
 							'post_title': wp.fee.post.title(),
 							'post_content': wp.fee.post.content(),
-							'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : null,
+							'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : undefined,
+							'save' : ( sumbitButton.attr( 'id' ) === 'wp-fee-save' ) ? 'Save' : undefined,
 							'_wpnonce': wp.fee.post._wpnonce()
 						},
 						metaData = $( 'form' ).serializeObject();
 
 					$.extend( postData, metaData );
 
-					$.post( wp.fee.ajaxUrl, postData, function() {
+					$.post( wp.fee.ajaxUrl, postData, function( redirect ) {
 						wpCookies.set( 'wp-saving-post-' + wp.fee.post.id(), 'saved' );
 						window.onbeforeunload = null;
-						window.location.hash = '#updated';
-						if ( wp.fee.redirectPostLocation ) {
-							window.location.href = wp.fee.redirectPostLocation;
-						} else {
-							window.location.reload( true );
-						}
+						window.location.href = redirect;
 					} )
 					.fail( function() {
 						alert( 'An error occurred.' );

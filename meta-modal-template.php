@@ -1,6 +1,14 @@
 <div id="wp-fee-notice-area" class="wp-core-ui">
-	<div class="wp-fee-updated updated hidden">
-		<p>Post updated successfully.</p>
+	<?php if ( $notice ) : ?>
+	<div id="notice" class="error"><p id="has-newer-autosave"><?php echo $notice ?></p></div>
+	<?php endif; ?>
+	<?php if ( $message ) : ?>
+	<div id="message" class="updated"><p><?php echo $message; ?></p></div>
+	<?php endif; ?>
+	<div id="lost-connection-notice" class="error hidden">
+		<p><span class="spinner"></span> <?php _e( '<strong>Connection lost.</strong> Saving has been disabled until you&#8217;re reconnected.' ); ?>
+		<span class="hide-if-no-sessionstorage"><?php _e( 'We&#8217;re backing up this post in your browser, just in case.' ); ?></span>
+		</p>
 	</div>
 </div>
 <div id="local-storage-notice" class="hidden">
