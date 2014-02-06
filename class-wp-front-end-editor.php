@@ -213,7 +213,8 @@ class WP_Front_End_Editor {
 
 		if ( ! is_admin()
 			|| ( $pagenow === 'revision.php'
-					&& $_GET['redirect'] === 'front' ) )
+				&& isset( $_GET['redirect'] )
+				&& $_GET['redirect'] === 'front' ) )
 
 			return $this->edit_link( $id );
 
@@ -236,6 +237,7 @@ class WP_Front_End_Editor {
 		global $pagenow;
 
 		if ( $pagenow === 'revision.php'
+			&& isset( $_GET['redirect'] )
 			&& $_GET['redirect'] === 'front' )
 
 			return add_query_arg( 'redirect', 'front', $url );
@@ -831,12 +833,14 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_script( 'wp-back-end-editor', $this->url( '/js/wp-back-end-editor.js' ), array( 'jquery' ), self::VERSION, true );
 
-		} elseif ( $pagenow === 'revision.php' ) {
+		} elseif ( $pagenow === 'revision.php'
+			&& isset( $_GET['redirect'] )
+			&& $_GET['redirect'] === 'front' ) {
 
 			wp_enqueue_script( 'wp-fee-revision', $this->url( '/js/revision.js' ), array( 'jquery' ), self::VERSION, true );
 			
 			wp_localize_script( 'wp-fee-revision', 'wpFee', array(
-				'editLink' => $this->edit_link( $revision->post_parent )
+				'editLink' => $this->edit_link( $revision->post_parent ),
 			) );
 
 		}
