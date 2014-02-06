@@ -9,7 +9,9 @@
 	box-shadow: none;
 }
 
-.wp-core-ui * {
+.wp-core-ui *,
+.tipsy *,
+.mce-tooltip * {
 	height: auto;
 	width: auto;
 	margin: 0;

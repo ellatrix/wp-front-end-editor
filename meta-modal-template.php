@@ -1,5 +1,21 @@
+<div id="wp-fee-notice-area" class="wp-core-ui">
+	<div class="wp-fee-updated updated hidden">
+		<p>Post updated successfully.</p>
+	</div>
+</div>
+<div id="local-storage-notice" class="hidden">
+	<p class="local-restore">
+		The backup of this post in your browser is different from the version below. <a class="restore-backup" href="#">Restore the backup.</a>
+	</p>
+	<p class="undo-restore hidden">
+		Post restored successfully. <a class="undo-restore-backup" href="#">Undo.</a>
+	</p>
+</div>
 <form id="wp-fee-meta-modal" style="display: none;">
 	<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
+	<input type="hidden" id="post_type" name="post_type" value="<?php echo $post->post_type; ?>">
+	<input type="hidden" id="post_author" name="post_author" value="<?php echo $post->post_author; ?>">
+	<?php wp_nonce_field( 'update-post_' . $post->ID ); ?>
 	<div class="media-modal wp-core-ui">
 		<a class="media-modal-close" href="#" title="Close">
 			<span class="media-modal-icon"></span>

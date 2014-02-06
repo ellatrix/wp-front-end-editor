@@ -297,15 +297,19 @@ class WP_Front_End_Editor {
 			wp_localize_script( 'post-custom', 'postL10n', $vars );
 
 			wp_enqueue_script( 'wp-auth-check' );
+			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response' ), self::VERSION, true );
+			
+			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
+				'autosaveInterval' => AUTOSAVE_INTERVAL,
+				'blog_id' => get_current_blog_id(),
+			) );
+			
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce' . ( SCRIPT_DEBUG ? '' : '.min' ) . '.js' ), array(), '4.0.15', true );
 			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), self::VERSION, true );
 
 			$vars = array(
-				'postId' => $post->ID,
-				'postTitleRaw' => $post->post_title,
 				'postTitle' => get_the_title(),
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'updatePostNonce' => wp_create_nonce( 'update-post_' . $post->ID ),
 				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) ),
 				'blankGif' => includes_url( '/images/blank.gif' )
 			);
@@ -373,7 +377,7 @@ class WP_Front_End_Editor {
 			$wp_admin_bar->add_node( array(
 				'id' => 'wp-fee-publish',
 				'parent' => 'top-secondary',
-				'title' => '<span id="wp-fee-publish" class="wp-fee-submit button button-primary" title="' . __( 'Publish' ) . ' (ctrl + S)" data-default="' . __( 'Publish' ) . '" data-working="' . __( 'Publishing&hellip;' ) . '" data-done="' . __( 'Published!' ) . '">' . __( 'Publish' ) . '</span>',
+				'title' => '<span id="wp-fee-publish" class="wp-fee-submit button button-primary" title="' . __( 'Publish' ) . ' (ctrl + S)" data-default="' . __( 'Publish' ) . '" data-working="' . __( 'Publishing&hellip;' ) . '">' . __( 'Publish' ) . '</span>',
 				'meta' => array(
 					'class' => 'wp-core-ui'
 				),
@@ -385,7 +389,7 @@ class WP_Front_End_Editor {
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-save',
 			'parent' => 'top-secondary',
-			'title' => '<span id="wp-fee-save" class="wp-fee-submit button' . ( $unpublished ? '' : ' button-primary' ) . '" title="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . ' (ctrl + S)" data-default="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '" data-working="' . ( $unpublished ? __( 'Saving&hellip;' ) : __( 'Updating&hellip;' ) ) . '" data-done="' . ( $unpublished ? __( 'Saved!' ) : __( 'Updated!' ) ) . '">' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '</span>',
+			'title' => '<span id="wp-fee-save" class="wp-fee-submit button' . ( $unpublished ? '' : ' button-primary' ) . '" title="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . ' (ctrl + S)" data-default="' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '" data-working="' . ( $unpublished ? __( 'Saving&hellip;' ) : __( 'Updating&hellip;' ) ) . '">' . ( $unpublished ? __( 'Save' ) : __( 'Update' ) ) . '</span>',
 			'meta' => array(
 				'class' => 'wp-core-ui'
 			),
@@ -645,10 +649,6 @@ class WP_Front_End_Editor {
 
 		$post_id = edit_post();
 
-		if ( isset( $_COOKIE['wp-saving-post-' . $post_id] ) )
-
-			setcookie( 'wp-saving-post-' . $post_id, 'saved' );
-
 		$this->response( $post_id );
 
 	}
@@ -694,11 +694,11 @@ class WP_Front_End_Editor {
 		if ( in_array( $tag, array( 'gallery', 'caption' ) ) ) {
 
 			$r = '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false">';
-				$r .= '<div style="display:none" class="wp-fee-shortcode">';
+				$r .= '<div style="display: none;" class="wp-fee-shortcode">';
 					$r .= $m[0];
 				$r .= '</div>';
 				$r .= $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
-				$r .= '<div class="wp-fee-shortcode-options">';
+				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
 					$r .= '<div class="wp-fee-shortcode-remove"></div>';
 					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '"></div>';
 				$r .= '</div>';
@@ -719,7 +719,17 @@ class WP_Front_End_Editor {
 
 		if ( $embed ) {
 
-			$this->response( '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $_POST['content'] . '</div>' . $embed . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>' );
+			$r = '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false">';
+				$r .= '<div style="display: none;" class="wp-fee-shortcode">';
+					$r .= $_POST['content'];
+				$r .= '</div>';
+				$r .= $embed;
+				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
+					$r .= '<div class="wp-fee-shortcode-remove"></div>';
+				$r .= '</div>';
+			$r .= '</div>';
+
+			$this->response( $r );
 
 		}
 
@@ -741,8 +751,18 @@ class WP_Front_End_Editor {
 		$wp_embed->linkifunknown = false;
 		$return = $wp_embed->shortcode( array(), $m[1] );
 		$wp_embed->linkifunknown = $oldval;
+		
+		$r = '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false">';
+			$r .= '<div style="display: none;" class="wp-fee-shortcode">';
+				$r .= $m[0];
+			$r .= '</div>';
+			$r .= $return;
+			$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
+				$r .= '<div class="wp-fee-shortcode-remove"></div>';
+			$r .= '</div>';
+		$r .= '</div>';
 
-		return '<div class="wp-fee-shortcode-container mceNonEditable" contenteditable="false"><div style="display:none" class="wp-fee-shortcode">' . $m[0] . '</div>' . $return . '<div class="wp-fee-shortcode-options"><div class="wp-fee-shortcode-remove"></div></div></div>';
+		return $r;
 
 	}
 
@@ -1059,6 +1079,17 @@ class WP_Front_End_Editor {
 			) );
 
 			?>
+		</p>
+		<?php
+
+		}
+		
+		if ( post_type_supports( $post_type, 'title' ) ) {
+
+		?>
+		<p>
+			<label for="post_title"><?php _e( 'Title' ); ?></label>
+			<input name="post_title" type="text" id="post_title" value="<?php echo esc_attr( $post->post_title ); ?>">
 		</p>
 		<?php
 
