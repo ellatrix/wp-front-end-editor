@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	const VERSION = '0.8.2';
+	const VERSION = '0.8.3';
 	const PLUGIN = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -254,7 +254,7 @@ class WP_Front_End_Editor {
 	// Only for WP 3.8.
 	public function heartbeat_autosave( $response, $data ) {
 		if ( ! empty( $data['wp_autosave'] ) ) {
-			$saved = wp_autosave( $data['wp_autosave'] );
+			$saved = $this->wp_autosave( $data['wp_autosave'] );
 	
 			if ( is_wp_error( $saved ) ) {
 				$response['wp_autosave'] = array( 'success' => false, 'message' => $saved->get_error_message() );
@@ -270,6 +270,39 @@ class WP_Front_End_Editor {
 	
 		return $response;
 	}
+	
+	// Only for WP 3.8.
+	public function wp_autosave( $post_data ) {
+		// Back-compat
+		if ( ! defined( 'DOING_AUTOSAVE' ) )
+			define( 'DOING_AUTOSAVE', true );
+	
+		$post_id = (int) $post_data['post_id'];
+		$post_data['ID'] = $post_data['post_ID'] = $post_id;
+	
+		if ( false === wp_verify_nonce( $post_data['_wpnonce'], 'update-post_' . $post_id ) )
+			return new WP_Error( 'invalid_nonce', __('ERROR: invalid post data.') );
+	
+		$post = get_post( $post_id );
+	
+		if ( ! current_user_can( 'edit_post', $post->ID ) )
+			return new WP_Error( 'edit_post', __('You are not allowed to edit this item.') );
+	
+		if ( 'auto-draft' == $post->post_status )
+			$post_data['post_status'] = 'draft';
+	
+		if ( $post_data['post_type'] != 'page' && ! empty( $post_data['catslist'] ) )
+			$post_data['post_category'] = explode( ',', $post_data['catslist'] );
+	
+		if ( ! wp_check_post_lock( $post->ID ) && get_current_user_id() == $post->post_author && ( 'auto-draft' == $post->post_status || 'draft' == $post->post_status ) ) {
+			// Drafts and auto-drafts are just overwritten by autosave for the same user if the post is not locked
+			return edit_post( $post_data );
+		} else {
+			// Non drafts or other users drafts are not overwritten. The autosave is stored in a special post revision for each user.
+			return wp_create_post_autosave( $post_data );
+		}
+	}
+	
 
 	public function wp_head() {
 
