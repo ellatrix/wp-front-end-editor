@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	const VERSION = '0.8.1';
+	const VERSION = '0.8.2';
 	const PLUGIN = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;

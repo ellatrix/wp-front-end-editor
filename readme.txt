@@ -4,13 +4,11 @@ Contributors: avryl, wordpressdotorg, Joen, shaunandrews, kraftbj
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 0.8.1
+Stable tag: 0.8.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 == Description ==
-
-Warning: this plugin is very experimental and not safe to use outside a test environment.
 
 If you found a bug or if you have ideas, add them to [the plugins Trac](https://plugins.trac.wordpress.org/plugin/wp-front-end-editor). We’ll also keep a list of tasks there.
 
@@ -29,11 +27,19 @@ This is just an experiment!
 
 == Changelog ==
 
+= 0.8.2 =
+
+* Redirect revision.php properly when coming from the front-end.
+* Autosave to server for WP 3.8.
+* Separate front-end and back-end field in session storage.
+* Remove the front-end tab in the back-end editor.
+* Reset button Firefox.
+* Fixed tooltip position.
+
 = 0.8.1 =
 
 * Autosave to server.
 * Implemented messages.
-* Update to TinyMCE 4.0.16
 
 = 0.8 =
 
