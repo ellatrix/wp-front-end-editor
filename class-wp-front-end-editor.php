@@ -149,6 +149,11 @@ class WP_Front_End_Editor {
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 		add_filter( 'edit_post_link', array( $this, 'edit_post_link' ), 10, 2 );
 		add_filter( 'admin_url', array( $this, 'admin_url' ) );
+		
+		// Only for WP 3.8.
+		if ( ! function_exists( 'heartbeat_autosave' ) ) {
+			add_filter( 'heartbeat_received', array( $this, 'heartbeat_autosave' ), 500, 2 );
+		}
 
 	}
 
@@ -244,6 +249,26 @@ class WP_Front_End_Editor {
 
 		return $url;
 
+	}
+	
+	// Only for WP 3.8.
+	public function heartbeat_autosave( $response, $data ) {
+		if ( ! empty( $data['wp_autosave'] ) ) {
+			$saved = wp_autosave( $data['wp_autosave'] );
+	
+			if ( is_wp_error( $saved ) ) {
+				$response['wp_autosave'] = array( 'success' => false, 'message' => $saved->get_error_message() );
+			} elseif ( empty( $saved ) ) {
+				$response['wp_autosave'] = array( 'success' => false, 'message' => __( 'Error while saving.' ) );
+			} else {
+				/* translators: draft saved date format, see http://php.net/date */
+				$draft_saved_date_format = __( 'g:i:s a' );
+				/* translators: %s: date and time */
+				$response['wp_autosave'] = array( 'success' => true, 'message' => sprintf( __( 'Draft saved at %s.' ), date_i18n( $draft_saved_date_format ) ) );
+			}
+		}
+	
+		return $response;
 	}
 
 	public function wp_head() {
@@ -840,7 +865,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'wp-fee-revision', $this->url( '/js/revision.js' ), array( 'jquery' ), self::VERSION, true );
 			
 			wp_localize_script( 'wp-fee-revision', 'wpFee', array(
-				'editLink' => $this->edit_link( $revision->post_parent ),
+				'editLink' => $this->edit_link( $revision->post_parent )
 			) );
 
 		}

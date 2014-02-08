@@ -331,6 +331,12 @@ div.error {
 	margin: 0;
 }
 
+#wpadminbar .mce-btn > button::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+
 #wpadminbar .mce-btn .mce-ico,
 #wpadminbar .mce-btn .mce-caret {
 	position: relative;
@@ -595,10 +601,10 @@ th.mce-item-selected {
 .tipsy,
 .mce-tooltip {
 	font-family: "Open Sans", sans-serif;
-	position: absolute;
+	position: fixed;
+	top: 33px!important;
 	padding: 5px;
 	opacity: 0.8;
-	margin-top: 1px;
 	z-index: 10000;
 }
 
