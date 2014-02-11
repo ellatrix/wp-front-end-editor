@@ -2,7 +2,7 @@
 
 class WP_Front_End_Editor {
 
-	const VERSION = '0.8.3';
+	const VERSION = '0.8.4';
 	const PLUGIN = 'wp-front-end-editor/wp-front-end-editor.php';
 
 	private static $instance;
@@ -299,8 +299,54 @@ class WP_Front_End_Editor {
 			return edit_post( $post_data );
 		} else {
 			// Non drafts or other users drafts are not overwritten. The autosave is stored in a special post revision for each user.
-			return wp_create_post_autosave( $post_data );
+			return $this->wp_create_post_autosave( $post_data );
 		}
+	}
+	
+	// Only for WP 3.8.
+	public function wp_create_post_autosave( $post_data ) {
+		if ( is_numeric( $post_data ) ) {
+			$post_id = $post_data;
+			$post_data = &$_POST;
+		} else {
+			$post_id = (int) $post_data['post_ID'];
+		}
+	
+		$post_data = _wp_translate_postdata( true, $post_data );
+		if ( is_wp_error( $post_data ) )
+			return $post_data;
+	
+		$post_author = get_current_user_id();
+	
+		// Store one autosave per author. If there is already an autosave, overwrite it.
+		if ( $old_autosave = wp_get_post_autosave( $post_id, $post_author ) ) {
+			$new_autosave = _wp_post_revision_fields( $post_data, true );
+			$new_autosave['ID'] = $old_autosave->ID;
+			$new_autosave['post_author'] = $post_author;
+	
+			// If the new autosave has the same content as the post, delete the autosave.
+			$post = get_post( $post_id );
+			$autosave_is_different = false;
+			foreach ( array_keys( _wp_post_revision_fields() ) as $field ) {
+				if ( normalize_whitespace( $new_autosave[ $field ] ) != normalize_whitespace( $post->$field ) ) {
+					$autosave_is_different = true;
+					break;
+				}
+			}
+	
+			if ( ! $autosave_is_different ) {
+				wp_delete_post_revision( $old_autosave->ID );
+				return 0;
+			}
+	
+			return wp_update_post( $new_autosave );
+		}
+	
+		// _wp_put_post_revision() expects unescaped.
+		$post_data = wp_unslash( $post_data );
+	
+		// Otherwise create the new autosave as a special post revision
+		return _wp_put_post_revision( $post_data, true );
 	}
 	
 
@@ -805,8 +851,11 @@ class WP_Front_End_Editor {
 				$r .= '</div>';
 				$r .= $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-					$r .= '<div class="wp-fee-shortcode-remove"></div>';
-					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '"></div>';
+					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -831,7 +880,10 @@ class WP_Front_End_Editor {
 				$r .= '</div>';
 				$r .= $embed;
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-					$r .= '<div class="wp-fee-shortcode-remove"></div>';
+					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -864,7 +916,10 @@ class WP_Front_End_Editor {
 			$r .= '</div>';
 			$r .= $return;
 			$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-				$r .= '<div class="wp-fee-shortcode-remove"></div>';
+				$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
+				$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
+				$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
+				$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 			$r .= '</div>';
 		$r .= '</div>';
 

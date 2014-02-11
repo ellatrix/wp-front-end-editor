@@ -50,15 +50,13 @@
 			$( '#wp-admin-bar-wp-fee-mce-toolbar' ).find( '*' ).not( '.mce-toolbar' ).not( '.mce-preview' ).removeAttr( 'style' );
 		},
 		convertReplace: function( n, o ) {
-			var dom = tinyMCE.activeEditor.dom,
-				post = {
+			var post = {
 					'action': 'wp_fee_shortcode',
 					'shortcode': n
 				};
 			$.post( wp.fee.ajaxUrl, post, function( n ) {
-				// Does weird things when editing a caption for the second time.
-				n = dom.createFragment( n );
-				dom.replace( n, o );
+				$( o ).children().first().replaceWith( $( n ).children().first() );
+				$( o ).children().eq(1).replaceWith( $( n ).children().eq(1) );
 			} );
 		},
 		WPRemoveThumbnail: function( nonce ) {
@@ -137,12 +135,9 @@
 	$( document )
 		.on( 'autosave-enable-buttons', function() {
 			$( '.wp-fee-submit' ).removeClass( $( '.wp-fee-submit' ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
-			console.log( 'enable' );
 		} )
 		.on( 'autosave-disable-buttons', function() {
 			$( '.wp-fee-submit' ).addClass( $( '.wp-fee-submit' ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
-			console.log( 'disable' );
-			console.log( $( '.wp-fee-submit' ) );
 		} )
 		.on( 'mouseenter', '.wp-fee-shortcode-container', function() {
 			$( this ).find( '.wp-fee-shortcode-options' ).fadeIn( 'fast' );
@@ -165,11 +160,29 @@
 				$( '.fee-edit-thumbnail' ).addClass( 'empty' );
 			}
 		} )
-		.on( 'click', '.wp-fee-shortcode-container', function() {
-			$( this ).find( '.wp-fee-shortcode-options' ).fadeOut( 'fast' );
+		.on( 'click', '.wp-fee-shortcode-view', function() {
+			$( this ).parents( '.wp-fee-shortcode-container' ).find( '.wp-fee-shortcode-options' ).fadeOut( 'fast' );
+		} )
+		.on( 'click', '.wp-fee-shortcode-insert-top', function() {
+			var container = $( this ).parents( '.wp-fee-shortcode-container' ),
+				prev = container.prev();
+			if ( prev.length && prev.is( 'p' ) && ! prev.text().replace(/[\x20\s\t\r\n\f]+/g, '') ) {
+				prev.remove();
+			} else {
+				container.before( '<p><br data-mce-bogus="1"></p>' );
+			}
+		} )
+		.on( 'click', '.wp-fee-shortcode-insert-bottom', function() {
+			var container = $( this ).parents( '.wp-fee-shortcode-container' ),
+				next = container.next();
+			if ( next.length && next.is( 'p' ) && ! next.text().replace(/[\x20\s\t\r\n\f]+/g, '') ) {
+				next.remove();
+			} else {
+				container.after( '<p><br data-mce-bogus="1"></p>' );
+			}
 		} )
 		.on( 'click', '.wp-fee-shortcode-remove', function() {
-			$( this ).parents( '.wp-fee-shortcode-container' ).replaceWith( '<p></p>' );
+			$( this ).parents( '.wp-fee-shortcode-container' ).remove();
 		} )
 		.on( 'click', '.wp-fee-shortcode-edit', function() {
 			var container = $( this ).parents( '.wp-fee-shortcode-container' );
@@ -191,6 +204,7 @@
 					} else {
 						frame = wp.media( {
 								title : 'Edit Media',
+								frame: 'post',
 								button : {
 									text : 'Edit Media'
 								}
@@ -202,7 +216,7 @@
 								attachment.fetch();
 								selection.add( attachment ? [ attachment ] : [] );
 							} )
-							.on( 'select', function() {
+							.on( 'insert', function() {
 								var selection = frame.state().get( 'selection' ).first();
 								if ( ! selection )
 									return;
@@ -228,6 +242,9 @@
 				event.stopPropagation();
 				window.location.href = $( '#wp-admin-bar-wp-fee-close a' ).attr( 'href' );
 			}
+		} )
+		.on( 'click', '.wp-fee-content a', function( event ) {
+			event.preventDefault();
 		} )
 		.ready( function() {
 			var content = $( '#wp-fee-content-' + wp.fee.post.id() ),
@@ -293,9 +310,9 @@
 			tinyMCE.init( {
 				selector: '#wp-fee-content-' + wp.fee.post.id(),
 				inline: true,
-				plugins: 'wpfeelink charmap paste textcolor table',
+				plugins: 'wpfeelink charmap paste textcolor table noneditable',
 				toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify link media undo redo',
-				toolbar2: 'kitchensink removeformat pastetext bullist numlist outdent indent forecolor backcolor table',
+				toolbar2: 'kitchensink removeformat pastetext bullist numlist outdent indent forecolor backcolor table undo redo',
 				menubar: false,
 				fixed_toolbar_container: '#wp-admin-bar-wp-fee-mce-toolbar',
 				skin: false,
