@@ -1,11 +1,11 @@
-/* global tinymce, wpCookies, autosaveL10n, switchEditors */
+/* global tinymce, wpCookies, autosaveL10n */
 // Back-compat: prevent fatal errors
 window.autosave = function(){};
 
 ( function( $, window ) {
 	function autosave() {
 		var initialCompareString,
-		lastTriggerSave = 0,
+		/*lastTriggerSave = 0,*/
 		$document = $(document);
 
 		/**
@@ -352,7 +352,7 @@ window.autosave = function(){};
 					$( '#excerpt' ).val( postData.excerpt || '' ).change();
 
 					if ( typeof tinymce !== 'undefined' ) {
-						editor = tinyMCE.get( 'wp-fee-content-' + wp.fee.post.id() );
+						editor = tinymce.get( 'wp-fee-content-' + wp.fee.post.id() );
 						if ( editor ) {
 							editor.undoManager.add();
 							editor.setContent( postData.content ? postData.content : '' );
@@ -536,7 +536,7 @@ window.autosave = function(){};
 		// then 'save' to the textarea before setting initialCompareString.
 		// This avoids any insignificant differences between the initial textarea content and the content
 		// extracted from the editor.
-		$document.on( 'tinymce-editor-init.autosave', function( event, editor ) {
+		$document.on( 'tinymce-editor-init.autosave', function() {
 			window.setTimeout( function() {
 				initialCompareString = getCompareString();
 			}, 1000 );

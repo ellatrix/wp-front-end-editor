@@ -1,3 +1,4 @@
+/* global wpFee */
 ( function( $ ) {
 	'use strict';
 	$( document )

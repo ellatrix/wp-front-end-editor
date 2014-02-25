@@ -1,3 +1,4 @@
+/* global wpFee, tinyMCE, setPostThumbnailL10n, autosaveL10n, wpCookies, alert  */
 ( function( $, globals, window ) {
 	'use strict';
 	var frame;
@@ -77,7 +78,7 @@
 		},
 		onbeforeunload: function() {
 			if ( tinyMCE.get( 'wp-fee-content-' + wp.fee.post.id() ).isDirty() )
-			    return autosaveL10n.saveAlert;
+				return autosaveL10n.saveAlert;
 		},
 		post: {
 			id: function() {
@@ -185,11 +186,12 @@
 			$( this ).parents( '.wp-fee-shortcode-container' ).remove();
 		} )
 		.on( 'click', '.wp-fee-shortcode-edit', function() {
-			var container = $( this ).parents( '.wp-fee-shortcode-container' );
+			var container = $( this ).parents( '.wp-fee-shortcode-container' ),
+				shortcode, gallery, img, id;
 			switch ( $( this ).data( 'kind' ) ) {
 				case 'gallery':
-					var shortcode = container.children( '.wp-fee-shortcode' ).html(),
-						gallery = wp.media.gallery;
+					shortcode = container.children( '.wp-fee-shortcode' ).html();
+					gallery = wp.media.gallery;
 					gallery.edit( shortcode ).state('gallery-edit')
 						.on( 'update', function( selection ) {
 							shortcode = gallery.shortcode( selection ).string();
@@ -197,8 +199,8 @@
 						} );
 					break;
 				case 'caption':
-					var img = container.find( 'img' ).attr( 'class' ),
-						id = img.match( /wp-image-([\d]*)/i )[1];
+					img = container.find( 'img' ).attr( 'class' );
+					id = img.match( /wp-image-([\d]*)/i )[1];
 					if ( frame ) {
 						frame.open();
 					} else {
@@ -217,10 +219,11 @@
 								selection.add( attachment ? [ attachment ] : [] );
 							} )
 							.on( 'insert', function() {
-								var selection = frame.state().get( 'selection' ).first();
+								var selection = frame.state().get( 'selection' ).first(),
+									display;
 								if ( ! selection )
 									return;
-								var display = frame.state().display( selection ).toJSON();
+								display = frame.state().display( selection ).toJSON();
 								wp.media.editor.send.attachment( display, selection.toJSON() )
 									.done( function() {
 										wp.fee.convertReplace( arguments[0], container );
@@ -247,10 +250,9 @@
 			event.preventDefault();
 		} )
 		.ready( function() {
-			var content = $( '#wp-fee-content-' + wp.fee.post.id() ),
-				postBody = $( '.wp-fee-post' ),
+			var postBody = $( '.wp-fee-post' ),
 				title = false,
-				title1, title2, title3, title4, title5;
+				title1, title2, title3, title4, title5, docTitle, postFormat;
 			
 			$( '#message' ).delay( 5000 ).fadeOut( 'slow' );
 			
@@ -288,7 +290,7 @@
 
 			if ( wp.fee.title ) {
 
-				var docTitle = ( wp.fee.title.text().length ? document.title.replace( wp.fee.title.text(), '<!--replace-->' ) : document.title );
+				docTitle = ( wp.fee.title.text().length ? document.title.replace( wp.fee.title.text(), '<!--replace-->' ) : document.title );
 
 				wp.fee.title.text( wp.fee.post.title() ).attr( 'contenteditable', 'true' ).addClass( 'wp-fee-title' )
 					.on( 'keyup', function() {
@@ -322,7 +324,7 @@
 				valid_elements: '*[*]',
 				valid_children : '+div[style],+div[script]',
 				setup: function( editor ) {
-					editor.on( 'init', function(e) {
+					editor.on( 'init', function() {
 						editor.focus();
 						$( '.mce-i-media' ).parent()
 							.data( 'editor', 'fee-edit-content-' + wp.fee.post.id() )
@@ -457,7 +459,7 @@
 					event.preventDefault();
 					$( '#wp-fee-meta-modal' ).hide();
 				} );
-			var postFormat = ( postFormat = $( 'input[name=post_format]:checked' ).val() === '0' ? 'standard' : postFormat );
+			postFormat = ( postFormat = $( 'input[name=post_format]:checked' ).val() === '0' ? 'standard' : postFormat );
 			$( 'input[name=post_format]' )
 				.change( function () {
 					$( '.wp-fee-post' ).removeClass( 'format-' + postFormat );
@@ -467,24 +469,25 @@
 					$( '.wp-fee-body' ).addClass( 'single-format-' + postFormat );
 				} );
 			$( '.wp-fee-submit' )
-				.on( 'click', function( event ) {
-					var sumbitButton = $( this );
+				.on( 'click', function() {
+					var sumbitButton = $( this ),
+						postData, metaData;
 					if ( sumbitButton.hasClass( 'button-primary-disabled' ) || sumbitButton.hasClass( 'button-disabled' ) )
 						return;
 					sumbitButton
 						.addClass( sumbitButton.hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' )
 						.text( sumbitButton.data( 'working' ) );
 
-					var postData = {
-							'action': 'wp_fee_post',
-							'post_ID': wp.fee.post.id(),
-							'post_title': wp.fee.post.title(),
-							'post_content': wp.fee.post.content(),
-							'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : undefined,
-							'save' : ( sumbitButton.attr( 'id' ) === 'wp-fee-save' ) ? 'Save' : undefined,
-							'_wpnonce': wp.fee.post._wpnonce()
-						},
-						metaData = $( 'form' ).serializeObject();
+					postData = {
+						'action': 'wp_fee_post',
+						'post_ID': wp.fee.post.id(),
+						'post_title': wp.fee.post.title(),
+						'post_content': wp.fee.post.content(),
+						'publish' : ( sumbitButton.attr( 'id' ) === 'wp-fee-publish' ) ? 'Publish' : undefined,
+						'save' : ( sumbitButton.attr( 'id' ) === 'wp-fee-save' ) ? 'Save' : undefined,
+						'_wpnonce': wp.fee.post._wpnonce()
+					},
+					metaData = $( 'form' ).serializeObject();
 
 					$.extend( postData, metaData );
 

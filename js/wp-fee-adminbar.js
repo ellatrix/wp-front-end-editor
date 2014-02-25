@@ -1,3 +1,4 @@
+/* global wpFee, alert */
 ( function( $ ) {
 	'use strict';
 	function wpFeeNew( postType ) {
