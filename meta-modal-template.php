@@ -24,6 +24,9 @@
 	<input type="hidden" id="post_type" name="post_type" value="<?php echo $post->post_type; ?>">
 	<input type="hidden" id="post_author" name="post_author" value="<?php echo $post->post_author; ?>">
 	<?php wp_nonce_field( 'update-post_' . $post->ID ); ?>
+	<?php if ( ! empty( $active_post_lock ) ) { ?>
+	<input type="hidden" id="active_post_lock" value="<?php echo esc_attr( implode( ':', $active_post_lock ) ); ?>">
+	<?php } ?>
 	<div class="media-modal wp-core-ui">
 		<a class="media-modal-close" href="#" title="Close">
 			<span class="media-modal-icon"></span>

@@ -181,6 +181,16 @@ class WP_Front_End_Editor {
 
 		$post_type = $post->post_type;
 		$post_type_object = get_post_type_object( $post_type );
+		
+		if ( ! empty( $_GET['get-post-lock'] ) ) {
+
+			wp_set_post_lock( $post->ID );
+
+			wp_redirect( get_edit_post_link( $post->ID, 'url' ) );
+
+			die();
+
+		}
 
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
@@ -608,9 +618,9 @@ class WP_Front_End_Editor {
 
 	public function post_class( $classes ) {
 
-        $classes[] = 'wp-fee-post';
+		$classes[] = 'wp-fee-post';
 
-        return $classes;
+		return $classes;
 
 	}
 
@@ -629,17 +639,17 @@ class WP_Front_End_Editor {
 
 			$classes[] = 'wp-fee-locked';
 
-        return $classes;
+		return $classes;
 
 	}
 
 	public function the_title( $title ) {
 
-        if ( empty( $title ) )
+		if ( empty( $title ) )
 
-        	$title = ' ';
+			$title = ' ';
 
-        return $title;
+		return $title;
 
 	}
 
@@ -1001,6 +1011,12 @@ class WP_Front_End_Editor {
 		
 		set_current_screen( $post_type );
 
+		if ( ! wp_check_post_lock( $post->ID ) ) {
+
+			$active_post_lock = wp_set_post_lock( $post->ID );
+
+		}
+
 		$messages = array();
 		$messages['post'] = array(
 			 0 => '', // Unused. Messages start at index 1.
@@ -1178,18 +1194,18 @@ class WP_Front_End_Editor {
 
 			}
 
-        }
+		}
 
-        if ( ! isset( $wp_meta_modal_sections[$context][$priority]) )
+		if ( ! isset( $wp_meta_modal_sections[$context][$priority]) )
 
 			$wp_meta_modal_sections[$context][$priority] = array();
 
-        $wp_meta_modal_sections[$context][$priority][$id] = array(
-        	'id' => $id,
-        	'title' => $title,
-        	'callback' => $callback,
-        	'args' => $args
-        );
+		$wp_meta_modal_sections[$context][$priority][$id] = array(
+			'id' => $id,
+			'title' => $title,
+			'callback' => $callback,
+			'args' => $args
+		);
 
 	}
 
