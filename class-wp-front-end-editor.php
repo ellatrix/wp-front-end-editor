@@ -161,6 +161,8 @@ class WP_Front_End_Editor {
 
 		global $post, $post_type, $post_type_object;
 
+		add_filter( 'body_class', array( $this, 'body_class' ) );
+
 		if ( ! $this->is_edit() )
 
 			return;
@@ -192,7 +194,6 @@ class WP_Front_End_Editor {
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
 
 		add_filter( 'post_class', array( $this, 'post_class' ) );
-		add_filter( 'body_class', array( $this, 'body_class' ) );
 		add_filter( 'the_title', array( $this, 'the_title' ) );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
 		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
@@ -229,9 +230,15 @@ class WP_Front_End_Editor {
 
 	public function edit_post_link( $link, $id ) {
 
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
 		if ( $this->is_edit() )
 
 			return '<a class="post-edit-link" href="' . get_permalink( $id ) . '">' . __( 'Cancel' ) . '</a>';
+
+		if ( wp_check_post_lock( $id ) )
+
+			return '<a class="post-edit-link" href="' . $this->edit_link( $id ) . '">' . __( 'LOCKED' ) . '</a>';
 
 		return $link;
 
@@ -448,11 +455,20 @@ class WP_Front_End_Editor {
 
 		} else {
 
+			wp_enqueue_style( 'wp-fee-adminbar' , $this->url( '/css/wp-fee-adminbar.css' ), false, self::VERSION, 'screen' );
+
+			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'wp-fee-adminbar', $this->url( '/js/wp-fee-adminbar.js' ), array( 'jquery' ), self::VERSION, true );
+
+			require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+			$user_id = wp_check_post_lock( $post->ID );
+			$user = get_userdata( $user_id );
 
 			$vars = array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'homeUrl' => home_url( '/' )
+				'homeUrl' => home_url( '/' ),
+				'lock' => $user_id ? $user->display_name : false
 			);
 
 			wp_localize_script( 'wp-fee-adminbar', 'wpFee', $vars );
@@ -600,7 +616,18 @@ class WP_Front_End_Editor {
 
 	public function body_class( $classes ) {
 
-        $classes[] = 'wp-fee-body';
+		global $post;
+
+		if ( $this->is_edit() )
+
+			$classes[] = 'wp-fee-body';
+
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+		if ( is_singular()
+			&& wp_check_post_lock( $post->ID ) )
+
+			$classes[] = 'wp-fee-locked';
 
         return $classes;
 

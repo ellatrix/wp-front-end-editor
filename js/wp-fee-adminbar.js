@@ -29,5 +29,9 @@
 					event.preventDefault();
 					wpFeeNew( 'page' );
 				} );
+			if ( wpFee.lock ) {
+				$( '.post-edit-link' ).tipsy( { fallback: wpFee.lock + ' is currently editing' } );
+				$( '#wp-admin-bar-edit > .ab-item' ).tipsy( { fallback: wpFee.lock + ' is currently editing', className: 'tipsy-bar' } );
+			}
 		} );
 } ( jQuery ) );
