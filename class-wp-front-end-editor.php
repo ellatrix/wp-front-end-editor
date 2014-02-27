@@ -678,7 +678,7 @@ class WP_Front_End_Editor {
 			$content = wpautop( $content );
 			$content = shortcode_unautop( $content );
 			$content = $this->do_shortcode( $content );
-            $content = preg_replace("/<!--(.*?)-->/s", esc_html( "<!--$1-->" ), $content);
+			$content = preg_replace("/<!--(.*?)-->/s", esc_html( "<!--$1-->" ), $content);
 			$content = '<div class="wp-fee-content-holder"><p class="wp-fee-content-placeholder">&hellip;</p><div id="wp-fee-content-' . $post->ID . '" class="wp-fee-content">' . $content . '</div></div>';
 
 		}
