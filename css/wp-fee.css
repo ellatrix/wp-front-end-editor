@@ -647,6 +647,10 @@
 	content: '\f217';
 }
 
+.mce-i-wp_more:before {
+	content: '\f209';
+}
+
 #wpadminbar .mce-toolbar:not(:first-child) {
 	display: none;
 }
