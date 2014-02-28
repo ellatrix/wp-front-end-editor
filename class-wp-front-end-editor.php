@@ -129,6 +129,9 @@ class WP_Front_End_Editor {
 
 		add_rewrite_endpoint( 'edit', EP_PERMALINK | EP_PAGES | EP_ROOT );
 
+		add_post_type_support( 'post', 'front-end-editor' );
+		add_post_type_support( 'page', 'front-end-editor' );
+
 		add_action( 'wp', array( $this, 'wp' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
@@ -170,6 +173,10 @@ class WP_Front_End_Editor {
 		if ( ! $post )
 
 			wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
+
+		if ( ! post_type_supports( $post->post_type, 'front-end-editor' ) )
+
+			wp_redirect( get_permalink( $post->ID ) );
 
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
 
@@ -227,10 +234,11 @@ class WP_Front_End_Editor {
 
 			return get_permalink( $id );
 
-		if ( ! is_admin()
-			|| ( $pagenow === 'revision.php'
-				&& isset( $_GET['redirect'] )
-				&& $_GET['redirect'] === 'front' ) )
+		if ( post_type_supports( $post->post_type, 'front-end-editor' )
+			&& ( ! is_admin()
+				|| ( $pagenow === 'revision.php'
+					&& isset( $_GET['redirect'] )
+					&& $_GET['redirect'] === 'front' ) ) )
 
 			return $this->edit_link( $id );
 
