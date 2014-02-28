@@ -470,15 +470,19 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'wp-fee-adminbar', $this->url( '/js/wp-fee-adminbar.js' ), array( 'jquery' ), self::VERSION, true );
 
-			require_once( ABSPATH . '/wp-admin/includes/post.php' );
+			if ( is_singular() ) {
 
-			$user_id = wp_check_post_lock( $post->ID );
-			$user = get_userdata( $user_id );
+				require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+				$user_id = wp_check_post_lock( $post->ID );
+				$user = get_userdata( $user_id );
+
+			}
 
 			$vars = array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'homeUrl' => home_url( '/' ),
-				'lock' => $user_id ? $user->display_name : false
+				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false
 			);
 
 			wp_localize_script( 'wp-fee-adminbar', 'wpFee', $vars );
