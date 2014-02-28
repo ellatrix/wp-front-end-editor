@@ -1,5 +1,7 @@
 # WordPress Front-end Editor
 
+![WordPress Front-end Editor](http://make.wordpress.org/ui/files/2014/01/Screen-Shot-2014-01-20-at-23.18.25.png)
+
 If you found a bug or if you have ideas, add them to [the GitHub issue tracker](https://github.com/avryl/wp-front-end-editor/issues/new). We’ll also keep a list of tasks there.
 
 **Weekly IRC Chat:** Tuesdays, 17:00 UTC, #wordpress-ui
