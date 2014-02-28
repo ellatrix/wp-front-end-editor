@@ -11,7 +11,9 @@
 
 .wp-core-ui *,
 .tipsy *,
-.mce-tooltip * {
+.mce-tooltip *,
+.mce-content-body img.mce-wp-nextpage,
+.mce-content-body img.mce-wp-more {
 	height: auto;
 	width: auto;
 	margin: 0;

@@ -7,6 +7,21 @@
 	border: 1px dashed #BBB;
 }
 
+.mce-content-body img.mce-wp-nextpage,
+.mce-content-body img.mce-wp-more {
+	width: 100%;
+	height: 1px;
+	cursor: default;
+}
+
+.mce-content-body img.mce-wp-more {
+	border-top: 2px dashed #bbb;
+}
+
+.mce-content-body img.mce-wp-nextpage {
+    border-top: 3px dotted #bbb;
+}
+
 .hidden {
 	display: none;
 }
