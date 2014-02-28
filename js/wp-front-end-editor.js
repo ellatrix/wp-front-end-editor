@@ -361,6 +361,41 @@
 								$( 'p.wp-fee-content-placeholder' ).show();
 							}
 						} );
+					// Replace Read More/Next Page tags with images
+					editor.on( 'BeforeSetContent', function( e ) {
+						if ( e.content ) {
+							if ( e.content.indexOf( '<!--more' ) !== -1 ) {
+								e.content = e.content.replace( /<!--more(.*?)-->/g, function( match, moretext ) {
+									return '<img src="' + tinymce.Env.transparentSrc + '" data-wp-more="' + moretext + '" ' +
+										'class="wp-more-tag mce-wp-more" title="Read More..." data-mce-resize="false" data-mce-placeholder="1" />';
+								});
+							}
+							if ( e.content.indexOf( '<!--nextpage-->' ) !== -1 ) {
+								e.content = e.content.replace( /<!--nextpage-->/g,
+									'<img src="' + tinymce.Env.transparentSrc + '" class="wp-more-tag mce-wp-nextpage" ' +
+										'title="Page break" data-mce-resize="false" data-mce-placeholder="1" />' );
+							}
+						}
+					});
+					// Replace images with tags
+					editor.on( 'PostProcess', function( e ) {
+						if ( e.get ) {
+							e.content = e.content.replace(/<img[^>]+>/g, function( image ) {
+								var match, moretext = '';
+								if ( image.indexOf('wp-more-tag') !== -1 ) {
+									if ( image.indexOf('mce-wp-more') !== -1 ) {
+										if ( match = image.match( /data-wp-more="([^"]+)"/ ) ) {
+											moretext = match[1];
+										}
+										image = '<!--more' + moretext + '-->';
+									} else if ( image.indexOf('mce-wp-nextpage') !== -1 ) {
+										image = '<!--nextpage-->';
+									}
+								}
+								return image;
+							});
+						}
+					});
 				},
 				paste_preprocess: function( plugin, args ) {
 					if ( args.content.match( /^\s*(https?:\/\/[^\s"]+)\s*$/im ) ) {

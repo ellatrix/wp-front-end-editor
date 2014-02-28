@@ -678,7 +678,6 @@ class WP_Front_End_Editor {
 			$content = wpautop( $content );
 			$content = shortcode_unautop( $content );
 			$content = $this->do_shortcode( $content );
-			$content = preg_replace( "/<!--(.*?)-->/s", esc_html( "<!--$1-->" ), $content);
 			$content = '<div class="wp-fee-content-holder"><p class="wp-fee-content-placeholder">&hellip;</p><div id="wp-fee-content-' . $post->ID . '" class="wp-fee-content">' . $content . '</div></div>';
 
 		}
@@ -801,7 +800,6 @@ class WP_Front_End_Editor {
 			$this->response( __( 'You are not allowed to edit this item.' ) );
 
 		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
-		$_POST['post_content'] = preg_replace( esc_html( "/<!--(.*?)-->/s" ), "<!--$1-->", $_POST['post_content'] );
 
 		$post_id = edit_post();
 		
