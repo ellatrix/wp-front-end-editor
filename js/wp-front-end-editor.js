@@ -255,6 +255,7 @@
 				title1, title2, title3, title4, title5, docTitle, postFormat;
 			
 			$( '#message' ).delay( 5000 ).fadeOut( 'slow' );
+			$( '.notification-dialog-wrap' ).addClass( 'wp-core-ui' );
 			
 			// Most likely case and safest bet.
 			if ( ( title1 = $( '.wp-fee-post .entry-title' ) ) && postBody.length && postBody.hasClass( 'post-' + wp.fee.post.id() ) && title1.length ) {

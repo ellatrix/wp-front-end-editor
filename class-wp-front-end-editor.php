@@ -166,10 +166,22 @@ class WP_Front_End_Editor {
 
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
+		if ( ! empty( $_GET['get-post-lock'] ) ) {
+
+			require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+			wp_set_post_lock( $post->ID );
+
+			wp_redirect( $this->edit_link( $post->ID ) );
+
+			die();
+
+		}
+
 		if ( ! $this->is_edit() )
 
 			return;
-		
+
 		if ( ! $post )
 
 			wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
@@ -188,16 +200,6 @@ class WP_Front_End_Editor {
 
 		$post_type = $post->post_type;
 		$post_type_object = get_post_type_object( $post_type );
-		
-		if ( ! empty( $_GET['get-post-lock'] ) ) {
-
-			wp_set_post_lock( $post->ID );
-
-			wp_redirect( get_edit_post_link( $post->ID, 'url' ) );
-
-			die();
-
-		}
 
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
@@ -216,6 +218,14 @@ class WP_Front_End_Editor {
 		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
+
+		$check_users = get_users( array( 'fields' => 'ID', 'number' => 2 ) );
+
+		if ( count( $check_users ) > 1 )
+
+			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
+
+		unset( $check_users );
 
 	}
 
