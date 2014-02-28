@@ -52,9 +52,10 @@
 	padding: 5px 8px 6px;
 	text-align: center;
 	white-space: normal;
-	-webkit-border-radius: 3px;
-	-moz-border-radius: 3px;
 	border-radius: 3px;
+	-webkit-border-radius: 3px;
+	box-shadow: 0 3px 5px rgba( 0, 0, 0, 0.2 );
+	-webkit-box-shadow: 0 3px 5px rgba( 0, 0, 0, 0.2 );
 }
 
 .tipsy-arrow,
