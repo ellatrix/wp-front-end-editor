@@ -1064,27 +1064,4 @@ jQuery(document).ready( function($) {
 		});
 	}
 
-	if ( ! ( 'ontouchstart' in window ) ) {
-		// When scrolling with mouse wheel or trackpad inside the Text editor, don't scroll the whole window
-		$content = $('#content').on( 'onwheel' in $document[0] ? 'wheel.text-editor-scroll' : 'mousewheel.text-editor-scroll', function( event ) {
-			var delta, origEvent = event.originalEvent;
-
-			if ( wp.editor && wp.editor.fullscreen.settings.visible ) {
-				return;
-			}
-
-			if ( typeof origEvent.deltaY !== 'undefined' ) {
-				delta = origEvent.deltaY;
-
-				if ( typeof origEvent.deltaMode !== 'undefined' && origEvent.deltaMode === origEvent.DOM_DELTA_LINE ) {
-					delta *= 20;
-				}
-			} else {
-				delta = -origEvent.wheelDelta;
-			}
-
-			$content.scrollTop( $content.scrollTop() + delta );
-			event.preventDefault();
-		});
-	}
 });

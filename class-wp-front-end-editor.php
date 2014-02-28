@@ -405,7 +405,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), self::VERSION, true );
-			wp_enqueue_script( 'post-custom', version_compare( $wp_version, '3.9-alpha', '<' ) ? $this->url( '/js/post.js' ) : admin_url( 'js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), self::VERSION, true );
+			wp_enqueue_script( 'post-custom', $this->url( '/js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), self::VERSION, true );
 
 			$vars = array(
 				'ok' => __( 'OK' ),
