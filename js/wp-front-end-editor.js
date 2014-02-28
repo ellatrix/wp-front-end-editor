@@ -376,6 +376,7 @@
 									'<img src="' + tinymce.Env.transparentSrc + '" class="wp-more-tag mce-wp-nextpage" ' +
 										'title="Page break" data-mce-resize="false" data-mce-placeholder="1" />' );
 							}
+							e.content = e.content.replace( /<!--(.*?)-->/g, '&lt;!--$1--&gt;');
 						}
 					});
 					// Replace images with tags
@@ -397,6 +398,7 @@
 
 								return image;
 							});
+							e.content = e.content.replace( /&lt;!--(.*?)--&gt;/g, '<!--$1-->');
 						}
 					});
 
