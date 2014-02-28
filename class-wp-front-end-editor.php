@@ -460,6 +460,7 @@ class WP_Front_End_Editor {
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
+			wp_enqueue_script( 'quicktags' );
 
 			wp_enqueue_style( 'wp-fee' , $this->url( '/css/wp-fee.css' ), false, self::VERSION, 'screen' );
 
