@@ -12,3 +12,11 @@ If you'd like to join our Skype chat, add jannekevandorpe and mention this plugi
 [GitHub](https://github.com/avryl/wp-front-end-editor)  
 [Features as Plugins Tracking](http://make.wordpress.org/core/features-as-plugins/)  
 [Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)
+
+## Custom Post Types
+
+Custom post types need to support the Front-end Editor explictly.
+
+```php
+add_post_type_support( 'custom-post-type', 'front-end-editor' );
+```
