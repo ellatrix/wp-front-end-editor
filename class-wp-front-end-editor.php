@@ -186,9 +186,21 @@ class WP_Front_End_Editor {
 
 			wp_die( __( 'You attempted to edit an item that doesn&#8217;t exist. Perhaps it was deleted?' ) );
 
-		if ( ! post_type_supports( $post->post_type, 'front-end-editor' ) )
+		if ( ! post_type_supports( $post->post_type, 'front-end-editor' ) ) {
 
 			wp_redirect( get_permalink( $post->ID ) );
+
+			die();
+
+		}
+
+		if ( ! is_user_logged_in() ) {
+
+			wp_redirect( wp_login_url( $this->edit_link( $post->ID ) ) );
+
+			die();
+
+		}
 
 		if ( ! current_user_can( 'edit_post', $post->ID ) )
 
