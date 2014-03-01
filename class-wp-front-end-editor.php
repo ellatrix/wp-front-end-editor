@@ -893,7 +893,7 @@ class WP_Front_End_Editor {
 
 		if ( $m[1] == '[' && $m[6] == ']' )
 
-			return substr($m[0], 1, -1);
+			return $m[0];
 
 		$tag = $m[2];
 		$attr = shortcode_parse_atts( $m[3] );
