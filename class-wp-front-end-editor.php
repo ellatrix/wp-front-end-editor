@@ -666,6 +666,8 @@ class WP_Front_End_Editor {
 
 			$classes[] = 'wp-fee-body';
 
+		$classes[] = esc_attr( 'wp-fee-status-' . $post->post_status );
+
 		require_once( ABSPATH . '/wp-admin/includes/post.php' );
 
 		if ( is_singular()

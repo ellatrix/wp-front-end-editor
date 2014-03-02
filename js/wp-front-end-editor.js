@@ -555,18 +555,18 @@
 					$( '#wp-fee-meta-modal .media-frame-content' ).scrollTop( $( '#wp-fee-meta-modal-box-' + $( this ).data( 'box' ) ).position().top + 1 );
 				} );
 			$( '#wp-admin-bar-wp-fee-backend a' )
-				.tipsy();
+				.tipsy( { className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-close a' )
-				.tipsy( { gravity: 'ne' } );
+				.tipsy( { gravity: 'ne', className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-meta a' )
-				.tipsy()
+				.tipsy( { className: 'tipsy-bar' } )
 				.on( 'click', function( event ) {
 					event.preventDefault();
 					$( '#wp-fee-meta-modal' ).show();
 					wp.fee.recalcBoxPos();
 				} );
 			$( '#wp-admin-bar-wp-fee-cats a' )
-				.tipsy();
+				.tipsy( { className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-cats a, a[rel~="category"]' )
 				.on( 'click', function( event ) {
 					event.preventDefault();
@@ -575,7 +575,7 @@
 					$( '#media-menu-categorydiv' ).trigger( 'click' );
 				} );
 			$( '#wp-admin-bar-wp-fee-tags a' )
-				.tipsy();
+				.tipsy( { className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-tags a, a[rel="tag"]' )
 				.on( 'click', function( event ) {
 					event.preventDefault();

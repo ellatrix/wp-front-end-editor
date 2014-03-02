@@ -83,6 +83,12 @@
 	margin: 5px 15px 2px;
 }
 
+.wp-core-ui .button,
+.wp-core-ui .button.button-large,
+.wp-core-ui .button.button-small {
+	vertical-align: top;
+}
+
 #wp-fee-notice-area {
 	position: fixed;
 	top: 47px;
@@ -288,16 +294,21 @@
 
 /* Admin Bar */
 
-#wpadminbar .button {
-	height: 22px;
-	line-height: 22px;
-	padding: 0 10px 1px;
-	border-radius: 3px;
-	margin: 3px 0;
-}
 
-#wpadminbar #wp-admin-bar-wp-fee-save:hover > .ab-item {
-	background-color: transparent;
+@media screen and (min-width: 782px) {
+
+	#wpadminbar .button {
+		height: 22px;
+		line-height: 22px;
+		padding: 0 10px 1px;
+		border-radius: 3px;
+		margin: 3px 0;
+	}
+
+	#wpadminbar #wp-admin-bar-wp-fee-save:hover > .ab-item {
+		background-color: transparent;
+	}
+
 }
 
 #wpadminbar .ab-item > .ab-icon {
@@ -332,32 +343,67 @@
 	content: "\f310";
 }
 
-#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon:before,
-#wpadminbar #wp-admin-bar-wp-fee-backend .ab-icon:before {
-	color: #eee;
-}
-
-#wpadminbar #wp-admin-bar-wp-fee-close:hover .ab-icon:before,
-#wpadminbar #wp-admin-bar-wp-fee-backend:hover .ab-icon:before {
-	color: #2ea2cc;
-}
-
-#wpadminbar #wp-admin-bar-wp-fee-close .ab-item,
-#wpadminbar #wp-admin-bar-wp-fee-backend .ab-item {
-	padding: 0 8px;
-}
-
-#wpadminbar #wp-admin-bar-wp-fee-close,
-#wpadminbar #wp-admin-bar-wp-fee-backend {
-	background-color: #333;
-}
-
 #wpadminbar #wp-admin-bar-mce-button-kitchensink .ab-icon::before {
 	color: #2ea2cc;
 }
 
 #wpadminbar #wp-admin-bar-top-secondary {
 	background-color: #222;
+}
+
+@media screen and (max-width: 782px) {
+
+	#wp-toolbar #wp-admin-bar-wp-fee-meta,
+	#wp-toolbar #wp-admin-bar-wp-fee-save,
+	#wp-toolbar #wp-admin-bar-wp-fee-publish,
+	#wp-toolbar #wp-admin-bar-wp-fee-close {
+		display: block;
+	}
+
+	body.wp-fee-status-draft #wp-toolbar #wp-admin-bar-wp-fee-save,
+	body.wp-fee-status-auto-draft #wp-toolbar #wp-admin-bar-wp-fee-save,
+	.tipsy-bar {
+		display: none!important;
+	}
+
+	#wp-admin-bar-top-secondary {
+		width: 100%;
+	}
+
+	#wpadminbar .quicklinks .ab-top-secondary>li#wp-admin-bar-wp-fee-close,
+	#wpadminbar .quicklinks .ab-top-secondary>li#wp-admin-bar-wp-fee-meta {
+		float: left;
+	}
+
+	#wpadminbar #wp-admin-bar-wp-fee-meta .ab-icon:before {
+		font: 400 32px/1 dashicons;
+		top: -2px;
+	}
+
+	#wpadminbar #wp-admin-bar-wp-fee-close .ab-icon:before {
+		top: 3px;
+	}
+
+	#wpadminbar .wp-core-ui .wp-fee-submit {
+		background: transparent!important;
+		border: none;
+		margin: 0;
+		padding: 13px;
+		font-size: 20px;
+		line-height: 20px;
+		height: 20px;
+	}
+
+	#wpadminbar .wp-core-ui .wp-fee-submit.button-disabled,
+	#wpadminbar .wp-core-ui .wp-fee-submit.button-primary-disabled {
+		color: #2ea2cc!important;
+		background: #333!important;
+	}
+
+	#wpadminbar .wp-core-ui:hover .wp-fee-submit {
+		color: #2ea2cc;
+	}
+
 }
 
 /* TinyMCE */
@@ -714,11 +760,16 @@ th.mce-item-selected {
 .tipsy,
 .mce-tooltip {
 	font-family: "Open Sans", sans-serif;
-	position: fixed;
-	top: 33px!important;
+	position: absolute;
 	padding: 5px;
 	opacity: 0.8;
 	z-index: 10000;
+}
+
+.tipsy-bar,
+.mce-tooltip {
+	position: fixed;
+	top: 33px!important;
 }
 
 .tipsy-inner,
