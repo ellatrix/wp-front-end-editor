@@ -60,19 +60,27 @@ class WP_Front_End_Editor {
 
 		if ( $id == get_option( 'page_on_front' ) )
 
-			return home_url( '?editing' );
+			$link = home_url( '?editing' );
 
 		$permalink = get_permalink( $post->ID );
 
 		if ( strpos( $permalink, '?' ) !== false )
 
-			return add_query_arg( 'edit', '', $permalink );
+			$link = add_query_arg( 'edit', '', $permalink );
 
 		if ( trailingslashit( $permalink ) === $permalink )
 
-			return trailingslashit( $permalink . 'edit' );
+			$link = trailingslashit( $permalink . 'edit' );
 
-		return trailingslashit( $permalink ) . 'edit';
+		if ( ! isset( $link ) )
+
+			$link = trailingslashit( $permalink ) . 'edit';
+
+		if ( force_ssl_admin() )
+
+			$link = set_url_scheme( $link, 'https' );
+
+		return $link;
 
 	}
 
@@ -181,6 +189,15 @@ class WP_Front_End_Editor {
 		if ( ! $this->is_edit() )
 
 			return;
+
+		if ( force_ssl_admin()
+			&& ! is_ssl() ) {
+
+			wp_redirect( set_url_scheme( get_permalink( $post->ID ), 'https' ) );
+
+			die();
+
+		}
 
 		if ( ! $post )
 
