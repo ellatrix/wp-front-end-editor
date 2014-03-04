@@ -748,6 +748,10 @@
 	content: '\f209';
 }
 
+.mce-i-hr:before {
+	content: '\f460';
+}
+
 #wpadminbar .mce-toolbar:not(:first-child) {
 	display: none;
 }
