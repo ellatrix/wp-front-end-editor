@@ -313,9 +313,9 @@
 			tinymce.init( {
 				selector: '#wp-fee-content-' + wp.fee.post.id(),
 				inline: true,
-				plugins: 'wpfeelink charmap paste textcolor table noneditable',
-				toolbar1: 'kitchensink formatselect bold italic underline strikethrough blockquote alignleft aligncenter alignright alignjustify wp_more link media undo redo',
-				toolbar2: 'kitchensink removeformat pastetext bullist numlist outdent indent forecolor backcolor table undo redo',
+				plugins: 'wpfeelink charmap paste table noneditable',
+				toolbar1: 'kitchensink formatselect bold italic strikethrough blockquote alignleft aligncenter alignright wp_more link media undo redo',
+				toolbar2: 'kitchensink removeformat pastetext bullist numlist outdent indent table undo redo',
 				menubar: false,
 				fixed_toolbar_container: '#wp-admin-bar-wp-fee-mce-toolbar',
 				skin: false,
