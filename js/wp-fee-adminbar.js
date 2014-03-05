@@ -10,7 +10,7 @@
 				'post_type': postType
 			},
 			success: function( data ) {
-				window.location.href = wpFee.homeUrl + '?p=' + data + '&edit';
+				window.location.href = data;
 			},
 			error: function() {
 				alert( 'An error occurred.' );
