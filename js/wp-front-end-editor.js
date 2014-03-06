@@ -313,7 +313,7 @@
 			tinymce.init( {
 				selector: '#wp-fee-content-' + wp.fee.post.id(),
 				inline: true,
-				plugins: 'wpfeelink charmap paste table noneditable hr',
+				plugins: 'wplink charmap paste table noneditable hr',
 				toolbar1: 'kitchensink formatselect bold italic strikethrough blockquote alignleft aligncenter alignright wp_more link media undo redo',
 				toolbar2: 'kitchensink removeformat pastetext hr bullist numlist outdent indent table undo redo',
 				menubar: false,

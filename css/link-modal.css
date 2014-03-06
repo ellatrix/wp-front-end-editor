@@ -1,0 +1,204 @@
+#link-modal {
+	background-color: #fff;
+	display: none;
+	margin-top: -195px;
+	margin-left: -300px;
+	width: 600px;
+	height: 390px;
+	overflow: hidden;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	z-index: 160000;
+}
+
+#link-modal.link-modal-toggled {
+	height: auto;
+	margin-top: 0;
+	top: 30px;
+	bottom: 30px;
+}
+
+#link-modal-backdrop {
+	background-color: #000;
+	display: none;
+	opacity: 0.7;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 159900;
+}
+
+#link-modal-title {
+	background: #fcfcfc;
+	border-bottom: 1px solid #dfdfdf;
+	height: 56px;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 56px;
+	padding: 0 40px 0 16px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+}
+
+#link-modal-close {
+	color: #666;
+	cursor: pointer;
+	text-align: center;
+	width: 40px;
+	height: 40px;
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+#link-modal-close:hover {
+	color: #2ea2cc;
+}
+
+#link-modal-close:before {
+	font: normal 20px/40px 'dashicons';
+	vertical-align: top;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	content: '\f158';
+}
+
+#link-modal-content {
+	background-color: #fff;
+	padding: 16px;
+	position: absolute;
+	top: 57px;
+	right: 0;
+	bottom: 57px;
+	left: 0;
+	overflow-y: scroll;
+}
+
+#link-modal-content label {
+	display: block;
+	padding-bottom: 16px;
+}
+
+#link-modal ol,
+#link-modal ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+#link-modal label input[type="text"],
+#link-modal label input[type="search"] {
+	margin-top: 4px;
+	width: 99%;
+}
+
+#link-modal .query-results {
+	border: 1px #dfdfdf solid;
+	background: #fff;
+	position: relative;
+}
+
+#link-modal li,
+#link-modal .query-notice {
+	clear: both;
+	margin-bottom: 0;
+	border-bottom: 1px solid #f1f1f1;
+	color: #333;
+	padding: 4px 6px;
+	cursor: pointer;
+	position: relative;
+}
+
+#link-modal li:last-of-type {
+	border: none;
+}
+
+#link-modal li:hover {
+	background: #eaf2fa;
+}
+
+#link-modal li.unselectable:hover {
+	cursor: default;
+}
+
+#link-modal li.selected {
+	background: #f1f1f1;
+}
+
+#link-modal li.selected .item-title {
+	font-weight: bold;
+}
+
+#link-modal .item-title {
+	display: inline-block;
+	width: 80%;
+}
+
+#link-modal .item-info {
+	color: #666;
+	font-size: 11px;
+	text-transform: uppercase;
+	position: absolute;
+	top: 4px;
+	right: 5px;
+	bottom: 0;
+}
+
+#link-modal #search-panel,
+#link-modal #search-results,
+#link-modal .river-waiting {
+	display: none;
+}
+
+#link-modal.link-modal-toggled #search-panel {
+	display: block;
+}
+
+#link-modal .river-waiting .spinner {
+	display: block;
+	margin: 0 auto;
+}
+
+#link-modal-footer {
+	background: #fcfcfc;
+	border-top: 1px solid #dfdfdf;
+	padding: 14px 16px;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+@media screen and ( max-width: 782px ) {
+
+	#link-modal {
+		height: 420px;
+		margin-top: -210px;
+	}
+
+	#link-modal-content {
+		bottom: 69px;
+	}
+
+}
+
+@media screen and ( max-width: 660px ) {
+
+	#link-modal,
+	#link-modal.link-modal-toggled {
+		height: auto;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		margin: 0;
+		width: 100%;
+	}
+
+}

@@ -242,6 +242,7 @@ class WP_Front_End_Editor {
 		add_action( 'wp_head', array( $this, 'wp_head' ) );
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 		add_action( 'wp_print_footer_scripts', array( $this, 'meta_modal' ) );
+		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ), 10 );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ), 100 );
 
@@ -488,7 +489,7 @@ class WP_Front_End_Editor {
 			
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
-				'blog_id' => get_current_blog_id(),
+				'blog_id' => get_current_blog_id()
 			) );
 			
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce' . ( SCRIPT_DEBUG ? '' : '.min' ) . '.js' ), array(), '4.0.18', true );
@@ -507,10 +508,22 @@ class WP_Front_End_Editor {
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'savingText' => __( 'Saving Draft&#8230;' ),
 				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
-				'blog_id' => get_current_blog_id(),
+				'blog_id' => get_current_blog_id()
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
+
+			wp_enqueue_script( 'wp-link', $this->url( '/js/wp-link.js' ), array( 'jquery' ), self::VERSION, true );
+
+			wp_localize_script( 'wp-link', 'wpLinkL10n', array(
+				'title' => __('Insert/edit link'),
+				'update' => __('Update'),
+				'save' => __('Add Link'),
+				'noTitle' => __('(no title)'),
+				'noMatchesFound' => __('No matches found.')
+			) );
+
+			wp_enqueue_style( 'wp-fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
 
 			wp_enqueue_style( 'wp-fee' , $this->url( '/css/wp-fee.css' ), false, self::VERSION, 'screen' );
 
@@ -1461,6 +1474,59 @@ class WP_Front_End_Editor {
 		global $wp_current_filter;
 
 		return in_array( $tag, $wp_current_filter );
+
+	}
+
+	public function link_modal() {
+
+		?>
+		<div id="link-modal-backdrop"></div>
+		<form id="link-modal" class="wp-core-ui" tabindex="-1">
+			<?php wp_nonce_field( 'internal-linking', '_ajax_linking_nonce', false ); ?>
+			<div id="link-modal-title">
+				<?php _e( 'Insert/edit link' ) ?>
+				<div id="link-modal-close"></div>
+			</div>
+			<div id="link-modal-content">
+				<div id="link-modal-content-height">
+					<label for="url-field">
+						<?php _e( 'Destination URL' ); ?>
+						<input id="url-field" type="text" name="href" />
+					</label>
+					<label for="link-title-field">
+						<?php _e( 'Title attribute' ); ?>
+						<input id="link-title-field" type="text" name="linktitle" />
+					</label>
+					<label>
+						<input type="checkbox" id="link-target-checkbox" />
+						<?php _e( 'Open link in a new window/tab' ); ?>
+					</label>
+					<label>
+						<?php _e( 'Search existing content to link' ); ?>
+						<input type="search" id="search-field" class="link-search-field" autocomplete="off" />
+					</label>
+					<div id="search-panel">
+						<div id="search-results" class="query-results">
+							<ul></ul>
+							<div class="river-waiting">
+								<span class="spinner"></span>
+							</div>
+						</div>
+						<div id="most-recent-results" class="query-results">
+							<div class="query-notice"><em><?php _e( 'No search term specified. Showing recent items.' ); ?></em></div>
+							<ul></ul>
+							<div class="river-waiting">
+								<span class="spinner"></span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="link-modal-footer">
+				<input type="submit" value="<?php esc_attr_e( 'Insert Link' ); ?>" class="button button-primary alignright" id="wp-link-submit" name="wp-link-submit">
+			</div>
+		</form>
+		<?php
 
 	}
 
