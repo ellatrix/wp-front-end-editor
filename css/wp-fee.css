@@ -202,11 +202,11 @@
 
 .wp-fee-shortcode-edit,
 #wp-fee-set-post-thumbnail {
-	right: 94px;
+	right: 52px;
 }
 
 .wp-fee-shortcode-view {
-	right: 52px;
+	right: 94px;
 }
 
 .wp-fee-shortcode-insert-top,
@@ -257,6 +257,10 @@
 #wp-fee-set-post-thumbnail:before {
 	font-size: 24px;
 	content: '\f327';
+}
+
+.fee-edit-thumbnail.empty #wp-fee-set-post-thumbnail:before {
+	content: '\f132';
 }
 
 .fee-edit-thumbnail.empty {
