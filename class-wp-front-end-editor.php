@@ -146,6 +146,7 @@ class WP_Front_End_Editor {
 
 		add_action( 'wp', array( $this, 'wp' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'wp_default_scripts', array( $this, 'wp_default_scripts' ) );
 
 		if ( isset( $_POST['wp_fee_redirect'] )
 			&& $_POST['wp_fee_redirect'] == '1' )
@@ -457,7 +458,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), self::VERSION, true );
-			wp_enqueue_script( 'post-custom', $this->url( '/js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat' ), self::VERSION, true );
+			wp_enqueue_script( 'post-custom', $this->url( '/js/post.js' ), array( 'suggest', 'wp-lists', 'postbox', 'heartbeat', 'utils' ), self::VERSION, true );
 
 			$vars = array(
 				'ok' => __( 'OK' ),
@@ -527,7 +528,7 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_style( 'wp-fee' , $this->url( '/css/wp-fee.css' ), false, self::VERSION, 'screen' );
 
-		} else {
+		} elseif ( is_user_logged_in() ) {
 
 			wp_enqueue_style( 'wp-fee-adminbar' , $this->url( '/css/wp-fee-adminbar.css' ), false, self::VERSION, 'screen' );
 
@@ -552,6 +553,17 @@ class WP_Front_End_Editor {
 			wp_localize_script( 'wp-fee-adminbar', 'wpFee', $vars );
 
 		}
+
+	}
+
+	public function wp_default_scripts( &$scripts ) {
+
+		$suffix = SCRIPT_DEBUG ? '' : '.min';
+
+		$scripts->add( 'image-edit', "/wp-admin/js/image-edit$suffix.js", array('jquery', 'json2', 'imgareaselect'), false, 1 );
+		did_action( 'init' ) && $scripts->localize( 'image-edit', 'imageEditL10n', array(
+			'error' => __( 'Could not load the preview image. Please reload the page and try again.' )
+		));
 
 	}
 
