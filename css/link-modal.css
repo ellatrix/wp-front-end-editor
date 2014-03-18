@@ -1,111 +1,197 @@
-#link-modal {
-	background-color: #fff;
+#wp-link-wrap {
 	display: none;
-	margin-top: -195px;
-	margin-left: -300px;
-	width: 600px;
-	height: 390px;
+	background-color: #fff;
+	-webkit-box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+	box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+	width: 500px;
+	height: 250px;
 	overflow: hidden;
+	margin-left: -250px;
+	margin-top: -125px;
 	position: fixed;
 	top: 50%;
 	left: 50%;
-	z-index: 160000;
+	z-index: 100105;
+	transition: height 0.2s, margin-top 0.2s;
 }
 
-#link-modal.link-modal-toggled {
-	height: auto;
-	margin-top: 0;
-	top: 30px;
-	bottom: 30px;
-}
-
-#link-modal-backdrop {
-	background-color: #000;
+#wp-link-backdrop {
 	display: none;
-	opacity: 0.7;
 	position: fixed;
 	top: 0;
+	left: 0;
 	right: 0;
 	bottom: 0;
-	left: 0;
-	z-index: 159900;
+	min-height: 360px;
+	background: #000;
+	opacity: 0.7;
+	filter: alpha(opacity=70);
+	z-index: 100100;
+}
+
+#wp-link {
+	position: relative;
+	height: 100%;
+}
+
+#wp-link-wrap.search-panel-visible {
+	height: 500px;
+	margin-top: -250px;
 }
 
 #link-modal-title {
 	background: #fcfcfc;
 	border-bottom: 1px solid #dfdfdf;
-	height: 56px;
-	font-size: 22px;
+	height: 36px;
+	font-size: 18px;
 	font-weight: 600;
-	line-height: 56px;
-	padding: 0 40px 0 16px;
-	position: absolute;
+	line-height: 36px;
+	padding: 0 36px 0 16px;
 	top: 0;
 	right: 0;
 	left: 0;
 }
 
-#link-modal-close {
+#wp-link-close {
 	color: #666;
 	cursor: pointer;
-	text-align: center;
-	width: 40px;
-	height: 40px;
+	padding: 0;
 	position: absolute;
 	top: 0;
 	right: 0;
+	width: 36px;
+	height: 36px;
+	text-align: center;
 }
 
-#link-modal-close:hover {
-	color: #2ea2cc;
-}
-
-#link-modal-close:before {
-	font: normal 20px/40px 'dashicons';
+#wp-link-close:before {
+	font: normal 20px/36px 'dashicons';
 	vertical-align: top;
 	speak: none;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	width: 36px;
+	height: 36px;
 	content: '\f158';
 }
 
-#link-modal-content {
-	background-color: #fff;
-	padding: 16px;
+#wp-link-close:hover,
+#wp-link-close:focus {
+	color: #2ea2cc;
+}
+
+#link-selector {
+	padding: 0 16px 50px;
+}
+
+#wp-link-wrap.search-panel-visible #link-selector {
+	padding: 0 16px;
 	position: absolute;
-	top: 57px;
-	right: 0;
-	bottom: 57px;
+	top: 36px;
 	left: 0;
-	overflow-y: scroll;
+	right: 0;
+	bottom: 44px;
 }
 
-#link-modal-content label {
-	display: block;
-	padding-bottom: 16px;
-}
-
-#link-modal ol,
-#link-modal ul {
+#wp-link ol,
+#wp-link ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-#link-modal label input[type="text"],
-#link-modal label input[type="search"] {
+#wp-link-search-toggle::after {
+	font: normal 20px/1 'dashicons';
+	vertical-align: top;
+	speak: none;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	content: '\f140';
+}
+
+.search-panel-visible #wp-link-search-toggle::after {
+	content: '\f142';
+}
+
+#wp-link input[type="text"] {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+#wp-link #link-options {
+	padding: 8px 0 12px;
+}
+
+#wp-link p.howto {
+	margin: 3px 0;
+}
+
+#wp-link-search-toggle {
+	cursor: pointer;
+}
+
+#wp-link label input[type="text"] {
+	margin-top: 5px;
+	width: 70%;
+}
+
+#wp-link #link-options label span,
+#wp-link #search-panel label span.search-label {
+	display: inline-block;
+	width: 80px;
+	text-align: right;
+	padding-right: 5px;
+	max-width: 24%;
+}
+
+#wp-link .link-search-field {
+	float: left;
+	width: 250px;
+	max-width: 70%;
+}
+
+#wp-link .link-search-wrapper {
+	margin: 5px 0 9px;
+	display: block;
+	overflow: hidden;
+}
+
+#wp-link .link-search-wrapper span {
+	float: left;
 	margin-top: 4px;
-	width: 99%;
 }
 
-#link-modal .query-results {
+#wp-link .link-search-wrapper .spinner {
+	display: none;
+	vertical-align: text-bottom;
+}
+
+#wp-link .link-target {
+	padding: 3px 0 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+#wp-link .link-target label {
+	max-width: 70%;
+}
+
+#wp-link .query-results {
 	border: 1px #dfdfdf solid;
+	margin: 0;
 	background: #fff;
-	position: relative;
+	overflow: auto;
+	position: absolute;
+	left: 16px;
+	right: 16px;
+	bottom: 16px;
+	top: 205px;
 }
 
-#link-modal li,
-#link-modal .query-notice {
+#wp-link li,
+#wp-link .query-notice {
 	clear: both;
 	margin-bottom: 0;
 	border-bottom: 1px solid #f1f1f1;
@@ -115,90 +201,161 @@
 	position: relative;
 }
 
-#link-modal li:last-of-type {
-	border: none;
-}
-
-#link-modal li:hover {
+#wp-link li:hover {
 	background: #eaf2fa;
+	color: #151515;
 }
 
-#link-modal li.unselectable:hover {
-	cursor: default;
+#wp-link li.unselectable {
+	border-bottom: 1px solid #dfdfdf;
 }
 
-#link-modal li.selected {
-	background: #f1f1f1;
+#wp-link li.unselectable:hover {
+	background: #fff;
+	cursor: auto;
+	color: #333;
 }
 
-#link-modal li.selected .item-title {
+#wp-link li.selected {
+	background: #ddd;
+	color: #333;
+}
+
+#wp-link li.selected .item-title {
 	font-weight: bold;
 }
 
-#link-modal .item-title {
+#wp-link li:last-child {
+	border: none;
+}
+
+#wp-link .item-title {
 	display: inline-block;
 	width: 80%;
+	width: calc(100% - 68px);
 }
 
-#link-modal .item-info {
+#wp-link .item-info {
+	text-transform: uppercase;
 	color: #666;
 	font-size: 11px;
-	text-transform: uppercase;
 	position: absolute;
-	top: 4px;
 	right: 5px;
-	bottom: 0;
+	top: 5px;
 }
 
-#link-modal #search-panel,
-#link-modal #search-results,
-#link-modal .river-waiting {
+#wp-link #search-results,
+#wp-link #search-panel {
 	display: none;
 }
 
-#link-modal.link-modal-toggled #search-panel {
+#wp-link-wrap.search-panel-visible #search-panel {
 	display: block;
 }
 
-#link-modal .river-waiting .spinner {
-	display: block;
+#wp-link .river-waiting {
+	display: none;
+	padding: 10px 0;
+}
+
+#wp-link .river-waiting .spinner {
 	margin: 0 auto;
+	display: block;
 }
 
-#link-modal-footer {
+#wp-link .submitbox {
+	padding: 8px 16px;
 	background: #fcfcfc;
 	border-top: 1px solid #dfdfdf;
-	padding: 14px 16px;
 	position: absolute;
-	right: 0;
 	bottom: 0;
 	left: 0;
+	right: 0;
+}
+
+#wp-link-cancel {
+	line-height: 25px;
+}
+
+#wp-link-update {
+	line-height: 23px;
+	float: right;
+}
+
+#wp-link-submit {
+	float: right;
+	margin-bottom: 0;
 }
 
 @media screen and ( max-width: 782px ) {
-
-	#link-modal {
-		height: 420px;
-		margin-top: -210px;
+	#wp-link-wrap {
+		height: 280px;
+		margin-top: -140px;
 	}
 
-	#link-modal-content {
-		bottom: 69px;
+	#wp-link-wrap.search-panel-visible .query-results {
+		top: 235px;
 	}
 
+	#link-selector {
+		padding: 0 16px 60px;
+	}
+
+	#wp-link-wrap.search-panel-visible #link-selector {
+		bottom: 52px;
+	}
+
+	#wp-link-cancel {
+		line-height: 32px;
+	}
 }
 
-@media screen and ( max-width: 660px ) {
+@media screen and ( max-width: 520px ) {
+	#wp-link-wrap {
+		width: auto;
+		margin-left: 0;
+		left: 10px;
+		right: 10px;
+		max-width: 500px;
+	}
+}
 
-	#link-modal,
-	#link-modal.link-modal-toggled {
-		height: auto;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		margin: 0;
-		width: 100%;
+@media screen and ( max-height: 520px ) {
+	#wp-link-wrap {
+		transition: none;
 	}
 
+	#wp-link-wrap.search-panel-visible {
+		height: auto;
+		margin-top: 0;
+		top: 10px;
+		bottom: 10px;
+	}
+
+	.search-panel-visible #link-selector {
+		overflow: auto;
+	}
+
+	.search-panel-visible #search-panel .query-results {
+		position: static;
+	}
+}
+
+@media screen and ( max-height: 290px ) {
+	#wp-link-wrap {
+		height: auto;
+		margin-top: 0;
+		top: 10px;
+		bottom: 10px;
+	}
+
+	#link-selector {
+		overflow: auto;
+		height: calc(100% - 92px);
+		padding-bottom: 2px;
+	}
+
+	#search-panel .query-results {
+		position: static;
+	}
 }

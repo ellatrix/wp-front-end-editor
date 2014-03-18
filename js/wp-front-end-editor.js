@@ -442,7 +442,7 @@
 								dom.setAttrib( node, 'data-wpview-pad', null );
 							}
 						});
-				    });
+					});
 
 					// Display the tag name instead of img in element path
 					editor.on( 'ResolveName', function( e ) {

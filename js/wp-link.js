@@ -1,8 +1,8 @@
-/* global ajaxurl, tinymce, wpLinkL10n, wpActiveEditor */
+/* global ajaxurl, tinymce, wpLinkL10n, setUserSetting, wpActiveEditor */
 var wpLink;
 
 ( function( $ ) {
-	var inputs = {}, rivers = {}, ed, River, Query;
+	var inputs = {}, rivers = {}, editor, River, Query;
 
 	wpLink = {
 		timeToTriggerRiver: 150,
@@ -13,37 +13,37 @@ var wpLink;
 		textarea: '',
 
 		init: function() {
-			inputs.dialog = $( '#link-modal' );
-			inputs.backdrop = $( '#link-modal-backdrop' );
-			inputs.close = $( '#link-modal-close' );
+			inputs.wrap = $('#wp-link-wrap');
+			inputs.dialog = $( '#wp-link' );
+			inputs.backdrop = $( '#wp-link-backdrop' );
 			inputs.submit = $( '#wp-link-submit' );
+			inputs.close = $( '#wp-link-close' );
+			// URL
 			inputs.url = $( '#url-field' );
 			inputs.nonce = $( '#_ajax_linking_nonce' );
+			// Secondary options
 			inputs.title = $( '#link-title-field' );
+			// Advanced Options
 			inputs.openInNewTab = $( '#link-target-checkbox' );
 			inputs.search = $( '#search-field' );
-
+			// Build Rivers
 			rivers.search = new River( $( '#search-results' ) );
 			rivers.recent = new River( $( '#most-recent-results' ) );
-			rivers.elements = $( '.query-results', inputs.dialog );
+			rivers.elements = inputs.dialog.find( '.query-results' );
 
+			// Bind event handlers
 			inputs.dialog.keydown( wpLink.keydown );
 			inputs.dialog.keyup( wpLink.keyup );
-
-			inputs.submit.click( function( event ){
+			inputs.submit.click( function( event ) {
 				event.preventDefault();
 				wpLink.update();
 			});
-
-			inputs.close.click( wpLink.close );
-			inputs.backdrop.click( wpLink.close );
-
-			inputs.search.focus( function() {
-				inputs.dialog.addClass( 'link-modal-toggled' );
+			inputs.close.add( inputs.backdrop ).add( '#wp-link-cancel a' ).click( function( event ) {
+				event.preventDefault();
+				wpLink.close();
 			});
-			inputs.url.add( inputs.title ).focus( function() {
-				inputs.dialog.removeClass( 'link-modal-toggled' );
-			});
+
+			$( '#wp-link-search-toggle' ).click( wpLink.toggleInternalLinking );
 
 			rivers.elements.on( 'river-select', wpLink.updateFields );
 
@@ -51,12 +51,9 @@ var wpLink;
 		},
 
 		open: function( editorId ) {
+			var ed;
+			
 			wpLink.range = null;
-
-			if ( ! wpLink.isMCE() && document.selection ) {
-				wpLink.textarea.focus();
-				wpLink.range = document.selection.createRange();
-			}
 
 			if ( editorId ) {
 				window.wpActiveEditor = editorId;
@@ -66,24 +63,35 @@ var wpLink;
 				return;
 			}
 
-			this.textarea = $( '#' + wpActiveEditor ).get( 0 );
+			this.textarea = $( '#' + window.wpActiveEditor ).get( 0 );
 
 			if ( typeof tinymce !== 'undefined' ) {
 				ed = tinymce.get( wpActiveEditor );
 
-				if ( ed && tinymce.isIE ) {
-					ed.windowManager.bookmark = ed.selection.getBookmark();
+				if ( ed && ! ed.isHidden() ) {
+					editor = ed;
+				} else {
+					editor = null;
+				}
+
+				if ( editor && tinymce.isIE ) {
+					editor.windowManager.bookmark = editor.selection.getBookmark();
 				}
 			}
 
-			inputs.dialog.show();
+			if ( ! wpLink.isMCE() && document.selection ) {
+				this.textarea.focus();
+				this.range = document.selection.createRange();
+			}
+
+			inputs.wrap.show();
 			inputs.backdrop.show();
-			
+
 			wpLink.refresh();
 		},
 
 		isMCE: function() {
-			return ed;
+			return editor && ! editor.isHidden();
 		},
 
 		refresh: function() {
@@ -91,15 +99,14 @@ var wpLink;
 			rivers.search.refresh();
 			rivers.recent.refresh();
 
-			if ( wpLink.isMCE() ) {
+			if ( wpLink.isMCE() )
 				wpLink.mceRefresh();
-			} else {
+			else
 				wpLink.setDefaultValues();
-			}
 
 			// Focus the URL field and highlight its contents.
-			// If this is moved above the selection changes,
-			// IE will show a flashing cursor over the dialog.
+			//     If this is moved above the selection changes,
+			//     IE will show a flashing cursor over the dialog.
 			inputs.url.focus()[0].select();
 			// Load the most recent results if this is the first time opening the panel.
 			if ( ! rivers.recent.ul.children().length )
@@ -110,12 +117,12 @@ var wpLink;
 			var e;
 
 			// If link exists, select proper values.
-			if ( e = ed.dom.getParent( ed.selection.getNode(), 'A' ) ) {
+			if ( e = editor.dom.getParent( editor.selection.getNode(), 'A' ) ) {
 				// Set URL and description.
-				inputs.url.val( ed.dom.getAttrib( e, 'href' ) );
-				inputs.title.val( ed.dom.getAttrib( e, 'title' ) );
+				inputs.url.val( editor.dom.getAttrib( e, 'href' ) );
+				inputs.title.val( editor.dom.getAttrib( e, 'title' ) );
 				// Set open in new tab.
-				inputs.openInNewTab.prop( 'checked', ( '_blank' === ed.dom.getAttrib( e, 'target' ) ) );
+				inputs.openInNewTab.prop( 'checked', ( '_blank' === editor.dom.getAttrib( e, 'target' ) ) );
 				// Update save prompt.
 				inputs.submit.val( wpLinkL10n.update );
 
@@ -133,25 +140,27 @@ var wpLink;
 					wpLink.range.moveToBookmark( wpLink.range.getBookmark() );
 					wpLink.range.select();
 				}
+			} else {
+				editor.focus();
 			}
-			inputs.dialog.hide();
+
 			inputs.backdrop.hide();
+			inputs.wrap.hide();
 		},
 
 		getAttrs: function() {
 			return {
 				href: inputs.url.val(),
 				title: inputs.title.val(),
-				target: inputs.openInNewTab.prop('checked') ? '_blank' : ''
+				target: inputs.openInNewTab.prop( 'checked' ) ? '_blank' : ''
 			};
 		},
 
 		update: function() {
-			if ( wpLink.isMCE() ) {
+			if ( wpLink.isMCE() )
 				wpLink.mceUpdate();
-			} else {
+			else
 				wpLink.htmlUpdate();
-			}
 		},
 
 		htmlUpdate: function() {
@@ -194,11 +203,11 @@ var wpLink;
 				wpLink.range = null;
 			} else if ( typeof textarea.selectionStart !== 'undefined' ) {
 				// W3C
-				begin = textarea.selectionStart;
-				end = textarea.selectionEnd;
-				selection = textarea.value.substring( begin, end );
-				html = html + selection + '</a>';
-				cursor = begin + html.length;
+				begin       = textarea.selectionStart;
+				end         = textarea.selectionEnd;
+				selection   = textarea.value.substring( begin, end );
+				html        = html + selection + '</a>';
+				cursor      = begin + html.length;
 
 				// If no text is selected, place the cursor inside the closing tag.
 				if ( begin == end )
@@ -220,28 +229,28 @@ var wpLink;
 				attrs = wpLink.getAttrs();
 
 			wpLink.close();
-			ed.focus();
+			editor.focus();
 
 			if ( tinymce.isIE ) {
-				ed.selection.moveToBookmark( ed.windowManager.bookmark );
+				editor.selection.moveToBookmark( editor.windowManager.bookmark );
 			}
 
-			link = ed.dom.getParent( ed.selection.getNode(), 'a[href]' );
+			link = editor.dom.getParent( editor.selection.getNode(), 'a[href]' );
 
 			// If the values are empty, unlink and return
 			if ( ! attrs.href || attrs.href == 'http://' ) {
-				ed.execCommand('unlink');
+				editor.execCommand( 'unlink' );
 				return;
 			}
 
 			if ( link ) {
-				ed.dom.setAttribs( link, attrs );
+				editor.dom.setAttribs( link, attrs );
 			} else {
-				ed.execCommand( 'mceInsertLink', false, attrs );
+				editor.execCommand( 'mceInsertLink', false, attrs );
 			}
 
 			// Move the cursor to the end of the selection
-			ed.selection.collapse();
+			editor.selection.collapse();
 		},
 
 		updateFields: function( e, li, originalEvent ) {
@@ -262,7 +271,7 @@ var wpLink;
 		},
 
 		searchInternalLinks: function() {
-			var t = $(this), waiting,
+			var t = $( this ), waiting,
 				search = t.val();
 
 			if ( search.length > 2 ) {
@@ -274,10 +283,10 @@ var wpLink;
 					return;
 
 				wpLink.lastSearch = search;
-				waiting = t.parent().find( '.spinner' ).show();
+				waiting = $( '#river-waiting' ).show();
 
 				rivers.search.change( search );
-				rivers.search.ajax( function(){
+				rivers.search.ajax( function() {
 					waiting.hide();
 				});
 			} else {
@@ -297,18 +306,29 @@ var wpLink;
 		},
 
 		keydown: function( event ) {
-			var fn, key = $.ui.keyCode;
+			var fn, id,
+				key = $.ui.keyCode;
 
-			if ( key.ESCAPE === event.which ) {
+			if ( key.ESCAPE === event.keyCode ) {
 				wpLink.close();
 				event.stopImmediatePropagation();
+			} else if ( key.TAB === event.keyCode ) {
+				id = event.target.id;
+
+				if ( id === 'wp-link-submit' && ! event.shiftKey ) {
+					inputs.close.focus();
+					event.preventDefault();
+				} else if ( id === 'wp-link-close' && event.shiftKey ) {
+					inputs.submit.focus();
+					event.preventDefault();
+				}
 			}
 
-			if ( event.which !== key.UP && event.which !== key.DOWN ) {
+			if ( event.keyCode !== key.UP && event.keyCode !== key.DOWN ) {
 				return;
 			}
 
-			fn = event.which === key.UP ? 'prev' : 'next';
+			fn = event.keyCode === key.UP ? 'prev' : 'next';
 			clearInterval( wpLink.keyInterval );
 			wpLink[ fn ]();
 			wpLink.keyInterval = setInterval( wpLink[ fn ], wpLink.keySensitivity );
@@ -335,7 +355,7 @@ var wpLink;
 					return func.apply( funcContext, funcArgs );
 				// Otherwise, wait.
 				timeoutTriggered = true;
-			}, delay);
+			}, delay );
 
 			return function() {
 				if ( timeoutTriggered )
@@ -345,6 +365,14 @@ var wpLink;
 				funcContext = this;
 				funcTriggered = true;
 			};
+		},
+
+		toggleInternalLinking: function() {
+			var visible = inputs.wrap.hasClass( 'search-panel-visible' );
+
+			inputs.wrap.toggleClass( 'search-panel-visible', ! visible );
+			setUserSetting( 'wplink', visible ? '0' : '1' );
+			inputs[ ! visible ? 'search' : 'url' ].focus();
 		}
 	};
 
@@ -352,17 +380,17 @@ var wpLink;
 		var self = this;
 		this.element = element;
 		this.ul = element.children( 'ul' );
-		this.contentHeight = element.children( '#link-modal-content-height' );
-		this.waiting = element.find( '.river-waiting' );
+		this.contentHeight = element.children( '#link-selector-height' );
+		this.waiting = $( '#river-waiting' );
 
 		this.change( search );
 		this.refresh();
 
-		$( '#link-modal-content' ).scroll( function() {
+		$( '#wp-link .query-results, #wp-link #link-selector' ).scroll( function() {
 			self.maybeLoad();
 		});
-		element.delegate( 'li', 'click', function( event ) {
-			self.select( $(this), event );
+		element.on( 'click', 'li', function( event ) {
+			self.select( $( this ), event );
 		});
 	};
 
@@ -397,11 +425,10 @@ var wpLink;
 			liTop = li.position().top;
 			elTop = this.element.scrollTop();
 
-			if ( liTop < 0 ) { // Make first visible element
+			if ( liTop < 0 ) // Make first visible element
 				this.element.scrollTop( elTop + liTop );
-			} else if ( liTop + liHeight > elHeight ) { // Make last visible element
+			else if ( liTop + liHeight > elHeight ) // Make last visible element
 				this.element.scrollTop( elTop + liTop - elHeight + liHeight );
-			}
 
 			// Trigger the river-select event
 			this.element.trigger( 'river-select', [ li, event, this ] );
@@ -426,7 +453,7 @@ var wpLink;
 			if ( ! this.visible )
 				return;
 
-			var to = this.selected ? this.selected.next( 'li' ) : $( 'li:not(.unselectable):first', this.element);
+			var to = this.selected ? this.selected.next( 'li' ) : $( 'li:not(.unselectable):first', this.element );
 			if ( to.length )
 				this.select( to );
 		},
@@ -447,13 +474,11 @@ var wpLink;
 
 			this._search = search;
 			this.query = new Query( search );
-			this.element.scrollTop(0);
+			this.element.scrollTop( 0 );
 		},
 		process: function( results, params ) {
-			var alt = true,
-				classes = '',
-				firstPage = params.page == 1,
-				list = '';
+			var list = '', alt = true, classes = '',
+				firstPage = params.page == 1;
 
 			if ( ! results ) {
 				if ( firstPage ) {
@@ -483,7 +508,7 @@ var wpLink;
 			if ( ! this.query.ready() || bottom < this.contentHeight.height() - wpLink.riverBottomThreshold )
 				return;
 
-			setTimeout( function() {
+			setTimeout(function() {
 				var newTop = el.scrollTop(),
 					newBottom = newTop + el.height();
 
@@ -527,7 +552,7 @@ var wpLink;
 			$.post( ajaxurl, query, function( r ) {
 				self.page++;
 				self.querying = false;
-				self.allLoaded = !r;
+				self.allLoaded = ! r;
 				callback( r, query );
 			}, 'json' );
 		}
