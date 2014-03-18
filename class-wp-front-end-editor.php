@@ -971,10 +971,7 @@ class WP_Front_End_Editor {
 				$r .= $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
 					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
 					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -1000,9 +997,6 @@ class WP_Front_End_Editor {
 				$r .= $embed;
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
 					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -1036,9 +1030,6 @@ class WP_Front_End_Editor {
 			$r .= $return;
 			$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
 				$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
-				$r .= '<div class="wp-fee-shortcode-view" onmousedown="return false;"></div>';
-				$r .= '<div class="wp-fee-shortcode-insert-top" onmousedown="return false;"></div>';
-				$r .= '<div class="wp-fee-shortcode-insert-bottom" onmousedown="return false;"></div>';
 			$r .= '</div>';
 		$r .= '</div>';
 
