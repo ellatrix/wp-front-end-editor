@@ -160,8 +160,11 @@
 			$( '.fee-edit-thumbnail' ).removeClass( 'empty' );
 			$( '#set-post-thumbnail' ).click();
 		} )
+		.on( 'click', '.wp-fee-set-post-thumbnail', function() {
+			$( '#wp-fee-set-post-thumbnail' ).click();
+		} )
 		.on( 'click', '.media-modal-close', function() {
-			if ( ! $( '.fee-edit-thumbnail' ).find( 'img' ).not( '.wp-fee-thumbnail-dummy' ).length ) {
+			if ( ! $( '.fee-edit-thumbnail' ).find( 'img' ).length ) {
 				$( '.fee-edit-thumbnail' ).addClass( 'empty' );
 			}
 		} )
@@ -546,7 +549,6 @@
 				}
 			} );
 			$( '.fee-edit-thumbnail' )
-				.append( '<img src="' + wp.fee.blankGif + '" alt="" class="attachment-post-thumbnail wp-post-image wp-fee-thumbnail-dummy">' )
 				.on( 'mouseenter', function() {
 					$( this ).find( '.fee-edit-thumbnail-button' ).fadeIn( 'fast' );
 				} )

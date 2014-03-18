@@ -793,6 +793,7 @@ class WP_Front_End_Editor {
 				</div>
 				<div class="wp-fee-shortcode-options">
 					<a href="#" id="wp-fee-set-post-thumbnail"></a>
+					<div class="wp-core-ui"><a href="#" class="wp-fee-set-post-thumbnail">Add a featured image</a></div>
 				</div>
 			</div>
 			';
