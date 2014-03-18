@@ -430,7 +430,7 @@ class WP_Front_End_Editor {
 
 		?><script type="text/javascript">
 		addLoadEvent = function(func){if(typeof jQuery!="undefined")jQuery(document).ready(func);else if(typeof wpOnload!='function'){wpOnload=func;}else{var oldonload=wpOnload;wpOnload=function(){oldonload();func();}}};
-		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php', 'relative' ); ?>',
+		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>',
 			pagenow = '<?php echo $current_screen->id; ?>',
 			typenow = '<?php echo $current_screen->post_type; ?>',
 			adminpage = '<?php echo $admin_body_class; ?>',

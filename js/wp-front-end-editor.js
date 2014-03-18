@@ -135,10 +135,14 @@
 
 	$( document )
 		.on( 'autosave-enable-buttons', function() {
-			$( '.wp-fee-submit' ).removeClass( $( '.wp-fee-submit' ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
+			$( '.wp-fee-submit' ).each( function() {
+				$( this ).removeClass( $( this ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
+			} );
 		} )
 		.on( 'autosave-disable-buttons', function() {
-			$( '.wp-fee-submit' ).addClass( $( '.wp-fee-submit' ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
+			$( '.wp-fee-submit' ).each( function() {
+				$( this ).addClass( $( this ).hasClass( 'button-primary' ) ? 'button-primary-disabled' : 'button-disabled' );
+			} );
 		} )
 		.on( 'mouseenter', '.wp-fee-shortcode-container', function() {
 			$( this ).find( '.wp-fee-shortcode-options' ).fadeIn( 'fast' );
