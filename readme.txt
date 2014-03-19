@@ -4,7 +4,7 @@ Contributors: avryl, wordpressdotorg
 Tags: front-end editor, inline editing
 Requires at least: 3.8
 Tested up to: 3.9
-Stable tag: 0.9.0
+Stable tag: 0.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,6 +22,11 @@ If you'd like to join our Skype chat, add jannekevandorpe and mention this plugi
 [Make WordPress UI Posts](http://make.wordpress.org/ui/tag/front-end-editor/)
 
 == Changelog ==
+
+= 0.9.1 =
+
+* Fix link modal.
+* Update to TinyMCE 4.0.20.
 
 = 0.9.0 =
 

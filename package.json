@@ -1,6 +1,6 @@
 {
   "name": "WordPress Front-end Editor",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.8.0"
