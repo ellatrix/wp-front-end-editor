@@ -180,11 +180,13 @@
 		.on( 'mouseleave', '.fee-edit-thumbnail', function() {
 			$( this ).find( '#remove-post-thumbnail' ).fadeOut( 'fast' );
 		} )
-		.on( 'click', '#wp-fee-set-post-thumbnail', function() {
+		.on( 'click', '#wp-fee-set-post-thumbnail', function( event ) {
+			event.preventDefault();
 			$( '.fee-edit-thumbnail' ).removeClass( 'empty' );
 			$( '#set-post-thumbnail' ).click();
 		} )
-		.on( 'click', '.wp-fee-set-post-thumbnail', function() {
+		.on( 'click', '.wp-fee-set-post-thumbnail', function( event ) {
+			event.preventDefault();
 			$( '#wp-fee-set-post-thumbnail' ).click();
 		} )
 		.on( 'click', '.media-modal-close', function() {
