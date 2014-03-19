@@ -337,6 +337,7 @@
 				object_resizing: false,
 				relative_urls: false,
 				convert_urls: false,
+				browser_spellcheck: true,
 				valid_elements: '*[*]',
 				valid_children : '+div[style],+div[script]',
 				setup: function( editor ) {
