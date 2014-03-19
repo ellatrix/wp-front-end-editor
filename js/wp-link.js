@@ -68,7 +68,7 @@ var wpLink;
 			if ( typeof tinymce !== 'undefined' ) {
 				ed = tinymce.get( wpActiveEditor );
 
-				if ( ed && ! ed.isHidden() ) {
+				if ( ed ) {
 					editor = ed;
 				} else {
 					editor = null;
@@ -91,7 +91,7 @@ var wpLink;
 		},
 
 		isMCE: function() {
-			return editor && ! editor.isHidden();
+			return editor;
 		},
 
 		refresh: function() {
