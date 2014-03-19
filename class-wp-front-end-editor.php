@@ -926,6 +926,15 @@ class WP_Front_End_Editor {
 
 	public function wp_fee_shortcode() {
 
+		global $post;
+
+		if ( isset( $_POST['post_id'] ) ) {
+
+			$post = $_POST['post_id'];
+			$post = get_post( $post );
+
+		}
+
 		$r = $_POST['shortcode'];
 		$r = wp_unslash( $r );
 		$r = $this->do_shortcode( $r );

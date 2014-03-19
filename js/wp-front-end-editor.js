@@ -42,7 +42,8 @@
 			if ( content.slice( 0, 8 ) === '[gallery' || content.slice( 0, 8 ) === '[caption' ) {
 				var data = {
 						'action': 'wp_fee_shortcode',
-						'shortcode': content
+						'shortcode': content,
+						'post_id': wp.fee.post.id()
 					};
 				$.post( wp.fee.ajaxUrl, data, function( data ) {
 					var editor = tinymce.activeEditor,
