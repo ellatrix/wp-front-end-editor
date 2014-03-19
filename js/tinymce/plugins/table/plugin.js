@@ -432,6 +432,7 @@ define("tinymce/tableplugin/TableGrid", [
 						cell = grid[y][x].elm;
 
 						/*jshint loopfunc:true */
+						/*eslint loop-func:0 */
 						if (cell != startCell) {
 							// Move children to startCell
 							children = Tools.grep(cell.childNodes);
@@ -1200,7 +1201,7 @@ define("tinymce/tableplugin/Quirks", [
 					tableParent = table.parentNode;
 				}
 
-				allOfCellSelected =rng.startContainer.nodeType == TEXT_NODE &&
+				allOfCellSelected = rng.startContainer.nodeType == TEXT_NODE &&
 					rng.startOffset === 0 &&
 					rng.endOffset === 0 &&
 					currentCell &&
@@ -1221,7 +1222,7 @@ define("tinymce/tableplugin/Quirks", [
 				}
 
 				if (!currentCell) {
-					currentCell=n;
+					currentCell = n;
 				}
 
 				// Get the very last node inside the table cell
@@ -1373,7 +1374,7 @@ define("tinymce/tableplugin/CellSelection", [
 			}
 		});
 
-		dom.bind(editor.getDoc(), 'mouseover', cellSelectionHandler);
+		editor.on('mouseover', cellSelectionHandler);
 
 		editor.on('remove', function() {
 			dom.unbind(editor.getDoc(), 'mouseover', cellSelectionHandler);
@@ -1672,7 +1673,7 @@ define("tinymce/tableplugin/Plugin", [
 							text: 'None',
 							minWidth: 90,
 							maxWidth: null,
-							menu: [
+							values: [
 								{text: 'Cell', value: 'td'},
 								{text: 'Header cell', value: 'th'}
 							]
@@ -1684,7 +1685,7 @@ define("tinymce/tableplugin/Plugin", [
 							text: 'None',
 							minWidth: 90,
 							maxWidth: null,
-							menu: [
+							values: [
 								{text: 'None', value: ''},
 								{text: 'Row', value: 'row'},
 								{text: 'Column', value: 'col'},
@@ -1789,7 +1790,7 @@ define("tinymce/tableplugin/Plugin", [
 							label: 'Row type',
 							text: 'None',
 							maxWidth: null,
-							menu: [
+							values: [
 								{text: 'Header', value: 'thead'},
 								{text: 'Body', value: 'tbody'},
 								{text: 'Footer', value: 'tfoot'}
@@ -1801,7 +1802,7 @@ define("tinymce/tableplugin/Plugin", [
 							label: 'Alignment',
 							text: 'None',
 							maxWidth: null,
-							menu: [
+							values: [
 								{text: 'None', value: ''},
 								{text: 'Left', value: 'left'},
 								{text: 'Center', value: 'center'},
@@ -1957,7 +1958,7 @@ define("tinymce/tableplugin/Plugin", [
 				}
 
 				tx = 9 - tx;
-				table.nextSibling.innerHTML = tx + ' x '+ (ty + 1);
+				table.nextSibling.innerHTML = tx + ' x ' + (ty + 1);
 			} else {
 				for (y = 0; y < 10; y++) {
 					for (x = 0; x < 10; x++) {
@@ -1975,7 +1976,7 @@ define("tinymce/tableplugin/Plugin", [
 					}
 				}
 
-				table.nextSibling.innerHTML = (tx + 1) + ' x '+ (ty + 1);
+				table.nextSibling.innerHTML = (tx + 1) + ' x ' + (ty + 1);
 			}
 
 			return focusCell.parentNode;
