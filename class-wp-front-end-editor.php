@@ -501,30 +501,76 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), self::VERSION, true );
 
-			$vars = array(
+			$tinymce_plugins = array(
+				'wpkitchensink',
+				'wpblocks',
+				'wpmore',
+				'wplink',
+				'paste',
+				'table',
+				'noneditable',
+				'hr'
+			);
+
+			$tinymce_buttons_1 = array(
+				'kitchensink',
+				'formatselect',
+				'bold',
+				'italic',
+				'strikethrough',
+				'blockquote',
+				'alignleft',
+				'aligncenter',
+				'alignright',
+				'wp_more',
+				'link',
+				'media',
+				'undo',
+				'redo'
+			);
+
+			$tinymce_buttons_2 = array(
+				'kitchensink',
+				'removeformat',
+				'pastetext',
+				'hr',
+				'bullist',
+				'numlist',
+				'outdent',
+				'indent',
+				'table',
+				'undo',
+				'redo'
+			);
+
+			$tinymce = array(
+				'selector' => '#wp-fee-content-' . $post->ID,
+				'inline' => true,
+				'plugins' => implode( ' ', array_unique( apply_filters( 'wp_fee_tinymce_plugins', $tinymce_plugins ) ) ),
+				'toolbar1'=> implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_1', $tinymce_buttons_1 ) ),
+				'toolbar2' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_2', $tinymce_buttons_2 ) ),
+				'toolbar3' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_3', array() ) ),
+				'toolbar4' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_4', array() ) ),
+				'menubar' => false,
+				'fixed_toolbar_container' => '#wp-admin-bar-wp-fee-mce-toolbar',
+				'skin' => false,
+				'object_resizing' => false,
+				'relative_urls' => false,
+				'convert_urls' => false,
+				'browser_spellcheck' => true,
+				'valid_elements' => '*[*]',
+				'valid_children' => '+div[style],+div[script]'
+			);
+
+			$wpfee = array(
 				'postTitle' => get_the_title(),
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) ),
 				'blankGif' => includes_url( '/images/blank.gif' ),
-				'tinymce' => array(
-					'selector' => '#wp-fee-content-' . $post->ID,
-					'inline' => true,
-					'plugins' => 'wpkitchensink wpblocks wpmore wplink charmap paste table noneditable hr',
-					'toolbar1'=> 'kitchensink formatselect bold italic strikethrough blockquote alignleft aligncenter alignright wp_more link media undo redo',
-					'toolbar2' => 'kitchensink removeformat pastetext hr bullist numlist outdent indent table undo redo',
-					'menubar' => false,
-					'fixed_toolbar_container' => '#wp-admin-bar-wp-fee-mce-toolbar',
-					'skin' => false,
-					'object_resizing' => false,
-					'relative_urls' => false,
-					'convert_urls' => false,
-					'browser_spellcheck' => true,
-					'valid_elements' => '*[*]',
-					'valid_children' => '+div[style],+div[script]'
-				)
+				'tinymce' => apply_filters( 'wp_fee_tinymce_config', $tinymce )
 			);
 
-			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
+			wp_localize_script( 'wp-front-end-editor', 'wpFee', $wpfee );
 			
 			wp_localize_script( 'wp-front-end-editor', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,

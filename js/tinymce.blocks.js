@@ -16,7 +16,7 @@ tinymce.PluginManager.add( 'wpblocks', function( editor ) {
 							jQuery.getScript( jQuery( val ).attr( 'src' ) );
 						} );
 				}
-				tinymce.activeEditor.insertContent( data );
+				editor.insertContent( data );
 				jQuery( 'body, html' ).css( 'cursor', 'default' );
 			} );
 		}
