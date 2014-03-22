@@ -1,5 +1,5 @@
 {
-  "name": "WordPress Front-end Editor",
+  "name": "wp-front-end-editor",
   "version": "0.9.1",
   "devDependencies": {
     "grunt": "~0.4.2",

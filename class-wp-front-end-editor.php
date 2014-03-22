@@ -494,6 +494,11 @@ class WP_Front_End_Editor {
 			) );
 			
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce' . ( SCRIPT_DEBUG ? '' : '.min' ) . '.js' ), array(), '4.0.20', true );
+			wp_enqueue_script( 'tinymce-fee', $this->url( '/js/tinymce.fee.js' ), array(), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-link', $this->url( '/js/tinymce.link.js' ), array(), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array(), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-blocks', $this->url( '/js/tinymce.blocks.js' ), array(), self::VERSION, true );
+
 			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), self::VERSION, true );
 
 			$vars = array(
