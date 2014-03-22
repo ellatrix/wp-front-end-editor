@@ -325,22 +325,8 @@
 					} );
 			}
 
-			tinymce.init( {
-				selector: '#wp-fee-content-' + wp.fee.post.id(),
-				inline: true,
-				plugins: 'wpkitchensink wpblocks wpmore wplink charmap paste table noneditable hr',
-				toolbar1: 'kitchensink formatselect bold italic strikethrough blockquote alignleft aligncenter alignright wp_more link media undo redo',
-				toolbar2: 'kitchensink removeformat pastetext hr bullist numlist outdent indent table undo redo',
-				menubar: false,
-				fixed_toolbar_container: '#wp-admin-bar-wp-fee-mce-toolbar',
-				skin: false,
-				object_resizing: false,
-				relative_urls: false,
-				convert_urls: false,
-				browser_spellcheck: true,
-				valid_elements: '*[*]',
-				valid_children : '+div[style],+div[script]'
-			} );
+			tinymce.init( wp.fee.tinymce );
+
 			if ( wp.fee.title ) {
 				$( '#post_title' ).on( 'change keyup', function() {
 					wp.fee.title.text( $( this ).val() );

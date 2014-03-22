@@ -487,12 +487,12 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_script( 'wp-auth-check' );
 			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response' ), self::VERSION, true );
-			
+
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'blog_id' => get_current_blog_id()
 			) );
-			
+
 			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce' . ( SCRIPT_DEBUG ? '' : '.min' ) . '.js' ), array(), '4.0.20', true );
 			wp_enqueue_script( 'tinymce-fee', $this->url( '/js/tinymce.fee.js' ), array(), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-link', $this->url( '/js/tinymce.link.js' ), array(), self::VERSION, true );
@@ -505,7 +505,23 @@ class WP_Front_End_Editor {
 				'postTitle' => get_the_title(),
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'redirectPostLocation' => esc_url( apply_filters( 'redirect_post_location', '', $post->ID ) ),
-				'blankGif' => includes_url( '/images/blank.gif' )
+				'blankGif' => includes_url( '/images/blank.gif' ),
+				'tinymce' => array(
+					'selector' => '#wp-fee-content-' . $post->ID,
+					'inline' => true,
+					'plugins' => 'wpkitchensink wpblocks wpmore wplink charmap paste table noneditable hr',
+					'toolbar1'=> 'kitchensink formatselect bold italic strikethrough blockquote alignleft aligncenter alignright wp_more link media undo redo',
+					'toolbar2' => 'kitchensink removeformat pastetext hr bullist numlist outdent indent table undo redo',
+					'menubar' => false,
+					'fixed_toolbar_container' => '#wp-admin-bar-wp-fee-mce-toolbar',
+					'skin' => false,
+					'object_resizing' => false,
+					'relative_urls' => false,
+					'convert_urls' => false,
+					'browser_spellcheck' => true,
+					'valid_elements' => '*[*]',
+					'valid_children' => '+div[style],+div[script]'
+				)
 			);
 
 			wp_localize_script( 'wp-front-end-editor', 'wpFee', $vars );
