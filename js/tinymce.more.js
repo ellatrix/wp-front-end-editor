@@ -20,22 +20,6 @@ tinymce.PluginManager.add( 'wpmore', function( editor ) {
 		}
 	});
 
-	editor.on( 'SetContent', function( event ) {
-		var body, padNode;
-		// Add padding <p> if the noneditable node is last
-		if ( event.load || ! event.set ) {
-			body = editor.getBody();
-			if ( editor.dom.hasClass( body.firstChild, 'wp-fee-shortcode-container' ) ) {
-				padNode = wp.fee.createPadNode( editor );
-				body.insertBefore( padNode, body.firstChild );
-			}
-			if ( editor.dom.hasClass( body.lastChild, 'wp-fee-shortcode-container' ) ) {
-				padNode = wp.fee.createPadNode( editor );
-				body.appendChild( padNode, body.lastChild );
-			}
-		}
-	});
-
 	// Replace images with tags
 	editor.on( 'PostProcess', function( e ) {
 		if ( e.get ) {
@@ -57,18 +41,6 @@ tinymce.PluginManager.add( 'wpmore', function( editor ) {
 			});
 			e.content = e.content.replace( /&lt;!--(.*?)--&gt;/g, '<!--$1-->' );
 		}
-	});
-
-	editor.on( 'PreProcess', function( event ) {
-		var dom = editor.dom;
-		// Remove empty padding nodes
-		tinymce.each( dom.select( 'p[data-wpview-pad]', event.node ), function( node ) {
-			if ( dom.isEmpty( node ) ) {
-				dom.remove( node );
-			} else {
-				dom.setAttrib( node, 'data-wpview-pad', null );
-			}
-		});
 	});
 
 	// Display the tag name instead of img in element path

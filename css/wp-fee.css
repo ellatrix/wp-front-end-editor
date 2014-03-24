@@ -305,6 +305,106 @@
 	display: none;
 }
 
+#wp-fee-insert-block {
+	display: none;
+	position: absolute;
+	z-index: 100;
+	opacity: 0.5;
+	cursor: pointer;
+	transition: opacity .1s ease-in 0;
+	-moz-transition: opacity .1s ease-in 0;
+	-webkit-transition: opacity .1s ease-in 0;
+}
+
+#wp-fee-insert-block:hover {
+	opacity: 1;
+}
+
+#wp-fee-insert-block .dashicons-plus {
+	background-color: #444;
+	color: #fff;
+	position: relative;
+	line-height: 26px;
+	width: 24px;
+	height: 24px;
+	border-radius: 12px;
+	margin-right: 10px;
+}
+
+#wp-fee-insert-list {
+	display: none;
+	position: absolute;
+	z-index: 100;
+	background: #222;
+	padding: 5px 0;
+	color: #eee;
+	font-size: 18px;
+	-webkit-box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+	box-shadow: 0 3px 5px rgba(0, 0, 0, .2);
+	min-width: 180px;
+	-webkit-font-smoothing: antialiased;
+}
+#wp-fee-insert-list:before {
+	width: 0;
+	height: 0;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	border-right: 8px solid #222;
+	position: absolute;
+	left: -8px;
+	top: 42px;
+	content: '';
+}
+
+#wp-fee-insert-list .dashicons {
+	color: #ccc;
+	margin-right: 10px;
+	position: relative;
+	top: 2px;
+}
+
+#wp-fee-insert-list > div {
+	padding: 5px 15px;
+	cursor: pointer;
+	transition: color .1s ease-in 0;
+	-moz-transition: color .1s ease-in 0;
+	-webkit-transition: color .1s ease-in 0;
+}
+
+#wp-fee-insert-list > div:hover {
+/*	background-color: #444;*/
+	color: #2ea2cc;
+}
+
+#wp-fee-insert-list > div:hover .dashicons {
+	color: #2ea2cc;
+}
+
+.ui-sortable > * {
+	position: relative;
+}
+
+.wp-fee-block-handle {
+	position: absolute;
+	top: 0;
+	left: -30px;
+	transition: color .1s ease-in 0;
+	-moz-transition: color .1s ease-in 0;
+	-webkit-transition: color .1s ease-in 0;
+	opacity: 0.5;
+	cursor: move;
+}
+
+.wp-fee-block-handle:hover {
+	opacity: 1;
+}
+
+.wp-fee-block-placeholder {
+	border: 2px dashed #d4d0ba;
+	background: rgba(247, 245, 231, 0.7);
+	min-height: 50px;
+}
+
 /* Admin Bar */
 
 

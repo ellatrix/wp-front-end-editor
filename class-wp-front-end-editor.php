@@ -455,6 +455,7 @@ class WP_Front_End_Editor {
 			wp_enqueue_style( 'wp-auth-check' );
 
 			wp_enqueue_script( 'jquery' );
+			wp_enqueue_script( 'jquery-ui-selectable' );
 			wp_enqueue_script( 'tipsy', $this->url( 'js/jquery.tipsy.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_script( 'heartbeat' );
 			wp_enqueue_script( 'postbox', admin_url( 'js/postbox.js' ), array( 'jquery-ui-sortable' ), self::VERSION, true );
@@ -547,7 +548,7 @@ class WP_Front_End_Editor {
 				'selector' => '#wp-fee-content-' . $post->ID,
 				'inline' => true,
 				'plugins' => implode( ' ', array_unique( apply_filters( 'wp_fee_tinymce_plugins', $tinymce_plugins ) ) ),
-				'toolbar1'=> implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_1', $tinymce_buttons_1 ) ),
+				'toolbar1' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_1', $tinymce_buttons_1 ) ),
 				'toolbar2' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_2', $tinymce_buttons_2 ) ),
 				'toolbar3' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_3', array() ) ),
 				'toolbar4' => implode( ' ', apply_filters( 'wp_fee_tinymce_buttons_4', array() ) ),
