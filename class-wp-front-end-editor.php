@@ -103,7 +103,7 @@ class WP_Front_End_Editor {
 		global $wp_version;
 
 		if ( empty( $wp_version )
-			|| version_compare( $wp_version, '3.8', '<' )
+			|| version_compare( $wp_version, '3.9', '<' )
 			|| version_compare( $wp_version, '4.0-alpha', '>' ) ) {
 
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -120,7 +120,7 @@ class WP_Front_End_Editor {
 
 	public function admin_notices() {
 
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.8 and 4.0-alpha.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.9 and 4.0-alpha.</p></div>';
 
 	}
 
@@ -146,7 +146,6 @@ class WP_Front_End_Editor {
 
 		add_action( 'wp', array( $this, 'wp' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-		add_action( 'wp_default_scripts', array( $this, 'wp_default_scripts' ) );
 
 		if ( isset( $_POST['wp_fee_redirect'] )
 			&& $_POST['wp_fee_redirect'] == '1' )
@@ -165,11 +164,6 @@ class WP_Front_End_Editor {
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 		add_filter( 'edit_post_link', array( $this, 'edit_post_link' ), 10, 2 );
 		add_filter( 'admin_url', array( $this, 'admin_url' ) );
-		
-		// Only for WP 3.8.
-		if ( ! function_exists( 'heartbeat_autosave' ) ) {
-			add_filter( 'heartbeat_received', array( $this, 'heartbeat_autosave' ), 500, 2 );
-		}
 
 	}
 
@@ -320,105 +314,6 @@ class WP_Front_End_Editor {
 		return $url;
 
 	}
-	
-	// Only for WP 3.8.
-	public function heartbeat_autosave( $response, $data ) {
-		if ( ! empty( $data['wp_autosave'] ) ) {
-			$saved = $this->wp_autosave( $data['wp_autosave'] );
-	
-			if ( is_wp_error( $saved ) ) {
-				$response['wp_autosave'] = array( 'success' => false, 'message' => $saved->get_error_message() );
-			} elseif ( empty( $saved ) ) {
-				$response['wp_autosave'] = array( 'success' => false, 'message' => __( 'Error while saving.' ) );
-			} else {
-				/* translators: draft saved date format, see http://php.net/date */
-				$draft_saved_date_format = __( 'g:i:s a' );
-				/* translators: %s: date and time */
-				$response['wp_autosave'] = array( 'success' => true, 'message' => sprintf( __( 'Draft saved at %s.' ), date_i18n( $draft_saved_date_format ) ) );
-			}
-		}
-	
-		return $response;
-	}
-	
-	// Only for WP 3.8.
-	public function wp_autosave( $post_data ) {
-		// Back-compat
-		if ( ! defined( 'DOING_AUTOSAVE' ) )
-			define( 'DOING_AUTOSAVE', true );
-	
-		$post_id = (int) $post_data['post_id'];
-		$post_data['ID'] = $post_data['post_ID'] = $post_id;
-	
-		if ( false === wp_verify_nonce( $post_data['_wpnonce'], 'update-post_' . $post_id ) )
-			return new WP_Error( 'invalid_nonce', __('ERROR: invalid post data.') );
-	
-		$post = get_post( $post_id );
-	
-		if ( ! current_user_can( 'edit_post', $post->ID ) )
-			return new WP_Error( 'edit_post', __('You are not allowed to edit this item.') );
-	
-		if ( 'auto-draft' == $post->post_status )
-			$post_data['post_status'] = 'draft';
-	
-		if ( $post_data['post_type'] != 'page' && ! empty( $post_data['catslist'] ) )
-			$post_data['post_category'] = explode( ',', $post_data['catslist'] );
-	
-		if ( ! wp_check_post_lock( $post->ID ) && get_current_user_id() == $post->post_author && ( 'auto-draft' == $post->post_status || 'draft' == $post->post_status ) ) {
-			// Drafts and auto-drafts are just overwritten by autosave for the same user if the post is not locked
-			return edit_post( $post_data );
-		} else {
-			// Non drafts or other users drafts are not overwritten. The autosave is stored in a special post revision for each user.
-			return $this->wp_create_post_autosave( $post_data );
-		}
-	}
-	
-	// Only for WP 3.8.
-	public function wp_create_post_autosave( $post_data ) {
-		if ( is_numeric( $post_data ) ) {
-			$post_id = $post_data;
-			$post_data = &$_POST;
-		} else {
-			$post_id = (int) $post_data['post_ID'];
-		}
-	
-		$post_data = _wp_translate_postdata( true, $post_data );
-		if ( is_wp_error( $post_data ) )
-			return $post_data;
-	
-		$post_author = get_current_user_id();
-	
-		// Store one autosave per author. If there is already an autosave, overwrite it.
-		if ( $old_autosave = wp_get_post_autosave( $post_id, $post_author ) ) {
-			$new_autosave = _wp_post_revision_fields( $post_data, true );
-			$new_autosave['ID'] = $old_autosave->ID;
-			$new_autosave['post_author'] = $post_author;
-	
-			// If the new autosave has the same content as the post, delete the autosave.
-			$post = get_post( $post_id );
-			$autosave_is_different = false;
-			foreach ( array_keys( _wp_post_revision_fields() ) as $field ) {
-				if ( normalize_whitespace( $new_autosave[ $field ] ) != normalize_whitespace( $post->$field ) ) {
-					$autosave_is_different = true;
-					break;
-				}
-			}
-	
-			if ( ! $autosave_is_different ) {
-				wp_delete_post_revision( $old_autosave->ID );
-				return 0;
-			}
-	
-			return wp_update_post( $new_autosave );
-		}
-	
-		// _wp_put_post_revision() expects unescaped.
-		$post_data = wp_unslash( $post_data );
-	
-		// Otherwise create the new autosave as a special post revision
-		return _wp_put_post_revision( $post_data, true );
-	}
-	
 
 	public function wp_head() {
 
@@ -445,7 +340,15 @@ class WP_Front_End_Editor {
 
 	public function wp_enqueue_scripts() {
 
-		global $post, $wp_version;
+		global $post, $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
+
+		if ( ! isset($concatenate_scripts) )
+			script_concat_settings();
+
+		$compressed = $compress_scripts && $concatenate_scripts && isset( $_SERVER['HTTP_ACCEPT_ENCODING'] )
+			&& false !== stripos( $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip' );
+
+		$suffix = ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) ? '' : '.min';
 
 		if ( $this->is_edit() ) {
 			
@@ -494,13 +397,29 @@ class WP_Front_End_Editor {
 				'blog_id' => get_current_blog_id()
 			) );
 
-			wp_enqueue_script( 'tinymce-4', $this->url( '/js/tinymce/tinymce' . ( SCRIPT_DEBUG ? '' : '.min' ) . '.js' ), array(), '4.0.20', true );
-			wp_enqueue_script( 'tinymce-fee', $this->url( '/js/tinymce.fee.js' ), array(), self::VERSION, true );
-			wp_enqueue_script( 'tinymce-link', $this->url( '/js/tinymce.link.js' ), array(), self::VERSION, true );
-			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array(), self::VERSION, true );
-			wp_enqueue_script( 'tinymce-blocks', $this->url( '/js/tinymce.blocks.js' ), array(), self::VERSION, true );
+			// Load tinymce.js when running from /src, else load wp-tinymce.js.gz (production) or tinymce.min.js (SCRIPT_DEBUG)
+			$mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
 
-			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array(), self::VERSION, true );
+			if ( $compressed ) {
+
+				wp_enqueue_script( 'wp-fee-tinymce-compressed', includes_url( 'js/tinymce' ) . '/wp-tinymce.php?c=1', array(), $tinymce_version, true );
+
+			} else {
+
+				wp_enqueue_script( 'wp-fee-tinymce', includes_url( 'js/tinymce' ) . '/tinymce' . $mce_suffix . '.js', array(), $tinymce_version, true );
+				wp_enqueue_script( 'wp-fee-tinymce-compat3x', includes_url( 'js/tinymce' ) . '/plugins/compat3x/plugin' . $suffix . '.js', array( 'wp-fee-tinymce' ), $tinymce_version, true );
+
+			}
+
+			wp_enqueue_script( 'tinymce-fee', $this->url( '/js/tinymce.fee.js' ), array( 'wp-fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-link', $this->url( '/js/tinymce.link.js' ), array( 'wp-fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'wp-fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-blocks', $this->url( '/js/tinymce.blocks.js' ), array( 'wp-fee-tinymce' ), self::VERSION, true );
+
+			wp_enqueue_script( 'tinymce-table', $this->url( '/js/tinymce/plugins/table/plugin' . $suffix . '.js' ), array( 'wp-fee-tinymce' ), $tinymce_version, true );
+			wp_enqueue_script( 'tinymce-noneditable', $this->url( '/js/tinymce/plugins/noneditable/plugin' . $suffix . '.js' ), array( 'wp-fee-tinymce' ), $tinymce_version, true );
+
+			wp_enqueue_script( 'wp-front-end-editor', $this->url( '/js/wp-front-end-editor.js' ), array( 'wp-fee-tinymce' ), self::VERSION, true );
 
 			$tinymce_plugins = array(
 				'wpkitchensink',
@@ -621,17 +540,6 @@ class WP_Front_End_Editor {
 			wp_localize_script( 'wp-fee-adminbar', 'wpFee', $vars );
 
 		}
-
-	}
-
-	public function wp_default_scripts( &$scripts ) {
-
-		$suffix = SCRIPT_DEBUG ? '' : '.min';
-
-		$scripts->add( 'image-edit', "/wp-admin/js/image-edit$suffix.js", array('jquery', 'json2', 'imgareaselect'), false, 1 );
-		did_action( 'init' ) && $scripts->localize( 'image-edit', 'imageEditL10n', array(
-			'error' => __( 'Could not load the preview image. Please reload the page and try again.' )
-		));
 
 	}
 
