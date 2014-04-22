@@ -564,8 +564,8 @@
 	border-bottom: 1px solid #ccc;
 	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
 	box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
-	padding: 1px;
-	height: 33px;
+	padding: 3px;
+	height: 37px;
 }
 
 #wpadminbar #wp-admin-bar-wp-fee-mce-toolbar > .ab-item,
@@ -652,7 +652,7 @@
 	box-shadow: none;
 }
 
-#wpadminbar .mce-toolbar .mce-btn-group .mce-btn.mce-disabled {
+#wpadminbar .mce-toolbar .mce-btn-group .mce-btn.mce-disabled i.mce-ico {
 	color: #adadad;
 }
 
@@ -969,7 +969,7 @@ th.mce-item-selected {
 .tipsy-bar,
 .mce-tooltip {
 	position: fixed;
-	top: 31px!important;
+	top: 34px!important;
 }
 
 .tipsy-inner,

@@ -144,6 +144,8 @@ class WP_Front_End_Editor {
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
 
+		add_theme_support( 'admin-bar', array( 'callback' => array( $this, '_admin_bar_bump_cb' ) ) );
+
 		add_action( 'wp', array( $this, 'wp' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
@@ -1529,6 +1531,19 @@ class WP_Front_End_Editor {
 		</div>
 		<?php
 
+	}
+
+	public function _admin_bar_bump_cb() {
+		?>
+		<style type="text/css" media="screen">
+			html { margin-top: 37px !important; }
+			* html body { margin-top: 37px !important; }
+			@media screen and ( max-width: 782px ) {
+				html { margin-top: 46px !important; }
+				* html body { margin-top: 46px !important; }
+			}
+		</style>
+		<?php
 	}
 
 }
