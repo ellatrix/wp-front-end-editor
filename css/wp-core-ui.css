@@ -3,13 +3,8 @@
  * and prefixes them with .wp-core-ui.
  */
 
-#wpadminbar * {
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	box-shadow: none;
-}
-
 .wp-core-ui *,
+#wpadminbar *
 .tipsy *,
 .mce-tooltip *,
 .mce-content-body img.mce-wp-nextpage,
@@ -41,6 +36,18 @@
 	-o-transition: none;
 	transition: none;
 	-webkit-font-smoothing: subpixel-antialiased; /* Prevent Safari from switching to standard antialiasing on hover */
+}
+
+#wpadminbar {
+	color: #ccc;
+	font: normal 13px/32px "Open Sans", sans-serif;
+	height: 32px;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 99999;
+	background: #222;
 }
 
 /* --- */

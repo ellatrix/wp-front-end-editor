@@ -458,7 +458,7 @@ class WP_Front_End_Editor {
 				'numlist',
 				'outdent',
 				'indent',
-				'table',
+//				'table',
 				'undo',
 				'redo'
 			);
