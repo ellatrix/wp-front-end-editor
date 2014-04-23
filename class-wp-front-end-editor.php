@@ -144,8 +144,6 @@ class WP_Front_End_Editor {
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
 
-		add_theme_support( 'admin-bar', array( 'callback' => array( $this, '_admin_bar_bump_cb' ) ) );
-
 		add_action( 'wp', array( $this, 'wp' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
@@ -233,6 +231,8 @@ class WP_Front_End_Editor {
 
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		require_once( ABSPATH . '/wp-admin/includes/meta-boxes.php' );
+
+		add_theme_support( 'admin-bar', array( 'callback' => array( $this, '_admin_bar_bump_cb' ) ) );
 
 		add_filter( 'show_admin_bar', '__return_true' );
 
