@@ -480,7 +480,6 @@ class WP_Front_End_Editor {
 				'relative_urls' => false,
 				'convert_urls' => false,
 				'browser_spellcheck' => true,
-				'valid_elements' => '*[*]',
 				'valid_children' => '+div[style],+div[script]'
 			);
 
@@ -957,8 +956,8 @@ class WP_Front_End_Editor {
 				$r .= '</div>';
 				$r .= $m[1] . call_user_func( $shortcode_tags[$tag], $attr, $m[5], $tag ) . $m[6];
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
-					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-remove"><br></div>';
+					$r .= '<div class="wp-fee-shortcode-edit" data-kind="' . $tag . '"><br></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -983,7 +982,7 @@ class WP_Front_End_Editor {
 				$r .= '</div>';
 				$r .= $embed;
 				$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-					$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
+					$r .= '<div class="wp-fee-shortcode-remove"><br></div>';
 				$r .= '</div>';
 			$r .= '</div>';
 
@@ -1016,7 +1015,7 @@ class WP_Front_End_Editor {
 			$r .= '</div>';
 			$r .= $return;
 			$r .= '<div class="wp-fee-shortcode-options" style="display: none;">';
-				$r .= '<div class="wp-fee-shortcode-remove" onmousedown="return false;"></div>';
+				$r .= '<div class="wp-fee-shortcode-remove"><br></div>';
 			$r .= '</div>';
 		$r .= '</div>';
 

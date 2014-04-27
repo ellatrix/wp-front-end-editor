@@ -194,13 +194,16 @@
 				$( '.fee-edit-thumbnail' ).addClass( 'empty' );
 			}
 		} )
-		.on( 'click', '.wp-fee-shortcode-view', function() {
+		.on( 'click', '.wp-fee-shortcode-view', function( event ) {
+			event.preventDefault();
 			$( this ).parents( '.wp-fee-shortcode-container' ).find( '.wp-fee-shortcode-options' ).fadeOut( 'fast' );
 		} )
-		.on( 'click', '.wp-fee-shortcode-remove', function() {
+		.on( 'click', '.wp-fee-shortcode-remove', function( event ) {
+			event.preventDefault();
 			$( this ).parents( '.wp-fee-shortcode-container' ).remove();
 		} )
-		.on( 'click', '.wp-fee-shortcode-edit', function() {
+		.on( 'click', '.wp-fee-shortcode-edit', function( event ) {
+			event.preventDefault();
 			var container = $( this ).parents( '.wp-fee-shortcode-container' ),
 				shortcode, gallery, img, id;
 			switch ( $( this ).data( 'kind' ) ) {

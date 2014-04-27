@@ -564,8 +564,11 @@
 	border-bottom: 1px solid #ccc;
 	-webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
 	box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
-	padding: 3px;
 	height: 37px;
+}
+
+#wp-toolbar {
+	padding: 3px;
 }
 
 #wpadminbar #wp-admin-bar-wp-fee-mce-toolbar > .ab-item,
