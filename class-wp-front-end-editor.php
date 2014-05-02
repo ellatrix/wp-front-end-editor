@@ -610,7 +610,7 @@ class WP_Front_End_Editor {
 			'fee' => true
 		) );
 
-		if ( current_user_can( "delete_post", $post->ID ) ) {
+		if ( current_user_can( 'delete_post', $post->ID ) ) {
 
 			$wp_admin_bar->add_node( array(
 				'id' => 'wp-fee-delete',
@@ -1114,11 +1114,11 @@ class WP_Front_End_Editor {
 			 5 => isset($_GET['revision']) ? sprintf( __('Post restored to revision from %s'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
 			 6 => sprintf( __('Post published. <a href="%s">View post</a>'), esc_url( get_permalink($post_ID) ) ),
 			 7 => __('Post saved.'),
-			 8 => sprintf( __('Post submitted. <a target="_blank" href="%s">Preview post</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-			 9 => sprintf( __('Post scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview post</a>'),
+			 8 => __('Post submitted.'),
+			 9 => sprintf( __('Post scheduled for: <strong>%1$s</strong>.'),
 				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post_ID) ) ),
-			10 => sprintf( __('Post draft updated. <a target="_blank" href="%s">Preview post</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
+				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+			10 => __('Post draft updated.')
 		);
 		$messages['page'] = array(
 			 0 => '', // Unused. Messages start at index 1.
@@ -1129,9 +1129,9 @@ class WP_Front_End_Editor {
 			 5 => isset($_GET['revision']) ? sprintf( __('Page restored to revision from %s'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
 			 6 => sprintf( __('Page published. <a href="%s">View page</a>'), esc_url( get_permalink($post_ID) ) ),
 			 7 => __('Page saved.'),
-			 8 => sprintf( __('Page submitted. <a target="_blank" href="%s">Preview page</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-			 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview page</a>'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post_ID) ) ),
-			10 => sprintf( __('Page draft updated. <a target="_blank" href="%s">Preview page</a>'), esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
+			 8 => __('Page submitted.' ),
+			 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>.'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+			10 => __('Page draft updated.')
 		);
 		$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
 
