@@ -375,6 +375,8 @@
 					$( '#wp-fee-meta-modal' ).show();
 					wp.fee.recalcBoxPos();
 				} );
+			$( '#wp-admin-bar-wp-fee-delete a' )
+				.tipsy( { className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-cats a' )
 				.tipsy( { className: 'tipsy-bar' } );
 			$( '#wp-admin-bar-wp-fee-cats a, a[rel~="category"]' )

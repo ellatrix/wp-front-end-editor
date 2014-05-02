@@ -645,6 +645,14 @@
 	color: #777;
 }
 
+#wpadminbar #wp-admin-bar-wp-fee-delete .ab-icon:before {
+	color: #a00;
+}
+
+#wpadminbar #wp-admin-bar-wp-fee-delete:hover .ab-icon:before {
+	color: #f00;
+}
+
 #wpadminbar .mce-toolbar .mce-btn-group .mce-btn.mce-disabled:hover,
 #wpadminbar .mce-toolbar .mce-btn-group .mce-btn.mce-disabled:focus {
 	color: #aaa;

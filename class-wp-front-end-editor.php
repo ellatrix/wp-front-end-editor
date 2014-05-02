@@ -136,6 +136,14 @@ class WP_Front_End_Editor {
 
 		global $wp_post_statuses;
 
+		if ( ! is_admin() && ! empty( $_GET['trashed'] ) && $_GET['trashed'] === '1' && ! empty( $_GET['ids'] ) ) {
+
+			wp_redirect( admin_url( 'edit.php?post_type=' . get_post_type( $_GET['ids'] ) . '&trashed=1&ids=' . $_GET['ids'] ) );
+
+			die;
+
+		}
+
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
 
@@ -601,6 +609,21 @@ class WP_Front_End_Editor {
 			),
 			'fee' => true
 		) );
+
+		if ( current_user_can( "delete_post", $post->ID ) ) {
+
+			$wp_admin_bar->add_node( array(
+				'id' => 'wp-fee-delete',
+				'href' => get_delete_post_link( $post->ID ),
+				'parent' => 'top-secondary',
+				'title' => '<span class="ab-icon dashicons dashicons-trash"></span>',
+				'meta' => array(
+					'title' => EMPTY_TRASH_DAYS ? __( 'Move to Trash' ) : __( 'Delete Permanently' )
+				),
+				'fee' => true
+			) );
+
+		}
 
 		$wp_admin_bar->add_node( array(
 			'id' => 'wp-fee-meta',
