@@ -1151,8 +1151,6 @@ class WP_Front_End_Editor {
 		$notice = false;
 		$form_extra = '';
 		if ( 'auto-draft' == $post->post_status ) {
-			if ( 'edit' == $action )
-				$post->post_title = '';
 			$autosave = false;
 			$form_extra .= "<input type='hidden' id='auto_draft' name='auto_draft' value='1' />";
 		} else {
