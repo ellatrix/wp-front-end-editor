@@ -528,6 +528,8 @@ class WP_Front_End_Editor {
 
 			wp_enqueue_style( 'wp-fee' , $this->url( '/css/wp-fee.css' ), false, self::VERSION, 'screen' );
 
+			wp_enqueue_style( 'dashicons' );
+
 		} elseif ( is_user_logged_in() ) {
 
 			wp_enqueue_style( 'wp-fee-adminbar' , $this->url( '/css/wp-fee-adminbar.css' ), false, self::VERSION, 'screen' );

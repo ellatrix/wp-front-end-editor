@@ -1,6 +1,6 @@
 <div id="wp-fee-notice-area" class="wp-core-ui">
 	<?php if ( $notice ) : ?>
-	<div id="notice" class="error"><p id="has-newer-autosave"><?php echo $notice ?></p></div>
+	<div id="notice" class="error"><p id="has-newer-autosave"><?php echo $notice ?></p><div class="dashicons dashicons-dismiss"></div></div>
 	<?php endif; ?>
 	<?php if ( $message ) : ?>
 	<div id="message" class="updated"><p><?php echo $message; ?></p></div>
@@ -18,6 +18,7 @@
 	<p class="undo-restore hidden">
 		Post restored successfully. <a class="undo-restore-backup" href="#">Undo.</a>
 	</p>
+	<div class="dashicons dashicons-dismiss"></div>
 </div>
 <form id="wp-fee-meta-modal" style="display: none;">
 	<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
