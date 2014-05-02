@@ -222,9 +222,13 @@ class WP_Front_End_Editor {
 
 			wp_die( __( 'You are not allowed to edit this item.' ) );
 
-		if ( $post->post_status === 'auto-draft' )
+		if ( $post->post_status === 'auto-draft' ) {
 
 			$post->post_title = '';
+			$post->comment_status = get_option( 'default_comment_status' );
+			$post->ping_status = get_option( 'default_ping_status' );
+
+		}
 
 		$post_type = $post->post_type;
 		$post_type_object = get_post_type_object( $post_type );
