@@ -104,7 +104,7 @@ class WP_Front_End_Editor {
 
 		if ( empty( $wp_version )
 			|| version_compare( $wp_version, '3.9', '<' )
-			|| version_compare( $wp_version, '4.0-alpha', '>' ) ) {
+			|| version_compare( $wp_version, '4.0-beta1', '>' ) ) {
 
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 
@@ -120,7 +120,7 @@ class WP_Front_End_Editor {
 
 	public function admin_notices() {
 
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.9 and 4.0-alpha.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 3.9 and 4.0-beta1.</p></div>';
 
 	}
 
