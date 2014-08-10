@@ -1,141 +1,127 @@
 /* global tinymce */
+
 tinymce.PluginManager.add( 'wpkitchensink', function( editor ) {
+	var index, addMarkDown,
+		triggerChars = [],
+		markDown = [];
 
-	editor.addButton( 'kitchensink', {
-		title: 'More\u2026',
-		onclick: function( event ) {
-			var target = event.target || event.srcElement,
-				toolbar = jQuery( target ).parents( '.mce-toolbar' );
-			toolbar.hide();
-			if ( toolbar.next().length ) {
-				toolbar.next().show();
-			} else {
-				toolbar.parent().children().first().show();
-			}
-		}
-	} );
 	editor.on( 'init', function() {
-		editor.focus();
-		jQuery( '.mce-i-media' ).parent()
-			.data( 'editor', 'fee-edit-content-' + wp.fee.post.id() )
-			.addClass( 'insert-media add_media' );
-		jQuery(document).triggerHandler( 'tinymce-editor-init', [editor] );
-		/*jQuery( 'body' )
-			.append( '<div id="wp-fee-insert-block"><div class="dashicons dashicons-plus"></div> Add a content block</div>' )
-			.append( '<div id="wp-fee-insert-list">' +
-				'<div class="insert-media add_media" date-editor="fee-edit-content-' + wp.fee.post.id() + '"><div class="dashicons dashicons-format-image"></div> Image</div>' +
-				'<div class="insert-media add_media" date-editor="fee-edit-content-' + wp.fee.post.id() + '"><div class="dashicons dashicons-format-gallery"></div> Gallery</div>' +
-				'<div class="insert-media add_media" date-editor="fee-edit-content-' + wp.fee.post.id() + '"><div class="dashicons dashicons-format-audio"></div> Audio</div>' +
-				'<div class="insert-media add_media" date-editor="fee-edit-content-' + wp.fee.post.id() + '"><div class="dashicons dashicons-format-video"></div> Video</div>' +
-				'<div class="insert-media add_media" date-editor="fee-edit-content-' + wp.fee.post.id() + '"><div class="dashicons dashicons-location-alt"></div> Map</div>' +
-			'</div>' );
-		jQuery( '.mce-content-body' ).sortable( {
-			handle: '.wp-fee-block-handle',
-			placeholder: 'wp-fee-block-placeholder'
-		} );*/
+		editor.hide();
+		jQuery( document ).triggerHandler( 'tinymce-editor-init', [ editor ] );
 	} );
 
-	editor.addButton( 'media', {
-		title: 'Add Media'
-	} );
+	addMarkDown = editor.addMarkDown = function( regExp, callback, triggerChar ) {
+		var i, character;
 
-	editor
-		.on( 'focus', function() {
-			jQuery( 'p.wp-fee-content-placeholder' ).hide();
-		} )
-		.on( 'blur', function() {
-			var contentOnBlur = editor.getContent()
-					.replace( /\s/g, '' )
-					.replace( /&nbsp;/g, '' )
-					.replace( /<br>/g, '' )
-					.replace( /<p><\/p>/g, '' );
-			if ( ! contentOnBlur ) {
-				jQuery( 'p.wp-fee-content-placeholder' ).show();
-			}
+		markDown.push( {
+			regExp: regExp,
+			callback: callback
 		} );
 
-	editor.on( 'SetContent', function( event ) {
-		var body, padNode;
-		if ( event.load || ! event.set ) {
-			body = editor.getBody();
-			if ( editor.dom.hasClass( body.firstChild, 'wp-fee-shortcode-container' ) ) {
-				padNode = wp.fee.createPadNode( editor );
-				body.insertBefore( padNode, body.firstChild );
-			}
-			if ( editor.dom.hasClass( body.lastChild, 'wp-fee-shortcode-container' ) ) {
-				padNode = wp.fee.createPadNode( editor );
-				body.appendChild( padNode, body.lastChild );
-			}
-		}
-	} );
-
-	editor.on( 'PreProcess', function( event ) {
-		var dom = editor.dom;
-		tinymce.each( dom.select( 'p[data-wpview-pad]', event.node ), function( node ) {
-			if ( dom.isEmpty( node ) ) {
-				dom.remove( node );
-			} else {
-				dom.setAttrib( node, 'data-wpview-pad', null );
-			}
-		});
-	} );
-/*
-	editor.on( 'keydown', function( event ) {
-		jQuery( '#wp-fee-insert-block' ).hide();
-	} );
-
-	editor.on( 'keyup click', function( event ) {
-		if ( event.type === 'click' && ! jQuery( event.target ).parents( '.mce-content-body' ).length ) {
+		if ( ! triggerChar ) {
 			return;
 		}
-		var dom = editor.dom,
-			current = editor.selection.getNode(),
-			insert = jQuery( '#wp-fee-insert-block' ),
-			list = jQuery( '#wp-fee-insert-list' ),
-			parent = dom.getParent( current, '.mce-content-body > *' ),
-			empty = dom.isEmpty( current ),
-			offset;
-		jQuery( '.wp-fee-block-handle' ).remove();
-		if ( ! empty ) {
-			jQuery( parent ).prepend( '<div class="wp-fee-block-handle dashicons dashicons-menu" contenteditable="false"></div>' );
+
+		for ( i = 0; i < triggerChar.length; i++ ) {
+			character = triggerChar.charAt( i );
+
+			if ( tinymce.inArray( triggerChars, character ) === -1 && character !== ' ' ) {
+				triggerChars.push( character );
+			}
 		}
-		if ( empty && current.nodeName !== 'IMG' ) {
-//			list.hide();
-			current = jQuery( current ),
-			offset = current.offset();
-			insert
-				.css( {
-					top: offset.top - 2,
-					left: offset.left + 10
-				} )
-				.show()
-				.on( 'click', function( event ) {
-					event.stopPropagation();
-					list
-						.css( {
-							top: offset.top - 40,
-							left: offset.left + 46
-						} )
-						.show()
-						.on( 'click', function( event ) {
-							insert.hide();
-							list.hide();
-						} );;
-				} );
+	};
+
+	// Always put the minus on the side. :)
+	addMarkDown( /^[*+-]\s/, function() {
+		this.execCommand( 'InsertUnorderedList' );
+	} );
+
+	addMarkDown( /^1[.)]\s/, function() {
+		this.execCommand( 'InsertOrderedList' );
+	} );
+
+	addMarkDown( /^>\s/, function() {
+		this.execCommand( 'mceBlockQuote' );
+	} );
+
+	addMarkDown( /^(#{2,6})\s/, function() {
+		this.formatter.toggle( 'h' + arguments[1].length );
+	} );
+
+	// Ideally we also need to make sure there is no space just before the last *.
+	addMarkDown( /(\*{1,2})(\S[^*]*)\*/, function() {
+		if ( arguments[1].length === 2 ) {
+			this.insertContent( '<strong>' + arguments[2] + '</strong>' );
 		} else {
-			insert.hide();
-			list.hide();
+			this.insertContent( '<em>' + arguments[2] + '</em>' );
 		}
+	}, '*' );
+
+	addMarkDown( /`(\S[^`]*)`/, function() {
+		this.insertContent( '<code>' + arguments[1] + '</code>' );
+	}, '`' );
+
+	addMarkDown( /\[([^\]]+)\]\(([^)\s]+)(?:\s['"]([^)]+)['"])?\)/, function() {
+		this.insertContent( '<a href="' + arguments[2] + '"' + ( arguments[3] ? ' title="' + arguments[3] + '"' : '' ) + '>' + arguments[1] + '</a>' );
+	}, ')' );
+
+	addMarkDown( /^---$/, function() {
+		this.insertContent( '<hr>' );
+	}, '-' );
+
+	addMarkDown( /\:-?([()?oxPD|])/, function() {
+		this.insertContent( '<img src="http://wp/src/wp-includes/images/smilies/icon_smile.gif" alt=":-' + arguments[1] + '" class="wp-smiley">' );
+	}, '()?oxPD|' );
+
+	editor.on( 'keydown', function() {
+		index = editor.selection.getRng().startOffset;
 	} );
 
-	editor.on( 'keydown', function( event ) {
-		jQuery( '.wp-fee-block-handle' ).remove();
-	} );
+	editor.on( 'keyup', function( event ) {
+		var node = editor.selection.getRng().startContainer,
+			character;
 
-	editor.on( 'PostProcess', function( e ) {
-		if ( e.get ) {
-			e.content = e.content.replace( / class="ui-sortable"/g, '' );
+		if ( node.nodeType !== 3 ) {
+			return;
 		}
-	});
-*/
+
+		character = node.textContent.charAt( index );
+
+		if ( event.keyCode !== tinymce.util.VK.SPACEBAR && tinymce.inArray( triggerChars, character ) === -1 ) {
+			return;
+		}
+
+		tinymce.each( markDown, function( m ) {
+			var args,
+				replace = node.textContent.replace( m.regExp, function() {
+					args = arguments;
+
+					if ( m.regExp.source.charAt( 0 ) === '^' && node.parentNode.firstChild !== node ) {
+						return arguments[0];
+					}
+
+					if ( m.regExp.source.charAt( m.regExp.source.length - 1 ) === '$' && node.parentNode.lastChild !== node ) {
+						return arguments[0];
+					}
+
+					return '';
+				} );
+
+			if ( node.textContent === replace ) {
+				return;
+			}
+
+			editor.undoManager.transact( function() {
+				node.textContent = replace;
+
+				editor.selection.setCursorLocation( node, args[ args.length - 2 ] );
+
+				if ( m.regExp.source.charAt( 0 ) === '^' && replace === '' ) {
+					editor.insertContent( '<br>' );
+				}
+
+				m.callback.apply( editor, args );
+			} );
+		} );
+	} );
 } );

@@ -4,10 +4,10 @@
  */
 
 .wp-core-ui *,
-#wpadminbar,
-#wpadminbar *
 .tipsy *,
 .mce-tooltip *,
+.mce-inline-toolbar-grp,
+.mce-inline-toolbar-grp *,
 .mce-content-body img.mce-wp-nextpage,
 .mce-content-body img.mce-wp-more {
 	height: auto;
