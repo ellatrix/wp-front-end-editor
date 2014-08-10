@@ -247,7 +247,7 @@ class FEE {
 					'post' => wp_create_nonce( 'update-post_' . $post->ID ),
 					'slug' => wp_create_nonce( 'slug-nonce_' . $post->ID )
 				),
-				'lock' => implode( ':', $active_post_lock )
+				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false
 			) );
 			wp_localize_script( 'fee', 'feeL10n', array(
 				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' )
@@ -482,38 +482,31 @@ class FEE {
 	}
 
 	function meta_modal() {
-		global $post, $post_type, $post_type_object;
-
-		$post_ID = $post->ID;
-
-		if ( ! wp_check_post_lock( $post->ID ) ) {
-			$active_post_lock = wp_set_post_lock( $post->ID );
-		}
+		global $post;
 
 		$notice = false;
-		$form_extra = '';
+
 		if ( 'auto-draft' == $post->post_status ) {
 			$autosave = false;
-			$form_extra .= "<input type='hidden' id='auto_draft' name='auto_draft' value='1' />";
 		} else {
-			$autosave = wp_get_post_autosave( $post_ID );
+			$autosave = wp_get_post_autosave( $post->ID );
 		}
-
-		$form_action = 'editpost';
-		$nonce_action = 'update-post_' . $post_ID;
 
 		// Detect if there exists an autosave newer than the post and if that autosave is different than the post
 		if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql2date( 'U', $post->post_modified_gmt, false ) ) {
 			foreach ( _wp_post_revision_fields() as $autosave_field => $_autosave_field ) {
-				if ( normalize_whitespace( $autosave->$autosave_field ) != normalize_whitespace( $post->$autosave_field ) ) {
+				if ( normalize_whitespace( $autosave->$autosave_field ) !== normalize_whitespace( $post->$autosave_field ) ) {
 					$notice = sprintf( __( 'There is an autosave of this post that is more recent than the version below. <a href="%s">View the autosave</a>' ), get_edit_post_link( $autosave->ID ) );
 					break;
 				}
 			}
+
 			// If this autosave isn't different from the current post, begone.
-			if ( ! $notice )
+			if ( ! $notice ) {
 				wp_delete_post_revision( $autosave->ID );
-			unset($autosave_field, $_autosave_field);
+			}
+
+			unset( $autosave_field, $_autosave_field );
 		}
 
 		require_once( 'meta-modal-template.php' );
