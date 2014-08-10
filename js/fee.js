@@ -24,6 +24,7 @@
 			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
 			$leave = $( '.fee-leave' ),
+			$noticeArea = $( '#fee-notice-area' ),
 			$contentParents = $content.parents(),
 			contentRect = $content.get( 0 ).getBoundingClientRect(),
 			$titleTags, $titles, $title, docTitle,
@@ -249,17 +250,25 @@
 			} );
 		}
 
-		function addNotice( html, type, fade ) {
+		function addNotice( html, type, remove ) {
 			var $notice = $( '<div>' ).addClass( type );
 
 			$notice.append(
 				'<p>' + html + '</p>' +
-				( fade ? '' : '<div class="dashicons dashicons-dismiss"></div>' )
+				( remove === true ? '' : '<div class="dashicons dashicons-dismiss"></div>' )
 			);
 
-			$( '#fee-notice-area' ).prepend( $notice );
+			$noticeArea.prepend( $notice );
 
-			fade && $notice.delay( 5000 ).fadeOut( 'slow', function() {
+			$notice.find( '.dashicons-dismiss' ).on( 'click.fee', function() {
+				$notice.remove();
+
+				if ( remove !== true ) {
+					remove();
+				}
+			} );
+
+			remove === true && $notice.delay( 5000 ).fadeOut( 'slow', function() {
 				$notice.remove();
 			} );
 
@@ -557,6 +566,10 @@
 		$( '.fee-publish' ).on( 'click.fee', function() {
 			publish();
 		} );
+
+		if ( wp.fee.notices.autosave ) {
+			addNotice( wp.fee.notices.autosave, 'error' );
+		}
 
 		_.extend( wp.fee, {
 			on: on,

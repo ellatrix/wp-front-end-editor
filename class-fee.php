@@ -111,7 +111,7 @@ class FEE {
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
-		add_action( 'wp_print_footer_scripts', array( $this, 'meta_modal' ) );
+		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
 		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
 
 		add_filter( 'post_class', array( $this, 'post_class' ) );
@@ -247,7 +247,10 @@ class FEE {
 					'post' => wp_create_nonce( 'update-post_' . $post->ID ),
 					'slug' => wp_create_nonce( 'slug-nonce_' . $post->ID )
 				),
-				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false
+				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
+				'notices' => array(
+					'autosave' => $this->get_autosave_notice()
+				)
 			) );
 			wp_localize_script( 'fee', 'feeL10n', array(
 				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' )
@@ -481,35 +484,51 @@ class FEE {
 		return $messages[ $post->post_type ] ? $messages[ $post->post_type ][ $message_id ] : $messages[ 'post' ][ $message_id ];
 	}
 
-	function meta_modal() {
+	function footer() {
 		global $post;
 
-		$notice = false;
-
-		if ( 'auto-draft' == $post->post_status ) {
-			$autosave = false;
-		} else {
-			$autosave = wp_get_post_autosave( $post->ID );
-		}
-
-		// Detect if there exists an autosave newer than the post and if that autosave is different than the post
-		if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql2date( 'U', $post->post_modified_gmt, false ) ) {
-			foreach ( _wp_post_revision_fields() as $autosave_field => $_autosave_field ) {
-				if ( normalize_whitespace( $autosave->$autosave_field ) !== normalize_whitespace( $post->$autosave_field ) ) {
-					$notice = sprintf( __( 'There is an autosave of this post that is more recent than the version below. <a href="%s">View the autosave</a>' ), get_edit_post_link( $autosave->ID ) );
-					break;
-				}
-			}
-
-			// If this autosave isn't different from the current post, begone.
-			if ( ! $notice ) {
-				wp_delete_post_revision( $autosave->ID );
-			}
-
-			unset( $autosave_field, $_autosave_field );
-		}
-
-		require_once( 'meta-modal-template.php' );
+		?>
+		<div class="wp-core-ui">
+			<div id="fee-bar"></div>
+			<div id="fee-notice-area" class="wp-core-ui">
+				<div id="lost-connection-notice" class="error hidden">
+					<p><span class="spinner"></span> <?php _e( '<strong>Connection lost.</strong> Saving has been disabled until you&#8217;re reconnected.' ); ?>
+					<span class="hide-if-no-sessionstorage"><?php _e( 'We&#8217;re backing up this post in your browser, just in case.' ); ?></span>
+					</p>
+				</div>
+			</div>
+			<div id="local-storage-notice" class="hidden">
+				<p class="local-restore">
+					The backup of this post in your browser is different from the version below. <a class="restore-backup" href="#">Restore the backup.</a>
+				</p>
+				<p class="undo-restore hidden">
+					Post restored successfully. <a class="undo-restore-backup" href="#">Undo.</a>
+				</p>
+				<div class="dashicons dashicons-dismiss"></div>
+			</div>
+			<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
+			<div class="fee-toolbar">
+				<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
+					<button class="button fee-save"><?php _e( 'Save' ); ?></button>
+					<button class="button button-primary fee-publish"><?php _e( 'Publish' ); ?></button>
+				<?php } else { ?>
+					<button class="button button-primary fee-save"><?php _e( 'Update' ); ?></button>
+				<?php } ?>
+			</div>
+			<div class="fee-alert fee-leave">
+				<div class="fee-alert-body">
+					<p><?php _e( 'The changes you made will be lost if you navigate away from this page.' ); ?></p>
+					<button class="button fee-cancel">Cancel</button>
+					<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
+						<button class="button fee-save-and-exit"><?php _e( 'Save and leave' ); ?></button>
+					<?php } else { ?>
+						<button class="button fee-save-and-exit"><?php _e( 'Update and leave' ); ?></button>
+					<?php } ?>
+					<button class="button button-primary fee-exit">Leave</button>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	function really_did_action( $tag ) {
@@ -584,6 +603,30 @@ class FEE {
 		</form>
 		</div>
 		<?php
+	}
+
+	function get_autosave_notice() {
+		global $post;
+
+		if ( 'auto-draft' == $post->post_status ) {
+			$autosave = false;
+		} else {
+			$autosave = wp_get_post_autosave( $post->ID );
+		}
+
+		// Detect if there exists an autosave newer than the post and if that autosave is different than the post
+		if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql2date( 'U', $post->post_modified_gmt, false ) ) {
+			foreach ( _wp_post_revision_fields() as $autosave_field => $_autosave_field ) {
+				if ( normalize_whitespace( $autosave->$autosave_field ) !== normalize_whitespace( $post->$autosave_field ) ) {
+					return sprintf( __( 'There is an autosave of this post that is more recent than the version below. <a href="%s">View the autosave</a>' ), get_edit_post_link( $autosave->ID ) );
+				}
+			}
+
+			// If this autosave isn't different from the current post, begone.
+			wp_delete_post_revision( $autosave->ID );
+		}
+
+		return false;
 	}
 
 	function add_hash_arg( $array, $uri ) {
