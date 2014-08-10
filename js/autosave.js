@@ -399,13 +399,8 @@ window.autosave = function(){};
 				lastCompareString = previousCompareString;
 				previousCompareString = '';
 
-				$document.trigger( 'after-autosave', [data] );
+				$document.trigger( 'after-autosave', [ data ] );
 				enableButtons();
-
-				if ( data.success ) {
-					// No longer an auto-draft
-					$( '#auto_draft' ).val('');
-				}
 			}
 
 			/**

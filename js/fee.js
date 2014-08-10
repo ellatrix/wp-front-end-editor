@@ -25,6 +25,7 @@
 			$content = $( '.fee-content' ),
 			$leave = $( '.fee-leave' ),
 			$noticeArea = $( '#fee-notice-area' ),
+			$autoSaveNotice,
 			$contentParents = $content.parents(),
 			contentRect = $content.get( 0 ).getBoundingClientRect(),
 			$titleTags, $titles, $title, docTitle,
@@ -272,7 +273,7 @@
 				$notice.remove();
 			} );
 
-			return $notice.get( 0 );
+			return $notice;
 		}
 
 		function getEditors( callback ) {
@@ -533,6 +534,11 @@
 					window.heartbeatSettings.nonce = nonces.heartbeatNonce;
 				}
 			}
+		} )
+		.on( 'after-autosave', function() {
+			$autoSaveNotice && $autoSaveNotice.fadeOut( 'slow', function() {
+				$autoSaveNotice.remove();
+			} );
 		} );
 
 		$adminBarEditLink
@@ -543,9 +549,23 @@
 			toggle();
 		} );
 
-		$postClass.find( 'a[rel~="category"]' ).on( 'click.fee', function() {} );
+		// TODO: Make taxonomies, date and author editable.
 
-		$postClass.find( 'a[rel="author"]' ).on( 'click.fee', function() {} );
+		$postClass.find( 'a[rel~="category"]' ).on( 'click.fee', function( event ) {
+			event.preventDefault();
+		} );
+
+		$postClass.find( 'a[rel="tag"]' ).on( 'click.fee', function( event ) {
+			event.preventDefault();
+		} );
+
+		$postClass.find( 'time' ).add( $postClass.find( '.entry-date' ) ).on( 'click.fee', function( event ) {
+			event.preventDefault();
+		} );
+
+		$postClass.find( 'a[rel="author"]' ).on( 'click.fee', function( event ) {
+			event.preventDefault();
+		} );
 
 		$( 'a' ).not( 'a[href^="#"]' ).on( 'click.fee', function( event ) {
 			var $this = $( this );
@@ -568,7 +588,7 @@
 		} );
 
 		if ( wp.fee.notices.autosave ) {
-			addNotice( wp.fee.notices.autosave, 'error' );
+			$autoSaveNotice = addNotice( wp.fee.notices.autosave, 'error' );
 		}
 
 		_.extend( wp.fee, {
