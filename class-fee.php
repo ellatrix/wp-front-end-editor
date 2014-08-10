@@ -176,13 +176,13 @@ class FEE {
 				wp_enqueue_script( 'fee-tinymce-compat3x', includes_url( 'js/tinymce' ) . '/plugins/compat3x/plugin' . $suffix . '.js', array( 'fee-tinymce' ), $tinymce_version, true );
 			}
 
-			wp_enqueue_script( 'tinymce-fee', $this->url( '/js/tinymce.fee.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-toolbar', $this->url( '/js/tinymce.toolbar.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
 			$tinymce_plugins = array(
-				'wpkitchensink',
+				'feeMarkDown',
 				'wpmore',
 				'wplink',
 				'wpview',

@@ -29,6 +29,8 @@
 			$titleTags, $titles, $title, docTitle,
 			$url, $slug,
 			titleEditor, slugEditor, contentEditor,
+			editors = [],
+			initializedEditors = 0,
 			updated = false,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
@@ -105,8 +107,6 @@
 				return;
 			}
 
-			var i = tinymce.editors.length;
-
 			if ( wp.autosave ) {
 				wp.autosave.local.resume();
 				wp.autosave.server.resume();
@@ -117,9 +117,9 @@
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
 			$title.text( wp.fee.postOnServer.post_title );
 
-			while ( i-- ) {
-				tinymce.editors[ i ].show();
-			}
+			getEditors( function( editor ) {
+				editor.show();
+			} );
 
 			$document.trigger( 'fee-on' );
 
@@ -137,8 +137,6 @@
 		}
 
 		function _off( location ) {
-			var i = tinymce.editors.length;
-
 			if ( wp.autosave ) {
 				wp.autosave.local.suspend();
 				wp.autosave.server.suspend();
@@ -153,9 +151,9 @@
 			document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
 			$titles.text( wp.fee.postOnServer.post_title );
 
-			while ( i-- ) {
-				tinymce.editors[ i ].hide();
-			}
+			getEditors( function( editor ) {
+				editor.hide();
+			} );
 
 			$document.trigger( 'fee-off' );
 
@@ -225,16 +223,15 @@
 				return;
 			}
 
-			var i = tinymce.editors.length,
-				thisIsDirty = false;
+			var thisIsDirty = false;
 
-			while ( i-- ) {
+			getEditors( function( editor ) {
 				if ( dirty === false ) {
-					tinymce.editors[ i ].isNotDirty = true;
-				} else if ( tinymce.editors[ i ].isDirty() ) {
+					editor.isNotDirty = true;
+				} else if ( editor.isDirty() ) {
 					thisIsDirty = true;
 				}
-			}
+			} );
 
 			return thisIsDirty;
 		}
@@ -269,7 +266,31 @@
 			return $notice.get( 0 );
 		}
 
-		tinymce.init( wp.fee.tinymce );
+		function getEditors( callback ) {
+			_.each( editors, callback );
+		}
+
+		function registerEditor( editor ) {
+			editors.push( editor );
+
+			editor.on( 'init', function() {
+				editor.hide();
+
+				initializedEditors++;
+
+				if ( initializedEditors === editors.length ) {
+					$document.trigger( 'fee-editor-init' );
+				}
+			} );
+		}
+
+		tinymce.init( _.extend( wp.fee.tinymce, {
+			setup: function( editor ) {
+				contentEditor = editor;
+
+				registerEditor( editor );
+			}
+		} ) );
 
 		$titleTags = $( '.fee-title' );
 		$titles = $titleTags.parent();
@@ -318,9 +339,7 @@
 				setup: function( editor ) {
 					titleEditor = editor;
 
-					editor.on( 'init', function() {
-						editor.hide();
-					} );
+					registerEditor( editor );
 
 					editor.on( 'setcontent keyup', function() {
 						wp.fee.post.post_title( wp.fee.post.post_title(), true );
@@ -345,9 +364,7 @@
 				setup: function( editor ) {
 					slugEditor = editor;
 
-					editor.on( 'init', function() {
-						editor.hide();
-					} );
+					registerEditor( editor );
 
 					editor.on( 'setcontent keyup', function() {
 						if ( editor.dom.isEmpty( editor.getBody() ) ) {
@@ -409,9 +426,7 @@
 		} );
 
 		$document
-		.on( 'tinymce-editor-init.fee', function( event, editor ) {
-			contentEditor = editor;
-
+		.on( 'fee-editor-init.fee', function( event, editor ) {
 			if ( $body.hasClass( 'fee-on' ) || document.location.hash.indexOf( 'edit=true' ) !== -1 ) { // Lazy!
 				on();
 			}

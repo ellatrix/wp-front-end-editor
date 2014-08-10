@@ -1,14 +1,9 @@
 /* global tinymce */
 
-tinymce.PluginManager.add( 'wpkitchensink', function( editor ) {
+tinymce.PluginManager.add( 'feeMarkDown', function( editor ) {
 	var index, addMarkDown,
 		triggerChars = [],
 		markDown = [];
-
-	editor.on( 'init', function() {
-		editor.hide();
-		jQuery( document ).triggerHandler( 'tinymce-editor-init', [ editor ] );
-	} );
 
 	addMarkDown = editor.addMarkDown = function( regExp, callback, triggerChar ) {
 		var i, character;
