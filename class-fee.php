@@ -183,6 +183,7 @@ class FEE {
 
 			$tinymce_plugins = array(
 				'feeMarkDown',
+				'wpeditimage',
 				'wpmore',
 				'wplink',
 				'wpview',
