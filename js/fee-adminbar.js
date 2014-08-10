@@ -5,7 +5,7 @@
 
 	function _new( postType ) {
 		wp.ajax.post( 'fee_new', { post_type: postType } ).done( function( url ) {
-			url && ( window.location.href = url + '#edit=true' );
+			url && ( window.location.href = url );
 		} );
 	}
 
