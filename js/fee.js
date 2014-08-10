@@ -435,7 +435,7 @@
 		} );
 
 		$document
-		.on( 'fee-editor-init.fee', function( event, editor ) {
+		.on( 'fee-editor-init.fee', function() {
 			if ( $body.hasClass( 'fee-on' ) || document.location.hash.indexOf( 'edit=true' ) !== -1 ) { // Lazy!
 				on();
 			}
