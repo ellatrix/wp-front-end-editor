@@ -215,7 +215,7 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 
 	// When the editor's content has been updated and the DOM has been
 	// processed, render the views in the document.
-	editor.on( 'SetContent', function() {
+	editor.on( 'SetContent show', function() {
 		wp.mce.views.render();
 	});
 
@@ -285,7 +285,7 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 			selection.collapse( true );
 		});
 
-		editor.dom.bind( editor.getBody().parentNode, 'mousedown mouseup click', function( event ) {
+		editor.dom.bind( editor.getBody(), 'mousedown mouseup click', function( event ) {
 			var view = getView( event.target );
 
 			firstFocus = false;

@@ -933,6 +933,10 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			return;
 		}
 
+		if ( editor.plugins.wpview && editor.plugins.wpview.getView( node ) ) {
+			return;
+		}
+
 		if ( node.nodeName === 'I' && dom.getParent( node, '#wp-image-toolbar' ) ) {
 			image = dom.select( 'img[data-wp-imgselect]' )[0];
 

@@ -73,6 +73,7 @@ class FEE {
 		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_slug', array( $this, 'ajax_slug' ) );
+		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 	}
@@ -260,7 +261,9 @@ class FEE {
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
-			wp_enqueue_script( 'mce-view' );
+			wp_deregister_script( 'mce-view' );
+			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), self::VERSION, true );
+
 			wp_enqueue_script( 'wplink' );
 
 			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
@@ -443,6 +446,16 @@ class FEE {
 		check_ajax_referer( 'slug-nonce_' . $_POST['post_ID'], '_wpnonce' );
 
 		wp_send_json_success( get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] )[1] );
+	}
+
+	function ajax_shortcode() {
+		global $post;
+
+		$post = get_post( $_POST['post_ID'] );
+
+		setup_postdata( $post );
+
+		wp_send_json_success( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
 	}
 
 	function get_message( $post, $message_id, $revision_id = null ) {

@@ -242,7 +242,6 @@ br.fee-title {
 }
 
 *[contenteditable="true"]:focus,
-.mce-content-body img[data-mce-selected],
 .mce-content-body hr[data-mce-selected] {
 	outline: none;
 }
@@ -391,7 +390,7 @@ br.fee-title {
 	font-weight: normal;
 	font-family: "Open Sans", sans-serif;
 	font-size: 13px;
-	line-height: 32px;
+	line-height: 20px;
 	border: none;
 	border-radius: 0;
 	-webkit-box-sizing: content-box;
@@ -1534,7 +1533,9 @@ div.mce-inline-toolbar-grp .mce-disabled {
 }
 
 .mce-toolbar .mce-btn-group .mce-btn button {
-	background: transparent;
+	background: none;
+	box-shadow: none;
+	outline: none;
 	padding: 2px 3px;
 	line-height: 20px;
 	color: #777;
@@ -1761,7 +1762,7 @@ i.mce-i-wp_code:before {
 /* Views */
 
 .wpview-wrap {
-	width: 99.99%; /* All IE need hasLayout, incl. 11 (ugh, not again!!) */
+	width: 100%;
 	position: relative;
 	clear: both;
 }
@@ -1837,15 +1838,54 @@ i.mce-i-wp_code:before {
 /**
  * Media previews
  */
-.wpview-wrap {
+.wpview-wrap,
+.mce-content-body hr {
     position: relative;
-    margin-bottom: 16px;
-	border: 1px solid transparent;
 }
 
-.wpview-wrap[data-mce-selected] {
-	background-color: rgba(0,0,0,0.1);
-	border-color: rgba(0,0,0,0.3);
+.wpview-wrap[data-mce-selected]:before,
+.wpview-wrap:hover:before,
+.mce-content-body hr[data-mce-selected]:before,
+.mce-content-body hr:hover:before,
+.mce-content-body img:hover:before {
+	content: '';
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: -4px;
+	left: -4px;
+	right: -4px;
+	bottom: -4px;
+	border-radius: 3px;
+	border: 2px solid #ffe767;
+	width: auto;
+}
+
+.mce-content-body img:hover {
+	outline: 2px solid #ffe767;
+	outline-offset: 2px;
+}
+
+.wpview-wrap[data-mce-selected]:before,
+.mce-content-body hr[data-mce-selected]:before {
+	border-color: rgb(88, 144, 255);
+}
+
+.mce-content-body img[data-mce-selected] {
+	outline: 2px solid rgb(88, 144, 255) !important;
+	outline-offset: 2px;
+}
+
+.mce-content-body div.mce-resizehandle {
+	border: none !important;
+	background: rgb(88, 144, 255) !important;
+	width: 7px !important;
+	height: 7px !important;
+}
+
+.wpview-wrap.wpview-selection-before:before,
+.wpview-wrap.wpview-selection-after:before {
+	border: none;
 }
 
 .ie8 .wpview-wrap[data-mce-selected],

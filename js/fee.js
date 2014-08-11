@@ -341,6 +341,7 @@
 
 			tinymce.init( {
 				selector: '.fee-title',
+				skin: false,
 				inline: true,
 				toolbar: false,
 				menubar: false,
@@ -366,6 +367,7 @@
 
 			tinymce.init( {
 				selector: '.fee-slug',
+				skin: false,
 				inline: true,
 				toolbar: false,
 				menubar: false,
