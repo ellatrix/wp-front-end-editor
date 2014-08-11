@@ -72,7 +72,11 @@
 		};
 
 		wp.fee.post.post_name = function() {
-			return $slug.get( 0 ).textContent || '';
+			if ( $slug.length ) {
+				return $slug.get( 0 ).textContent || '';
+			}
+
+			return '';
 		};
 
 		wp.fee.post.post_content = function( content ) {
