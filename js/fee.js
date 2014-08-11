@@ -76,6 +76,8 @@
 		};
 
 		wp.fee.post.post_content = function( content ) {
+			var returnContent;
+
 			if ( content && content !== 'raw' && content !== 'html' ) {
 				contentEditor.undoManager.add();
 				contentEditor.setContent( content );
@@ -83,9 +85,16 @@
 				return this.post_content();
 			}
 
-			return contentEditor.getContent( {
+			returnContent = contentEditor.getContent( {
 				format: content || 'html'
 			} ) || '';
+
+			if ( content !== 'raw' ) {
+				returnContent = returnContent.replace( /<p>(?:<br ?\/?>|\u00a0|\uFEFF| )*<\/p>/g, '<p>&nbsp;</p>' );
+				returnContent = switchEditors.pre_wpautop( returnContent );
+			}
+
+			return returnContent;
 		};
 
 		if ( contentRect.left >= windowWidth - contentRect.right ) {
@@ -300,6 +309,13 @@
 				window.wpActiveEditor = editor.id;
 
 				registerEditor( editor );
+
+				// Remove spaces from empty paragraphs.
+				editor.on( 'BeforeSetContent', function( event ) {
+					if ( event.content ) {
+						event.content = event.content.replace( /<p>(?:&nbsp;|\u00a0|\uFEFF| )+<\/p>/gi, '<p></p>' );
+					}
+				} );
 			}
 		} ) );
 

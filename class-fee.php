@@ -243,7 +243,7 @@ class FEE {
 				'browser_spellcheck' => true
 			);
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat' ), self::VERSION, true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
