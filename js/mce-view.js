@@ -416,16 +416,19 @@ window.wp = window.wp || {};
 
 	wp.mce.views.register( 'gallery', {
 		View: {
+			initialize: function( options ) {
+				this.shortcode = options.shortcode;
+			},
+
 			getHtml: function() {
 				var self = this;
 
 				wp.ajax.post( 'fee_shortcode', {
 					post_ID: $('#post_ID').val(),
-					shortcode: window.decodeURIComponent( self.encodedText )
+					shortcode: this.shortcode.string()
 				} )
 				.done( function( data ) {
 					self.setContent( data );
-					console.log( data );
 				} );
 
 				return '';
@@ -458,14 +461,14 @@ window.wp = window.wp || {};
 		View: {
 			overlay: true,
 
-			action: 'parse-media-shortcode',
+			action: 'fee_shortcode',
 
 			initialize: function( options ) {
 				var self = this;
 
 				this.shortcode = options.shortcode;
 
-				_.bindAll( this, 'setIframes', 'setNodes', 'fetch', 'stopPlayers' );
+				_.bindAll( this, 'setNodes', 'fetch', 'stopPlayers' );
 				$( this ).on( 'ready', this.setNodes );
 
 				$( document ).on( 'media:edit', this.stopPlayers );
@@ -478,25 +481,20 @@ window.wp = window.wp || {};
 			},
 
 			setNodes: function () {
-				if ( this.parsed ) {
-					this.setIframes( this.parsed );
-				}
+				this.parsed && this.setPlayers( this.parsed );
 			},
 
 			fetch: function () {
 				var self = this;
 
-				wp.ajax.send( this.action, {
-					data: {
-						post_ID: $( '#post_ID' ).val() || 0,
-						type: this.shortcode.tag,
-						shortcode: this.shortcode.string()
-					}
+				wp.ajax.post( this.action, {
+					post_ID: $( '#post_ID' ).val(),
+					shortcode: this.shortcode.string()
 				} )
 				.done( function( response ) {
 					if ( response ) {
 						self.parsed = response;
-						self.setIframes( response );
+						self.setPlayers( response );
 					}
 				} )
 				.fail( function( response ) {
@@ -515,29 +513,35 @@ window.wp = window.wp || {};
 			},
 
 			stopPlayers: function( remove ) {
-				var rem = remove === 'remove';
+				var p;
 
-				this.getNodes( function( editor, node, content ) {
-					var p, win,
-						iframe = $( 'iframe.wpview-sandbox', content ).get(0);
+				for ( p in mejs.players ) {
+					mejs.players[ p ].pause();
+					remove && mejs.players[ p ].remove();
+				}
+			},
 
-					if ( iframe && ( win = iframe.contentWindow ) && win.mejs ) {
-						// Sometimes ME.js may show a "Download File" placeholder and player.remove() doesn't exist there.
-						try {
-							for ( p in win.mejs.players ) {
-								win.mejs.players[p].pause();
+			setPlayers: function( content ) {
+				this.setContent( content );
 
-								if ( rem ) {
-									win.mejs.players[p].remove();
-								}
-							}
-						} catch( er ) {}
+				this.getNodes( function( editor, node ) {
+					var playlist = $( node ).find( '.wp-playlist' );
+
+					$( node ).find( '.wp-audio-shortcode' )
+					.add( $( node ).find( '.wp-video-shortcode' ) )
+					.mediaelementplayer( _wpmejsSettings );
+
+					if ( playlist.length ) {
+						new WPPlaylistView( {
+							el: playlist.get( 0 ),
+							metadata: $.parseJSON( $( content ).find('script').html() )
+						} );
 					}
-				});
+				} );
 			},
 
 			unbind: function() {
-				this.stopPlayers( 'remove' );
+				this.stopPlayers( true );
 			}
 		},
 
@@ -627,7 +631,7 @@ window.wp = window.wp || {};
 					this.shortcode = options.shortcode;
 				}
 
-				_.bindAll( this, 'setIframes', 'setNodes', 'fetch' );
+				_.bindAll( this, 'setNodes', 'fetch' );
 				$( this ).on( 'ready', this.setNodes );
 
 				this.fetch();

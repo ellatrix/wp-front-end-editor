@@ -1852,17 +1852,17 @@ i.mce-i-wp_code:before {
 	margin: 0;
 	padding: 0;
 	position: absolute;
-	top: -4px;
-	left: -4px;
-	right: -4px;
-	bottom: -4px;
+	top: -5px;
+	left: -5px;
+	right: -5px;
+	bottom: -5px;
 	border-radius: 3px;
-	border: 2px solid #ffe767;
+	border: 3px solid #ffe767;
 	width: auto;
 }
 
 .mce-content-body img:hover {
-	outline: 2px solid #ffe767;
+	outline: 3px solid #ffe767;
 	outline-offset: 2px;
 }
 
@@ -1872,7 +1872,7 @@ i.mce-i-wp_code:before {
 }
 
 .mce-content-body img[data-mce-selected] {
-	outline: 2px solid rgb(88, 144, 255) !important;
+	outline: 3px solid rgb(88, 144, 255) !important;
 	outline-offset: 2px;
 }
 
