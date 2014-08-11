@@ -385,6 +385,14 @@
 	padding: 0;
 }
 
+.wp-core-ui ul.attachments {
+	padding: 8px;
+}
+
+.wp-core-ui .media-selection ul.attachments {
+	padding: 0;
+}
+
 .wp-core-ui ul {
 	list-style: none;
 }

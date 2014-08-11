@@ -115,7 +115,7 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 			dom = editor.dom;
 
 		// Bail if node is already selected.
-		if ( ! viewNode || viewNode === selected ) {
+		if ( ! viewNode || ( viewNode === selected && focus ) ) {
 			return;
 		}
 
