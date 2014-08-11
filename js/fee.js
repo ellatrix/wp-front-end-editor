@@ -297,6 +297,7 @@
 		tinymce.init( _.extend( wp.fee.tinymce, {
 			setup: function( editor ) {
 				contentEditor = editor;
+				window.wpActiveEditor = editor.id;
 
 				registerEditor( editor );
 			}

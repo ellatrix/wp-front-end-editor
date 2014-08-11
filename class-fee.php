@@ -178,6 +178,7 @@ class FEE {
 			}
 
 			wp_enqueue_script( 'tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-toolbar', $this->url( '/js/tinymce.toolbar.js' ), array( 'fee-tinymce' ), self::VERSION, true );
@@ -191,6 +192,7 @@ class FEE {
 				'wpview',
 				'paste',
 				'toolbar',
+				'insert',
 				'hr',
 				'lists'
 			);

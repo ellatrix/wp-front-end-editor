@@ -109,7 +109,6 @@ window.wp = window.wp || {};
 					el.innerHTML = '';
 					el.appendChild( insert );
 				}
-				console.log( node );
 			} );
 		},
 		/* jshint scripturl: true */
