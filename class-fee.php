@@ -2,6 +2,8 @@
 
 class FEE {
 	const VERSION = '1.0.0';
+	const MIN_VERSION = '4.0-beta3-29445-src';
+	const MAX_VERSION = '4.1-beta';
 
 	private $fee;
 
@@ -38,8 +40,8 @@ class FEE {
 
 		if (
 			empty( $wp_version ) ||
-			version_compare( $wp_version, '4.0-beta2', '<' ) ||
-			version_compare( $wp_version, '4.1-alpha', '>' )
+			version_compare( $wp_version, self::MIN_VERSION, '<' ) ||
+			version_compare( $wp_version, self::MAX_VERSION, '>' )
 		) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
@@ -48,7 +50,7 @@ class FEE {
 	}
 
 	function admin_notices() {
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions 4.0-beta2 and 4.1-alpha.</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions ' . self::MIN_VERSION . ' and ' . self::MAX_VERSION . '.</p></div>';
 	}
 
 	function init() {
