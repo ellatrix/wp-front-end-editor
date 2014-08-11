@@ -480,10 +480,6 @@ window.wp = window.wp || {};
 				});
 			},
 
-			setNodes: function () {
-				this.parsed && this.setPlayers( this.parsed );
-			},
-
 			fetch: function () {
 				var self = this;
 
@@ -494,7 +490,7 @@ window.wp = window.wp || {};
 				.done( function( response ) {
 					if ( response ) {
 						self.parsed = response;
-						self.setPlayers( response );
+						self.setNodes();
 					}
 				} )
 				.fail( function( response ) {
@@ -513,16 +509,27 @@ window.wp = window.wp || {};
 			},
 
 			stopPlayers: function( remove ) {
-				var p;
+				this.getNodes( function( editor, node ) {
+					var playerNode = $( node ).find( '.mejs-container' ),
+						player;
 
-				for ( p in mejs.players ) {
-					mejs.players[ p ].pause();
-					remove && mejs.players[ p ].remove();
-				}
+					if ( playerNode.length ) {
+						player = playerNode.get( 0 ).id;
+
+						mejs.players[ player ].pause();
+						remove && mejs.players[ player ].remove();
+					}
+				} );
 			},
 
-			setPlayers: function( content ) {
-				this.setContent( content );
+			setNodes: function() {
+				var self = this;
+
+				if ( ! this.parsed ) {
+					return;
+				}
+
+				this.setContent( this.parsed );
 
 				this.getNodes( function( editor, node ) {
 					var playlist = $( node ).find( '.wp-playlist' );
@@ -534,9 +541,14 @@ window.wp = window.wp || {};
 					if ( playlist.length ) {
 						new WPPlaylistView( {
 							el: playlist.get( 0 ),
-							metadata: $.parseJSON( $( content ).find('script').html() )
+							metadata: $.parseJSON( $( self.parsed ).find( 'script' ).html() )
 						} );
 					}
+					/* else {
+						$( self.parsed ).find( 'script' ).each( function() {
+							$.getScript( $( this ).attr( 'src' ) );
+						} );
+					} */
 				} );
 			},
 
