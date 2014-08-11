@@ -40,10 +40,7 @@ window.autosave = function(){};
 			data.parent_id = wp.fee.post.post_parent();
 			data.comment_status = wp.fee.post.comment_status();
 			data.ping_status = wp.fee.post.ping_status();
-
-			if ( $( '#auto_draft' ).val() === '1' ) {
-				data.auto_draft = '1';
-			}
+			data.auto_draft = ( wp.fee.post.post_status() === 'auto-draft' );
 
 			return data;
 		}
@@ -212,7 +209,7 @@ window.autosave = function(){};
 				}
 
 				postData.save_time = ( new Date() ).getTime();
-				postData.status = $( '#post_status' ).val() || '';
+				postData.status = wp.fee.post.post_status();
 				result = setData( postData );
 
 				if ( result ) {
@@ -224,7 +221,7 @@ window.autosave = function(){};
 
 			// Run on DOM ready
 			function run() {
-				post_id = $( '#post_ID' ).val() || 0;
+				post_id = wp.fee.post.ID();
 
 				// Check if the local post data is different than the loaded post data.
 				// If TinyMCE loads first, check the post 1.5 sec. after it is ready.
@@ -239,8 +236,8 @@ window.autosave = function(){};
 				// Save every 15 sec.
 				intervalTimer = window.setInterval( save, 15000 );
 
-				$( '#wp-fee-save' ).on( 'click.autosave-local', function() {
-					var post_id = $( '#post_ID' ).val() || 0;
+				$document.on( 'fee-before-save.autosave-local', function() {
+					var post_id = wp.fee.post.ID();
 
 					save( {
 						post_title: wp.fee.post.post_title(),
@@ -288,7 +285,7 @@ window.autosave = function(){};
 				}
 
 				// There is a newer autosave. Don't show two "restore" notices at the same time.
-				if ( $( '#has-newer-autosave' ).length ) {
+				if ( wp.fee.notices.autosave ) {
 					return;
 				}
 

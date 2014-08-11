@@ -443,7 +443,7 @@ class FEE {
 
 		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
 
-		wp_send_json_success( $this->edit_link( get_permalink( $post->ID ) ) );
+		wp_send_json_success( $this->edit_link( $post->ID ) );
 	}
 
 	function ajax_slug() {

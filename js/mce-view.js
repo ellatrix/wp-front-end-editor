@@ -508,6 +508,8 @@ window.wp = window.wp || {};
 			},
 
 			stopPlayers: function( remove ) {
+				var mejs = window.mejs;
+
 				this.getNodes( function( editor, node ) {
 					var playerNode = $( node ).find( '.mejs-container' ),
 						player;
@@ -535,10 +537,10 @@ window.wp = window.wp || {};
 
 					$( node ).find( '.wp-audio-shortcode' )
 					.add( $( node ).find( '.wp-video-shortcode' ) )
-					.mediaelementplayer( _wpmejsSettings );
+					.mediaelementplayer( window._wpmejsSettings );
 
 					if ( playlist.length ) {
-						new WPPlaylistView( {
+						new window.WPPlaylistView( {
 							el: playlist.get( 0 ),
 							metadata: $.parseJSON( $( self.parsed ).find( 'script' ).html() )
 						} );

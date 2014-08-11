@@ -1,5 +1,3 @@
-/* global fee, tinymce, feeL10n, wpCookies  */
-
 ( function( $ ) {
 	'use strict';
 
@@ -8,10 +6,12 @@
 
 	wp.heartbeat.interval( 15 );
 
-	_.extend( wp.fee, fee );
+	_.extend( wp.fee, window.fee );
 
 	$( function() {
-		var hidden = true,
+		var tinymce = window.tinymce,
+			feeL10n = window.feeL10n,
+			hidden = true,
 			$window = $( window ),
 			windowWidth = $window.width(),
 			$document = $( document ),
@@ -95,7 +95,7 @@
 
 			if ( content !== 'raw' ) {
 				returnContent = returnContent.replace( /<p>(?:<br ?\/?>|\u00a0|\uFEFF| )*<\/p>/g, '<p>&nbsp;</p>' );
-				returnContent = switchEditors.pre_wpautop( returnContent );
+				returnContent = window.switchEditors.pre_wpautop( returnContent );
 			}
 
 			return returnContent;
@@ -196,6 +196,8 @@
 		function save( callback, _publish ) {
 			var postData = {};
 
+			$document.trigger( 'fee-before-save' );
+
 			_.each( wp.fee.post, function( fn, key ) {
 				postData[ key ] = fn();
 			} );
@@ -216,11 +218,13 @@
 				// Copy the new post object form the server.
 				wp.fee.postOnServer = data.post;
 				// Invalidate the browser backup.
-				wpCookies.set( 'wp-saving-post-' + wp.fee.postOnServer.ID, 'saved' );
+				window.wpCookies.set( 'wp-saving-post-' + wp.fee.postOnServer.ID, 'saved' );
 				// Add a message. :)
 				data.message && addNotice( data.message, 'updated', true );
 				// The editor is no longer dirty.
 				isDirty( false );
+
+				$document.trigger( 'fee-after-save' );
 
 				callback && callback();
 			} )
