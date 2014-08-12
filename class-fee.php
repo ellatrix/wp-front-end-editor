@@ -5,8 +5,6 @@ class FEE {
 	const MIN_VERSION = '4.0-beta3-29445-src';
 	const MAX_VERSION = '4.1-beta';
 
-	private $fee;
-
 	function url( $path ) {
 		$url = plugin_dir_url( __FILE__ );
 
@@ -363,7 +361,7 @@ class FEE {
 			$this->really_did_action( 'wp_head' )
 		) {
 			return (
-				'<div class="fee-thumbnail">' .
+				'<div class="fee-thumbnail" data-size="' . esc_attr( $size ) . '">' .
 					'<div class="fee-thumbnail-wrap">' .
 						$html .
 					'</div>' .
@@ -481,7 +479,7 @@ class FEE {
 				wp_send_json_success( '' );
 			}
 		} else if ( set_post_thumbnail( $_POST['post_ID'], $_POST['thumbnail_ID'] ) ) {
-			wp_send_json_success( get_the_post_thumbnail( $_POST['post_ID'] ) );
+			wp_send_json_success( get_the_post_thumbnail( $_POST['post_ID'], $_POST['size'] ) );
 		}
 
 		die;

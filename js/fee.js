@@ -628,9 +628,10 @@
 				settings.post.featuredImageId = id;
 
 				wp.media.post( 'fee_thumbnail', {
-					post_ID:      settings.post.id,
+					post_ID: settings.post.id,
 					thumbnail_ID: settings.post.featuredImageId,
-					_wpnonce:     settings.post.nonce
+					_wpnonce: settings.post.nonce,
+					size: $thumbnail.data( 'size' )
 				} ).done( function( html ) {
 					$thumbnailWrap.html( html );
 				} );
