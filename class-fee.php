@@ -18,15 +18,17 @@ class FEE {
 	function has_fee() {
 		global $post;
 
+		$has_fee = false;
+
 		if (
 			is_singular() &&
 			post_type_supports( $post->post_type, 'front-end-editor' ) &&
 			current_user_can( 'edit_post', $post->ID )
 		) {
-			return true;
+			$has_fee = true;
 		}
 
-		return false;
+		return apply_filters( 'has_fee', $has_fee, $post );
 	}
 
 	function edit_link( $id ) {
@@ -68,8 +70,6 @@ class FEE {
 
 		add_action( 'wp', array( $this, 'wp' ) );
 
-		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
-
 		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_slug', array( $this, 'ajax_slug' ) );
@@ -81,8 +81,6 @@ class FEE {
 
 	function wp() {
 		global $post;
-
-		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		if ( ! empty( $_GET['get-post-lock'] ) ) {
 			require_once( ABSPATH . '/wp-admin/includes/post.php' );
@@ -97,6 +95,9 @@ class FEE {
 		if ( ! $this->has_fee() ) {
 			return;
 		}
+
+		add_filter( 'body_class', array( $this, 'body_class' ) );
+		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 
 		if ( force_ssl_admin() && ! is_ssl() ) {
 			wp_redirect( set_url_scheme( $this->edit_link( $post->ID ), 'https' ) );
@@ -300,13 +301,11 @@ class FEE {
 	function body_class( $classes ) {
 		global $post;
 
-		if ( $this->has_fee() ) {
-			$classes[] = 'fee fee-off';
-		}
+		$classes[] = 'fee fee-off';
 
 		require_once( ABSPATH . '/wp-admin/includes/post.php' );
 
-		if ( is_singular() && wp_check_post_lock( $post->ID ) ) {
+		if ( wp_check_post_lock( $post->ID ) ) {
 			$classes[] = 'fee-locked';
 		}
 
