@@ -76,6 +76,7 @@ class FEE {
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_slug', array( $this, 'ajax_slug' ) );
 		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
+		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 	}
@@ -363,7 +364,13 @@ class FEE {
 		) {
 			return (
 				'<div class="fee-thumbnail">' .
-					$html .
+					'<div class="fee-thumbnail-wrap">' .
+						$html .
+					'</div>' .
+					'<div class="fee-thumbnail-toolbar">' .
+						'<div class="fee-edit-thumbnail dashicons dashicons-edit"></div>' .
+						'<div class="fee-remove-thumbnail dashicons dashicons-no-alt"></div>' .
+					'</div>' .
 				'</div>'
 			);
 		}
@@ -460,6 +467,24 @@ class FEE {
 		setup_postdata( $post );
 
 		wp_send_json_success( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
+	}
+
+	function ajax_thumbnail() {
+		check_ajax_referer( 'update-post_' . $_POST['post_ID'] );
+
+		if ( ! current_user_can( 'edit_post', $_POST['post_ID'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
+		}
+
+		if ( $_POST['thumbnail_ID'] === '-1' ) {
+			if ( delete_post_thumbnail( $_POST['post_ID'] ) ) {
+				wp_send_json_success( '' );
+			}
+		} else if ( set_post_thumbnail( $_POST['post_ID'], $_POST['thumbnail_ID'] ) ) {
+			wp_send_json_success( get_the_post_thumbnail( $_POST['post_ID'] ) );
+		}
+
+		die;
 	}
 
 	function get_message( $post, $message_id, $revision_id = null ) {

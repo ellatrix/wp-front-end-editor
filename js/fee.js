@@ -21,6 +21,9 @@
 			$inlineEditLinks = $( '.post-edit-link' ),
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
+			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
+			$thumbnailEdit = $( '.fee-edit-thumbnail' ),
+			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
 			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
 			$leave = $( '.fee-leave' ),
@@ -617,6 +620,48 @@
 		if ( wp.fee.notices.autosave ) {
 			$autoSaveNotice = addNotice( wp.fee.notices.autosave, 'error' );
 		}
+
+		_.extend( wp.media.featuredImage, {
+			set: function( id ) {
+				var settings = wp.media.view.settings;
+
+				settings.post.featuredImageId = id;
+
+				wp.media.post( 'fee_thumbnail', {
+					post_ID:      settings.post.id,
+					thumbnail_ID: settings.post.featuredImageId,
+					_wpnonce:     settings.post.nonce
+				} ).done( function( html ) {
+					$thumbnailWrap.html( html );
+				} );
+			}
+		} );
+
+		$thumbnailEdit.on( 'click.fee-edit-thumbnail', function() {
+			wp.media.featuredImage.frame().open();
+		} );
+
+		$thumbnailRemove.on( 'click.fee-remove-thumbnail', function() {
+			wp.media.featuredImage.set( -1 );
+		} );
+
+		$thumbnail.on( 'click.fee-thumbnail-active', function() {
+			if ( hidden ) {
+				return;
+			}
+
+			$thumbnail.addClass( 'fee-thumbnail-active' );
+
+			$document.on( 'click.fee-thumbnail-active', function( event ) {
+				if ( $thumbnail.get( 0 ) === event.target || $thumbnail.has( event.target ).length ) {
+					return;
+				}
+
+				$thumbnail.removeClass( 'fee-thumbnail-active' );
+
+				$document.off( 'click.fee-thumbnail-active' );
+			} );
+		} );
 
 		_.extend( wp.fee, {
 			on: on,
