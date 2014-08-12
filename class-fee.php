@@ -268,6 +268,7 @@ class FEE {
 			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), self::VERSION, true );
 
 			wp_enqueue_script( 'wplink' );
+			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
 			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, self::VERSION, 'screen' );
@@ -285,8 +286,6 @@ class FEE {
 			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
-				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-				'homeUrl' => home_url( '/' ),
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false
 			) );
 		}
@@ -586,65 +585,11 @@ class FEE {
 	}
 
 	function link_modal() {
-		$search_panel_visible = '1' == get_user_setting( 'wplink', '0' ) ? ' class="search-panel-visible wp-core-ui"' : ' class="wp-core-ui"';
+		if ( ! class_exists( '_WP_Editors' ) ) {
+			require( ABSPATH . WPINC . '/class-wp-editor.php' );
+		}
 
-		?>
-		<div id="wp-link-backdrop"></div>
-		<div id="wp-link-wrap"<?php echo $search_panel_visible; ?>>
-		<form id="wp-link" tabindex="-1">
-		<?php wp_nonce_field( 'internal-linking', '_ajax_linking_nonce', false ); ?>
-		<div id="link-modal-title">
-			<?php _e( 'Insert/edit link' ) ?>
-			<div id="wp-link-close" tabindex="0"></div>
-		</div>
-		<div id="link-selector">
-			<div id="link-options">
-				<p class="howto"><?php _e( 'Enter the destination URL' ); ?></p>
-				<div>
-					<label><span><?php _e( 'URL' ); ?></span><input id="url-field" type="text" name="href" /></label>
-				</div>
-				<div>
-					<label><span><?php _e( 'Title' ); ?></span><input id="link-title-field" type="text" name="linktitle" /></label>
-				</div>
-				<div class="link-target">
-					<label><span>&nbsp;</span><input type="checkbox" id="link-target-checkbox" /> <?php _e( 'Open link in a new window/tab' ); ?></label>
-				</div>
-			</div>
-			<p class="howto" id="wp-link-search-toggle"><?php _e( 'Or link to existing content' ); ?></p>
-			<div id="search-panel">
-				<div class="link-search-wrapper">
-					<label>
-						<span class="search-label"><?php _e( 'Search' ); ?></span>
-						<input type="search" id="search-field" class="link-search-field" autocomplete="off" />
-						<span class="spinner"></span>
-					</label>
-				</div>
-				<div id="search-results" class="query-results">
-					<ul></ul>
-					<div class="river-waiting">
-						<span class="spinner"></span>
-					</div>
-				</div>
-				<div id="most-recent-results" class="query-results">
-					<div class="query-notice"><em><?php _e( 'No search term specified. Showing recent items.' ); ?></em></div>
-					<ul></ul>
-					<div class="river-waiting">
-						<span class="spinner"></span>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="submitbox">
-			<div id="wp-link-update">
-				<input type="submit" value="<?php esc_attr_e( 'Add Link' ); ?>" class="button button-primary" id="wp-link-submit" name="wp-link-submit">
-			</div>
-			<div id="wp-link-cancel">
-				<a class="submitdelete deletion" href="#"><?php _e( 'Cancel' ); ?></a>
-			</div>
-		</div>
-		</form>
-		</div>
-		<?php
+		_WP_Editors::wp_link_dialog();
 	}
 
 	function get_autosave_notice() {
