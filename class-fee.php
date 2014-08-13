@@ -5,34 +5,7 @@ class FEE {
 	const MIN_VERSION = '4.0-beta3-29445-src';
 	const MAX_VERSION = '4.1-beta';
 
-	function url( $path ) {
-		$url = plugin_dir_url( __FILE__ );
-
-		if ( is_string( $path ) ) {
-			$url .= ltrim( $path, '/' );
-		}
-
-		return $url;
-	}
-
-	function has_fee( $id = null ) {
-		$post = get_post( $id );
-		$has_fee = false;
-
-		if (
-			is_singular() &&
-			post_type_supports( $post->post_type, 'front-end-editor' ) &&
-			current_user_can( 'edit_post', $post->ID )
-		) {
-			$has_fee = true;
-		}
-
-		return apply_filters( 'has_fee', $has_fee, $post );
-	}
-
-	function edit_link( $id ) {
-		return $this->add_hash_arg( array( 'edit' => 'true' ), get_permalink( $id ) );
-	}
+	private $fee;
 
 	function __construct() {
 		global $wp_version;
@@ -55,12 +28,6 @@ class FEE {
 	function init() {
 		global $wp_post_statuses;
 
-		if ( ! is_admin() && ! empty( $_GET['trashed'] ) && $_GET['trashed'] === '1' && ! empty( $_GET['ids'] ) ) {
-			wp_redirect( admin_url( 'edit.php?post_type=' . get_post_type( $_GET['ids'] ) . '&trashed=1&ids=' . $_GET['ids'] ) );
-
-			die;
-		}
-
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
 
@@ -69,8 +36,6 @@ class FEE {
 
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 
-		add_action( 'wp', array( $this, 'wp' ) );
-
 		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_slug', array( $this, 'ajax_slug' ) );
@@ -78,65 +43,93 @@ class FEE {
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
-	}
-
-	function wp() {
-		global $post;
-
-		if ( ! empty( $_GET['get-post-lock'] ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-			wp_set_post_lock( $post->ID );
-
-			wp_redirect( $this->edit_link( $post->ID ) );
-
-			die;
-		}
-
-		if ( ! $this->has_fee() ) {
-			return;
-		}
-
-		add_filter( 'body_class', array( $this, 'body_class' ) );
-
-		if ( force_ssl_admin() && ! is_ssl() ) {
-			wp_redirect( set_url_scheme( $this->edit_link( $post->ID ), 'https' ) );
-
-			die;
-		}
-
-		if ( $post->post_status === 'auto-draft' ) {
-			$post->post_title = '';
-			$post->comment_status = get_option( 'default_comment_status' );
-			$post->ping_status = get_option( 'default_ping_status' );
-		}
-
-		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
-
-		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
-		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
-		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
-
-		add_filter( 'post_class', array( $this, 'post_class' ) );
-		add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
-		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
-		add_filter( 'wp_link_pages', '__return_empty_string', 20 );
-		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
-		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
-
-		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
-			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
-		}
+		add_action( 'wp', array( $this, 'wp' ) );
 	}
 
 	function get_edit_post_link( $link, $id, $context ) {
-		$post = get_post( $id );
+		return $this->has_fee( $id ) ? $this->edit_link( $id ) : $link;
+	}
 
-		if ( post_type_supports( $post->post_type, 'front-end-editor' ) && ! is_admin() ) {
-			return $this->edit_link( $id );
+	function ajax_post() {
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['post_ID'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
 		}
 
-		return $link;
+		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
+
+		$post_id = edit_post();
+
+		if ( isset( $_POST['save'] ) || isset( $_POST['publish'] ) ) {
+			$status = get_post_status( $post_id );
+
+			if ( isset( $_POST['publish'] ) ) {
+				switch ( $status ) {
+					case 'pending':
+						$message = 8;
+						break;
+					case 'future':
+						$message = 9;
+						break;
+					default:
+						$message = 6;
+				}
+			} else {
+				$message = 'draft' == $status ? 10 : 1 ;
+			}
+		} else {
+			$message = 4;
+		}
+
+		$post = get_post( $post_id );
+
+		wp_send_json_success( array(
+			'message' => $this->get_message( $post, $message ),
+			'post' => $post
+		) );
+	}
+
+	function ajax_new() {
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
+
+		wp_send_json_success( $this->edit_link( $post->ID ) );
+	}
+
+	function ajax_slug() {
+		check_ajax_referer( 'slug-nonce_' . $_POST['post_ID'], '_wpnonce' );
+
+		wp_send_json_success( get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] )[1] );
+	}
+
+	function ajax_shortcode() {
+		global $post;
+
+		$post = get_post( $_POST['post_ID'] );
+
+		setup_postdata( $post );
+
+		wp_send_json_success( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
+	}
+
+	function ajax_thumbnail() {
+		check_ajax_referer( 'update-post_' . $_POST['post_ID'] );
+
+		if ( ! current_user_can( 'edit_post', $_POST['post_ID'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
+		}
+
+		if ( $_POST['thumbnail_ID'] === '-1' ) {
+			if ( delete_post_thumbnail( $_POST['post_ID'] ) ) {
+				wp_send_json_success( '' );
+			}
+		} else if ( set_post_thumbnail( $_POST['post_ID'], $_POST['thumbnail_ID'] ) ) {
+			wp_send_json_success( get_the_post_thumbnail( $_POST['post_ID'], $_POST['size'] ) );
+		}
+
+		die;
 	}
 
 	function wp_enqueue_scripts() {
@@ -292,10 +285,52 @@ class FEE {
 		}
 	}
 
-	function post_class( $classes ) {
-		$classes[] = 'fee-post';
+	function wp() {
+		global $post;
 
-		return $classes;
+		if ( ! empty( $_GET['get-post-lock'] ) ) {
+			require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
+			wp_set_post_lock( $post->ID );
+
+			wp_redirect( $this->edit_link( $post->ID ) );
+
+			die;
+		}
+
+		if ( ! $this->has_fee() ) {
+			return;
+		}
+
+		if ( force_ssl_admin() && ! is_ssl() ) {
+			wp_redirect( set_url_scheme( $this->edit_link( $post->ID ), 'https' ) );
+
+			die;
+		}
+
+		if ( $post->post_status === 'auto-draft' ) {
+			$post->post_title = '';
+			$post->comment_status = get_option( 'default_comment_status' );
+			$post->ping_status = get_option( 'default_ping_status' );
+		}
+
+		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
+
+		add_filter( 'body_class', array( $this, 'body_class' ) );
+		add_filter( 'post_class', array( $this, 'post_class' ) );
+		add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
+		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
+		add_filter( 'wp_link_pages', array( $this, 'wp_link_pages' ) );
+		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
+		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
+
+		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
+		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
+		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
+
+		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
+			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
+		}
 	}
 
 	function body_class( $classes ) {
@@ -312,13 +347,19 @@ class FEE {
 		return $classes;
 	}
 
+	function post_class( $classes ) {
+		$classes[] = 'fee-post';
+
+		return $classes;
+	}
+
 	function the_title( $title, $id ) {
 		global $wp_the_query;
 
 		if (
 			is_main_query() &&
 			$id === $wp_the_query->queried_object->ID &&
-			$this->really_did_action( 'wp_head' )
+			$this->did_action( 'wp_head' )
 		) {
 			$title .= '<br class="fee-title" />';
 		}
@@ -332,7 +373,7 @@ class FEE {
 		if (
 			is_main_query() &&
 			in_the_loop() &&
-			$this->really_did_action( 'wp_head' )
+			$this->did_action( 'wp_head' )
 		) {
 			return (
 				'<div id="fee-content-' . $post->ID . '" class="fee-content">' .
@@ -349,6 +390,10 @@ class FEE {
 		return $content;
 	}
 
+	function wp_link_pages( $html ) {
+		return '<div class="fee-link-pages">' . $html . '</div>';
+	}
+
 	function post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
 		global $post, $wp_the_query;
 
@@ -356,7 +401,7 @@ class FEE {
 			is_main_query() &&
 			in_the_loop() &&
 			$wp_the_query->queried_object->ID === $post_id &&
-			$this->really_did_action( 'wp_head' )
+			$this->did_action( 'wp_head' )
 		) {
 			return (
 				'<div class="fee-thumbnail" data-size="' . esc_attr( $size ) . '">' .
@@ -382,7 +427,7 @@ class FEE {
 			is_main_query() &&
 			in_the_loop() &&
 			$wp_the_query->queried_object->ID === $object_id &&
-			$this->really_did_action( 'wp_head' ) &&
+			$this->did_action( 'wp_head' ) &&
 			$meta_key === '_thumbnail_id' &&
 			$single &&
 			empty( $this->fee['filtering_get_post_metadata'] )
@@ -399,129 +444,6 @@ class FEE {
 
 			return true;
 		}
-	}
-
-	function ajax_post() {
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['post_ID'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
-		}
-
-		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
-
-		$post_id = edit_post();
-
-		if ( isset( $_POST['save'] ) || isset( $_POST['publish'] ) ) {
-			$status = get_post_status( $post_id );
-
-			if ( isset( $_POST['publish'] ) ) {
-				switch ( $status ) {
-					case 'pending':
-						$message = 8;
-						break;
-					case 'future':
-						$message = 9;
-						break;
-					default:
-						$message = 6;
-				}
-			} else {
-				$message = 'draft' == $status ? 10 : 1 ;
-			}
-		} else {
-			$message = 4;
-		}
-
-		$post = get_post( $post_id );
-
-		wp_send_json_success( array(
-			'message' => $this->get_message( $post, $message ),
-			'post' => $post
-		) );
-	}
-
-	function ajax_new() {
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
-
-		wp_send_json_success( $this->edit_link( $post->ID ) );
-	}
-
-	function ajax_slug() {
-		check_ajax_referer( 'slug-nonce_' . $_POST['post_ID'], '_wpnonce' );
-
-		wp_send_json_success( get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] )[1] );
-	}
-
-	function ajax_shortcode() {
-		global $post;
-
-		$post = get_post( $_POST['post_ID'] );
-
-		setup_postdata( $post );
-
-		wp_send_json_success( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
-	}
-
-	function ajax_thumbnail() {
-		check_ajax_referer( 'update-post_' . $_POST['post_ID'] );
-
-		if ( ! current_user_can( 'edit_post', $_POST['post_ID'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
-		}
-
-		if ( $_POST['thumbnail_ID'] === '-1' ) {
-			if ( delete_post_thumbnail( $_POST['post_ID'] ) ) {
-				wp_send_json_success( '' );
-			}
-		} else if ( set_post_thumbnail( $_POST['post_ID'], $_POST['thumbnail_ID'] ) ) {
-			wp_send_json_success( get_the_post_thumbnail( $_POST['post_ID'], $_POST['size'] ) );
-		}
-
-		die;
-	}
-
-	function get_message( $post, $message_id, $revision_id = null ) {
-		$messages = array();
-
-		$messages['post'] = array(
-			 0 => '', // Unused. Messages start at index 1.
-			 1 => __('Post updated.'),
-			 2 => __('Custom field updated.'),
-			 3 => __('Custom field deleted.'),
-			 4 => __('Post updated.'),
-			/* translators: %s: date and time of the revision */
-			 5 => isset( $revision_id ) ? sprintf( __('Post restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __('Post published.'),
-			 7 => __('Post saved.'),
-			 8 => __('Post submitted.'),
-			 9 => sprintf( __('Post scheduled for: <strong>%1$s</strong>.'),
-				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __('Post draft updated.')
-		);
-
-		$messages['page'] = array(
-			 0 => '', // Unused. Messages start at index 1.
-			 1 => __('Page updated.'),
-			 2 => __('Custom field updated.'),
-			 3 => __('Custom field deleted.'),
-			 4 => __('Page updated.'),
-			 5 => isset( $revision_id ) ? sprintf( __('Page restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __('Page published.'),
-			 7 => __('Page saved.'),
-			 8 => __('Page submitted.' ),
-			 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>.'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __('Page draft updated.')
-		);
-
-		$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
-
-		$messages = apply_filters( 'post_updated_messages', $messages );
-
-		return $messages[ $post->post_type ] ? $messages[ $post->post_type ][ $message_id ] : $messages[ 'post' ][ $message_id ];
 	}
 
 	function footer() {
@@ -571,24 +493,53 @@ class FEE {
 		<?php
 	}
 
-	function really_did_action( $tag ) {
-		$count = did_action( $tag );
-
-		return $this->doing_action( $tag ) ? $count - 1 : $count;
-	}
-
-	function doing_action( $tag ) {
-		global $wp_current_filter;
-
-		return in_array( $tag, $wp_current_filter );
-	}
-
 	function link_modal() {
 		if ( ! class_exists( '_WP_Editors' ) ) {
 			require( ABSPATH . WPINC . '/class-wp-editor.php' );
 		}
 
 		_WP_Editors::wp_link_dialog();
+	}
+
+	function get_message( $post, $message_id, $revision_id = null ) {
+		$messages = array();
+
+		$messages['post'] = array(
+			 0 => '', // Unused. Messages start at index 1.
+			 1 => __('Post updated.'),
+			 2 => __('Custom field updated.'),
+			 3 => __('Custom field deleted.'),
+			 4 => __('Post updated.'),
+			/* translators: %s: date and time of the revision */
+			 5 => isset( $revision_id ) ? sprintf( __('Post restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
+			 6 => __('Post published.'),
+			 7 => __('Post saved.'),
+			 8 => __('Post submitted.'),
+			 9 => sprintf( __('Post scheduled for: <strong>%1$s</strong>.'),
+				// translators: Publish box date format, see http://php.net/date
+				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+			10 => __('Post draft updated.')
+		);
+
+		$messages['page'] = array(
+			 0 => '', // Unused. Messages start at index 1.
+			 1 => __('Page updated.'),
+			 2 => __('Custom field updated.'),
+			 3 => __('Custom field deleted.'),
+			 4 => __('Page updated.'),
+			 5 => isset( $revision_id ) ? sprintf( __('Page restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
+			 6 => __('Page published.'),
+			 7 => __('Page saved.'),
+			 8 => __('Page submitted.' ),
+			 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>.'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+			10 => __('Page draft updated.')
+		);
+
+		$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
+
+		$messages = apply_filters( 'post_updated_messages', $messages );
+
+		return $messages[ $post->post_type ] ? $messages[ $post->post_type ][ $message_id ] : $messages[ 'post' ][ $message_id ];
 	}
 
 	function get_autosave_notice() {
@@ -613,6 +564,39 @@ class FEE {
 		}
 
 		return false;
+	}
+
+	function url( $path ) {
+		$url = plugin_dir_url( __FILE__ );
+
+		if ( is_string( $path ) ) {
+			$url .= ltrim( $path, '/' );
+		}
+
+		return $url;
+	}
+
+	function has_fee( $id = null ) {
+		$post = get_post( $id );
+		$has_fee = false;
+
+		if (
+			is_singular() &&
+			post_type_supports( $post->post_type, 'front-end-editor' ) &&
+			current_user_can( 'edit_post', $post->ID )
+		) {
+			$has_fee = true;
+		}
+
+		return apply_filters( 'has_fee', $has_fee, $post );
+	}
+
+	function did_action( $tag ) {
+		return did_action( $tag ) - (int) doing_filter( $tag );
+	}
+
+	function edit_link( $id ) {
+		return $this->add_hash_arg( array( 'edit' => 'true' ), get_permalink( $id ) );
 	}
 
 	function add_hash_arg( $array, $uri ) {
