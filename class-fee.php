@@ -148,7 +148,7 @@ class FEE {
 
 		$suffix = ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) ? '' : '.min';
 
-		if ( $this->has_fee() ) {
+		if ( $this->add_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'buttons' );
@@ -298,7 +298,7 @@ class FEE {
 			die;
 		}
 
-		if ( ! $this->has_fee() ) {
+		if ( ! $this->add_fee() ) {
 			return;
 		}
 
@@ -581,14 +581,19 @@ class FEE {
 		$has_fee = false;
 
 		if (
-			is_singular() &&
+			$post &&
 			post_type_supports( $post->post_type, 'front-end-editor' ) &&
-			current_user_can( 'edit_post', $post->ID )
+			current_user_can( 'edit_post', $post->ID ) &&
+			$post->ID !== (int) get_option( 'page_for_posts' )
 		) {
 			$has_fee = true;
 		}
 
 		return apply_filters( 'has_fee', $has_fee, $post );
+	}
+
+	function add_fee() {
+		return $this->has_fee() && is_singular();
 	}
 
 	function did_action( $tag ) {
