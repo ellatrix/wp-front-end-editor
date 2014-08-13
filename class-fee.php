@@ -47,7 +47,7 @@ class FEE {
 	}
 
 	function get_edit_post_link( $link, $id, $context ) {
-		return $this->has_fee( $id ) ? $this->edit_link( $id ) : $link;
+		return $this->has_fee( $id ) && ! is_admin() ? $this->edit_link( $id ) : $link;
 	}
 
 	function ajax_post() {
