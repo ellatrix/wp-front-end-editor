@@ -15,9 +15,8 @@ class FEE {
 		return $url;
 	}
 
-	function has_fee() {
-		global $post;
-
+	function has_fee( $id = null ) {
+		$post = get_post( $id );
 		$has_fee = false;
 
 		if (
@@ -68,6 +67,8 @@ class FEE {
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
 
+		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
+
 		add_action( 'wp', array( $this, 'wp' ) );
 
 		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
@@ -97,7 +98,6 @@ class FEE {
 		}
 
 		add_filter( 'body_class', array( $this, 'body_class' ) );
-		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 
 		if ( force_ssl_admin() && ! is_ssl() ) {
 			wp_redirect( set_url_scheme( $this->edit_link( $post->ID ), 'https' ) );
