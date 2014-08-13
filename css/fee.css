@@ -24,6 +24,7 @@
 	right: 0;
 	z-index: 100000;
 	padding: 3px 10px;
+	background: #222;
 }
 
 .fee-toolbar .button {
