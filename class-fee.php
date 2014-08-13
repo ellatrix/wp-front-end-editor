@@ -18,6 +18,9 @@ class FEE {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
 
+		add_post_type_support( 'post', 'front-end-editor' );
+		add_post_type_support( 'page', 'front-end-editor' );
+
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
@@ -30,9 +33,6 @@ class FEE {
 
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
-
-		add_post_type_support( 'post', 'front-end-editor' );
-		add_post_type_support( 'page', 'front-end-editor' );
 
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 
