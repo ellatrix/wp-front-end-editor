@@ -10,6 +10,11 @@
 	display: none;
 }
 
+#wpadminbar .ab-top-menu > li.active > .ab-item {
+	background: #333;
+	color: #2ea2cc;
+}
+
 .fee-on .fee-thumbnail {
 	min-height: 70px;
 }

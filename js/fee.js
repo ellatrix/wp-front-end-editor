@@ -17,8 +17,7 @@
 			$document = $( document ),
 			$body = $( document.body ),
 			$postClass = $( '.fee-post' ),
-			$adminBarEditLink = $( '#wp-admin-bar-edit' ).find( 'a' ),
-			$inlineEditLinks = $( '.post-edit-link' ),
+			$editLinks = $( 'a[href="#fee-edit-link"]' ),
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
@@ -130,7 +129,7 @@
 				wp.autosave.server.resume();
 			}
 
-			$( '#wp-admin-bar-edit' ).addClass( 'hover' );
+			$( '#wp-admin-bar-edit' ).addClass( 'active' );
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
 			$title.text( wp.fee.postOnServer.post_title );
@@ -160,7 +159,7 @@
 				wp.autosave.server.suspend();
 			}
 
-			$( '#wp-admin-bar-edit' ).removeClass( 'hover' );
+			$( '#wp-admin-bar-edit' ).removeClass( 'active' );
 			$body.removeClass( 'fee-on' ).addClass( 'fee-off' );
 			if ( ! $thumbnail.find( 'img' ).length ) {
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
@@ -579,9 +578,7 @@
 			} );
 		} );
 
-		$adminBarEditLink
-		.add( $inlineEditLinks )
-		.attr( 'href', '#' )
+		$editLinks
 		.on( 'click.fee', function( event ) {
 			event.preventDefault();
 			toggle();
@@ -605,7 +602,7 @@
 			event.preventDefault();
 		} );
 
-		$( 'a' ).not( 'a[href^="#"]' ).not( $adminBarEditLink ).not( $inlineEditLinks ).on( 'click.fee', function( event ) {
+		$( 'a' ).not( 'a[href^="#"]' ).on( 'click.fee', function( event ) {
 			var $this = $( this );
 
 			if ( isDirty() && ! ( event.metaKey || event.ctrlKey ) ) {

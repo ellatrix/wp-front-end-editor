@@ -327,6 +327,8 @@ class FEE {
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
 
+		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
+
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
 		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
@@ -446,6 +448,41 @@ class FEE {
 			}
 
 			return true;
+		}
+	}
+
+	function wp_before_admin_bar_render() {
+		global $wp_admin_bar, $wp_the_query;
+
+		$current_object = $wp_the_query->get_queried_object();
+
+		if ( empty( $current_object ) )
+			return;
+
+		if (
+			! empty( $current_object->post_type ) &&
+			( $post_type_object = get_post_type_object( $current_object->post_type ) ) &&
+			current_user_can( 'edit_post', $current_object->ID ) &&
+			$post_type_object->show_ui &&
+			$post_type_object->show_in_admin_bar
+		) {
+			$wp_admin_bar->remove_node( 'edit' );
+			$wp_admin_bar->add_node( array(
+				'id' => 'edit',
+				'title' => $post_type_object->labels->edit_item,
+				'href' => get_edit_post_link( $current_object->ID )
+			) );
+
+			remove_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
+
+			$wp_admin_bar->add_node( array(
+				'parent' => 'edit',
+				'id' => 'edit-in-admin',
+				'title' => __( 'Edit in admin' ),
+				'href' => get_edit_post_link( $current_object->ID )
+			) );
+
+			add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 		}
 	}
 
@@ -619,6 +656,12 @@ class FEE {
 	}
 
 	function edit_link( $id ) {
+		global $wp_the_query;
+
+		if ( is_object( $wp_the_query ) && is_object( $wp_the_query->queried_object ) && $wp_the_query->queried_object->ID === $id ) {
+			return '#fee-edit-link';
+		}
+
 		return $this->add_hash_arg( array( 'edit' => 'true' ), get_permalink( $id ) );
 	}
 
