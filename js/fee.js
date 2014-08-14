@@ -26,6 +26,7 @@
 			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
 			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
+			$contentOriginal = $( '.fee-content-original' ),
 			$leave = $( '.fee-leave' ),
 			$noticeArea = $( '#fee-notice-area' ),
 			$autoSaveNotice,
@@ -36,7 +37,6 @@
 			titleEditor, slugEditor, contentEditor,
 			editors = [],
 			initializedEditors = 0,
-			updated = false,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
 			indexes = {},
@@ -179,8 +179,6 @@
 
 			if ( location ) {
 				document.location.href = location;
-			} else if ( updated ) {
-				document.location.reload();
 			}
 		}
 
@@ -216,15 +214,17 @@
 				$buttons.prop( 'disabled', false );
 			} )
 			.done( function( data ) {
-				// Next time the editor is turned off, it will reload the page.
-				updated = true;
 				// Copy the new post object form the server.
 				wp.fee.postOnServer = data.post;
+				// Update the post content.
+				$contentOriginal.html( data.processedPostContent );
 				// Invalidate the browser backup.
 				window.wpCookies.set( 'wp-saving-post-' + wp.fee.postOnServer.ID, 'saved' );
 				// Add a message. :)
 				data.message && addNotice( data.message, 'updated', true );
-				// The editor is no longer dirty.
+				// Add an undo level for all editors.
+				addUndoLevel();
+				// The editors are no longer dirty.
 				isDirty( false );
 
 				$document.trigger( 'fee-after-save' );
@@ -256,6 +256,16 @@
 			} );
 
 			return thisIsDirty;
+		}
+
+		function addUndoLevel() {
+			if ( hidden ) {
+				return;
+			}
+
+			getEditors( function( editor ) {
+				editor.undoManager.add();
+			} );
 		}
 
 		function leaveMessage( callback ) {
@@ -491,12 +501,10 @@
 		.on( 'keydown.fee', function( event ) {
 			if ( event.keyCode === 83 && ( event.metaKey || event.ctrlKey ) ) {
 				event.preventDefault();
-				event.stopPropagation();
 				save();
 			}
 			if ( event.keyCode === 27 ) {
 				event.preventDefault();
-				event.stopPropagation();
 				off();
 			}
 		} )
@@ -597,7 +605,7 @@
 			event.preventDefault();
 		} );
 
-		$( 'a' ).not( 'a[href^="#"]' ).on( 'click.fee', function( event ) {
+		$( 'a' ).not( 'a[href^="#"]' ).not( $adminBarEditLink ).not( $inlineEditLinks ).on( 'click.fee', function( event ) {
 			var $this = $( this );
 
 			if ( isDirty() && ! ( event.metaKey || event.ctrlKey ) ) {
