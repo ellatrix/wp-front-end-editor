@@ -10,17 +10,18 @@
 	}
 
 	$( function() {
-		$( '#wp-admin-bar-new-content > a, #wp-admin-bar-new-post > a' )
+		var i = fee.supportedPostTypes.length;
+
+		while ( i-- ) {
+			$( 'a[href="' + fee.postNew + '?post_type=' +fee.supportedPostTypes[ i ] + '"]' )
+			.add( fee.supportedPostTypes[ i ] === 'post' ? 'a[href="' + fee.postNew + '"]' : null )
+			.attr( 'href', '#' )
 			.on( 'click', function( event ) {
 				event.preventDefault();
-				_new( 'post' );
+				_new( fee.supportedPostTypes[ i ] );
 			} );
-		$( '#wp-admin-bar-new-page > a' )
-			.on( 'click', function( event ) {
-				event.preventDefault();
-				_new( 'page' );
-			} );
-		// TODO: Custom post types.
+		}
+
 		if ( fee.lock ) {
 			// $( '.post-edit-link' ).tipsy( { fallback: fee.lock + ' is currently editing' } );
 			// $( '#wp-admin-bar-edit > .ab-item' ).tipsy( { fallback: fee.lock + ' is currently editing', className: 'tipsy-bar' } );

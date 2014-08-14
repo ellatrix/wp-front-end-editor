@@ -281,7 +281,9 @@ class FEE {
 			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
-				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false
+				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
+				'supportedPostTypes' => $this->get_supported_post_types(),
+				'postNew' => admin_url( 'post-new.php' )
 			) );
 		}
 	}
@@ -595,6 +597,21 @@ class FEE {
 
 	function has_fee() {
 		return $this->supports_fee() && is_singular();
+	}
+
+	function get_supported_post_types() {
+		global $_wp_post_type_features;
+
+		$post_types = array();
+
+		foreach ( $_wp_post_type_features as $post_type => $features ) {
+			if ( array_key_exists( 'front-end-editor', $features ) ) {
+				$post_types;
+				array_push( $post_types, $post_type );
+			}
+		}
+
+		return $post_types;
 	}
 
 	function did_action( $tag ) {
