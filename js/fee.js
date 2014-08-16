@@ -26,6 +26,7 @@
 			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
 			$contentOriginal = $( '.fee-content-original' ),
+			$categories = $( '.fee-categories' ),
 			$leave = $( '.fee-leave' ),
 			$noticeArea = $( '#fee-notice-area' ),
 			$autoSaveNotice,
@@ -107,6 +108,16 @@
 			$body.addClass( 'fee-left' );
 		} else {
 			$body.addClass( 'fee-right' );
+		}
+
+		wp.fee.post.post_category = function( categories ) {
+			var _categories = [];
+
+			$( 'input[name="post_category[]"]:checked' ).each( function() {
+				_categories.push( $( this ).val() );
+			} );
+
+			return _categories;
 		}
 
 		function scheduleNoncesRefresh() {
@@ -584,10 +595,27 @@
 			toggle();
 		} );
 
-		// TODO: Make taxonomies, date and author editable.
+		$categories.on( 'click.fee', function( event ) {
+			if ( hidden ) {
+				return;
+			}
 
-		$postClass.find( 'a[rel~="category"]' ).on( 'click.fee', function( event ) {
 			event.preventDefault();
+			$( '.fee-category-modal' ).modal( 'show' );
+		} );
+
+		$( '.fee-category-modal' ).on( 'hide.bs.modal', function() {
+			wp.ajax.post( 'fee_categories', {
+				nonce: wp.fee.nonces.categories,
+				post_ID: wp.fee.post.ID(),
+				separator: $categories.data( 'separator' ),
+				parents: $categories.data( 'parents' ),
+				post_category: wp.fee.post.post_category()
+			} )
+			.done( function( html ) {
+				console.log( html );
+				$categories.html( html );
+			} );
 		} );
 
 		$postClass.find( 'a[rel="tag"]' ).on( 'click.fee', function( event ) {
@@ -667,6 +695,83 @@
 
 				$document.off( 'click.fee-thumbnail-active' );
 			} );
+		} );
+
+		// This part is copied from post.js.
+		$( '.categorydiv' ).each( function() {
+			var this_id = $(this).attr('id'), catAddBefore, catAddAfter, taxonomyParts, taxonomy, settingName;
+
+			taxonomyParts = this_id.split('-');
+			taxonomyParts.shift();
+			taxonomy = taxonomyParts.join('-');
+			settingName = taxonomy + '_tab';
+			if ( taxonomy == 'category' )
+				settingName = 'cats';
+
+			// TODO: move to jQuery 1.3+, support for multiple hierarchical taxonomies, see wp-lists.js
+			$('a', '#' + taxonomy + '-tabs').click( function(){
+				var t = $(this).attr('href');
+				$(this).parent().addClass('tabs').siblings('li').removeClass('tabs');
+				$('#' + taxonomy + '-tabs').siblings('.tabs-panel').hide();
+				$(t).show();
+				if ( '#' + taxonomy + '-all' == t )
+					deleteUserSetting( settingName );
+				else
+					setUserSetting( settingName, 'pop' );
+				return false;
+			});
+
+			if ( getUserSetting( settingName ) )
+				$('a[href="#' + taxonomy + '-pop"]', '#' + taxonomy + '-tabs').click();
+
+			// Ajax Cat
+			$( '#new' + taxonomy ).one( 'focus', function() { $( this ).val( '' ).removeClass( 'form-input-tip' ); } );
+
+			$('#new' + taxonomy).keypress( function(event){
+				if( 13 === event.keyCode ) {
+					event.preventDefault();
+					$('#' + taxonomy + '-add-submit').click();
+				}
+			});
+			$('#' + taxonomy + '-add-submit').click( function(){ $('#new' + taxonomy).focus(); });
+
+			catAddBefore = function( s ) {
+				if ( !$('#new'+taxonomy).val() )
+					return false;
+				s.data += '&' + $( ':checked', '#'+taxonomy+'checklist' ).serialize();
+				$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', true );
+				return s;
+			};
+
+			catAddAfter = function( r, s ) {
+				var sup, drop = $('#new'+taxonomy+'_parent');
+
+				$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', false );
+				if ( 'undefined' != s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.newcat_parent) ) {
+					drop.before(sup);
+					drop.remove();
+				}
+			};
+
+			$('#' + taxonomy + 'checklist').wpList({
+				alt: '',
+				response: taxonomy + '-ajax-response',
+				addBefore: catAddBefore,
+				addAfter: catAddAfter
+			});
+
+			$('#' + taxonomy + '-add-toggle').click( function() {
+				$('#' + taxonomy + '-adder').toggleClass( 'wp-hidden-children' );
+				$('a[href="#' + taxonomy + '-all"]', '#' + taxonomy + '-tabs').click();
+				$('#new'+taxonomy).focus();
+				return false;
+			});
+
+			$('#' + taxonomy + 'checklist, #' + taxonomy + 'checklist-pop').on( 'click', 'li.popular-category > label input[type="checkbox"]', function() {
+				var t = $(this), c = t.is(':checked'), id = t.val();
+				if ( id && t.parents('#taxonomy-'+taxonomy).length )
+					$('#in-' + taxonomy + '-' + id + ', #in-popular-' + taxonomy + '-' + id).prop( 'checked', c );
+			});
 		} );
 
 		_.extend( wp.fee, {

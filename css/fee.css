@@ -6,7 +6,8 @@
 #fee-bar,
 .mce-tinymce.mce-container,
 .fee-url,
-.fee-alert {
+.fee-alert,
+.wp-hidden-children .wp-hidden-child {
 	display: none;
 }
 
@@ -77,8 +78,19 @@ br.fee-title {
 	left: 50%;
 	margin-left: -150px;
 	background: #fff;
-	padding: 20px;
 	z-index: 1000000;
+}
+
+.fee-categories {
+	display: inline-block;
+}
+
+.wp-core-ui ul.categorychecklist li {
+	margin-top: 6px;
+}
+
+.wp-core-ui ul.categorychecklist ul {
+	margin-left: 18px;
 }
 
 .dashicons,
