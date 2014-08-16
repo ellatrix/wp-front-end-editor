@@ -4,7 +4,10 @@
 	'use strict';
 
 	function _new( postType ) {
-		wp.ajax.post( 'fee_new', { post_type: postType } ).done( function( url ) {
+		wp.ajax.post( 'fee_new', {
+			post_type: postType,
+			nonce: fee.nonce
+		} ).done( function( url ) {
 			url && ( window.location.href = url );
 		} );
 	}

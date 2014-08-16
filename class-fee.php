@@ -93,6 +93,8 @@ class FEE {
 	}
 
 	function ajax_new() {
+		check_ajax_referer( 'fee-new', 'nonce' );
+
 		require_once( ABSPATH . '/wp-admin/includes/post.php' );
 
 		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
@@ -311,7 +313,8 @@ class FEE {
 			wp_localize_script( 'fee-adminbar', 'fee', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
-				'postNew' => admin_url( 'post-new.php' )
+				'postNew' => admin_url( 'post-new.php' ),
+				'nonce' => wp_create_nonce( 'fee-new' )
 			) );
 		}
 	}
