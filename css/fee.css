@@ -78,6 +78,7 @@ br.fee-title {
 	left: 50%;
 	margin-left: -150px;
 	background: #fff;
+	padding: 20px;
 	z-index: 1000000;
 }
 
