@@ -96,6 +96,7 @@ class FEE {
 		require_once( ABSPATH . '/wp-admin/includes/post.php' );
 
 		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
+		wp_set_post_categories( $post->ID, array( get_option( 'default_category' ) ) );
 
 		wp_send_json_success( $this->edit_link( $post->ID ) );
 	}
