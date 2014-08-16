@@ -41,24 +41,30 @@ window.wp = window.wp || {};
 					'<div class="wpview-loading"><ins></ins></div>' +
 				'</div>';
 		},
-		render: function() {
-			this.setContent(
-				'<p class="wpview-selection-before">\u00a0</p>' +
-				'<div class="wpview-body" contenteditable="false">' +
-					'<div class="toolbar">' +
-						( _.isFunction( views[ this.type ].edit ) ? '<div class="dashicons dashicons-edit edit"></div>' : '' ) +
-						'<div class="dashicons dashicons-no-alt remove"></div>' +
-					'</div>' +
-					'<div class="wpview-content wpview-type-' + this.type + '">' +
-						( this.getHtml() || this.loadingPlaceholder() ) +
-					'</div>' +
-					( this.overlay ? '<div class="wpview-overlay"></div>' : '' ) +
-				'</div>' +
-				'<p class="wpview-selection-after">\u00a0</p>',
-				'wrap'
-			);
+		render: function( force ) {
+			if ( force || ! this.rendered() ) {
+				this.unbind();
 
-			$( this ).trigger( 'ready' );
+				this.setContent(
+					'<p class="wpview-selection-before">\u00a0</p>' +
+					'<div class="wpview-body" contenteditable="false">' +
+						'<div class="toolbar">' +
+							( _.isFunction( views[ this.type ].edit ) ? '<div class="dashicons dashicons-edit edit"></div>' : '' ) +
+							'<div class="dashicons dashicons-no-alt remove"></div>' +
+						'</div>' +
+						'<div class="wpview-content wpview-type-' + this.type + '">' +
+							( this.getHtml() || this.loadingPlaceholder() ) +
+						'</div>' +
+						( this.overlay ? '<div class="wpview-overlay"></div>' : '' ) +
+					'</div>' +
+					'<p class="wpview-selection-after">\u00a0</p>',
+					'wrap'
+				);
+
+				$( this ).trigger( 'ready' );
+
+				this.rendered( true );
+			}
 		},
 		unbind: function() {},
 		getEditors: function( callback ) {
@@ -181,6 +187,19 @@ window.wp = window.wp || {};
 					'<p>' + message + '</p>' +
 				'</div>'
 			);
+		},
+		rendered: function( value ) {
+			var notRendered;
+
+			this.getNodes( function( editor, node ) {
+				if ( value != null ) {
+					$( node ).data( 'rendered', value === true );
+				} else {
+					notRendered = notRendered || ! $( node ).data( 'rendered' );
+				}
+			} );
+
+			return ! notRendered;
 		}
 	} );
 
@@ -379,9 +398,8 @@ window.wp = window.wp || {};
 				viewOptions.encodedText = encodedText;
 				instance = new view.View( viewOptions );
 				instances[ encodedText ] = instance;
+				instance.render( true );
 			}
-
-			wp.mce.views.render();
 		},
 
 		getInstance: function( encodedText ) {
@@ -397,9 +415,9 @@ window.wp = window.wp || {};
 		 * To generate wrapper elements, pass your content through
 		 * `wp.mce.view.toViews( content )`.
 		 */
-		render: function() {
+		render: function( force ) {
 			_.each( instances, function( instance ) {
-				instance.render();
+				instance.render( force );
 			} );
 		},
 
