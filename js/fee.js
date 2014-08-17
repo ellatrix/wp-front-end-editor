@@ -344,7 +344,7 @@
 				// Remove spaces from empty paragraphs.
 				editor.on( 'BeforeSetContent', function( event ) {
 					if ( event.content ) {
-						event.content = event.content.replace( /<p>(?:&nbsp;|\u00a0|\uFEFF| )+<\/p>/gi, '<p></p>' );
+						event.content = event.content.replace( /<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>' );
 					}
 				} );
 			}
