@@ -233,7 +233,8 @@ class FEE {
 				'inline' => true,
 				'relative_urls' => false,
 				'convert_urls' => false,
-				'browser_spellcheck' => true
+				'browser_spellcheck' => true,
+				'placeholder' => __( 'Just write&hellip;' )
 			);
 
 			wp_enqueue_script( 'wp-lists' );
@@ -257,7 +258,8 @@ class FEE {
 				'taxonomies' => $this->get_tax_and_terms()
 			) );
 			wp_localize_script( 'fee', 'feeL10n', array(
-				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' )
+				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
+				'title' => __( 'Title' )
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );

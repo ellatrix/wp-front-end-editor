@@ -59,6 +59,10 @@ br.fee-title {
 	outline: none !important;
 }
 
+.mce-placeholder {
+	opacity: 0.5;
+}
+
 .fee-alert {
 	position: fixed;
 	top: 0;
@@ -270,17 +274,6 @@ br.fee-title {
 
 .fee-content-holder {
 	position: relative;
-}
-
-.fee-content-placeholder {
-	position: absolute;
-	opacity: 0.5;
-	display: none;
-}
-
-.fee-title:empty:not(:focus):before {
-	content: 'Title';
-	opacity: 0.5;
 }
 
 #fee-publish {

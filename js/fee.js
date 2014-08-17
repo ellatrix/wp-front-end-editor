@@ -71,12 +71,12 @@
 				return this.post_title();
 			}
 
-			return $title.get( 0 ).textContent || '';
+			return titleEditor.getContent() || '';
 		};
 
 		wp.fee.post.post_name = function() {
 			if ( $slug.length ) {
-				return $slug.get( 0 ).textContent || '';
+				return slugEditor.getContent() || '';
 			}
 
 			return '';
@@ -393,6 +393,7 @@
 				paste_as_text: true,
 				plugins: 'paste',
 				inline: true,
+				placeholder: feeL10n.title,
 				setup: function( editor ) {
 					titleEditor = editor;
 

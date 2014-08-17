@@ -49,7 +49,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 	} );
 
 	function toolbarItems() {
-		var toolbarItems = [],
+		var items = [],
 			buttonGroup;
 
 		if ( ! settings.toolbar ) {
@@ -92,7 +92,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 							}
 						}
 
-						item.active( state && nodeName == 'OL' );
+						item.active( state && nodeName === 'OL' );
 					} );
 				}
 
@@ -121,7 +121,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 						item.size = settings.toolbar_items_size;
 					}
 
-					toolbarItems.push( item );
+					items.push( item );
 					buttonGroup = null;
 				} else {
 					if ( ! buttonGroup ) {
@@ -129,7 +129,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 							type: 'buttongroup',
 							items: []
 						};
-						toolbarItems.push( buttonGroup );
+						items.push( buttonGroup );
 					}
 
 					if ( editor.buttons[ item ] ) {
@@ -181,32 +181,62 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			}
 		});
 
-		return toolbarItems;
+		return items;
 	}
 
-	self.renderUI = function( args ) {
-		var panel;
+	self.renderUI = function() {
+		var panel, hasPlaceholder;
 
 		settings.content_editable = true;
 
-		function show() {
+		function isEmpty() {
+			return editor.getContent( { format: 'raw' } ).replace( /(?:<p[^>]*>)?(?:<br[^>]*>)?(?:<\/p>)?/, '' ) === '';
+		}
+
+		editor.on( 'nodeChange', function() {
 			panel && panel.show();
 			DOM.addClass( editor.getBody(), 'mce-edit-focus' );
-		}
+		} );
 
-		function hide() {
+		editor.on( 'deactivate blur hide', function() {
 			panel && panel.hide();
 			DOM.removeClass( editor.getBody(), 'mce-edit-focus' );
-		}
+		} );
 
-		function remove() {
+		editor.on( 'remove', function() {
 			panel && panel.remove();
 			panel = null;
-		}
+		} );
 
-		editor.on( 'nodeChange', show );
-		editor.on( 'deactivate blur hide', hide );
-		editor.on( 'remove', remove );
+		if ( settings.placeholder ) {
+			editor.on( 'blur init', function() {
+				if ( isEmpty() ) {
+					hasPlaceholder = true;
+					editor.setContent( settings.placeholder );
+					DOM.addClass( editor.getBody(), 'mce-placeholder' );
+				}
+			} );
+
+			editor.on( 'focus', function() {
+				if ( hasPlaceholder ) {
+					hasPlaceholder = false;
+					editor.setContent( '' );
+					DOM.removeClass( editor.getBody(), 'mce-placeholder' );
+				}
+			} );
+
+			editor.on( 'PostProcess', function( event ) {
+				if ( hasPlaceholder && event.content ) {
+					event.content = '';
+				}
+			} );
+
+			editor.on( 'BeforeAddUndo', function( event ) {
+				if ( hasPlaceholder ) {
+					event.preventDefault();
+				}
+			} );
+		}
 
 		if ( ! settings.toolbar || ! settings.toolbar.length || panel ) {
 			return {};
