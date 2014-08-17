@@ -9,7 +9,8 @@ module.exports = function( grunt ) {
 			options: grunt.file.readJSON( '.jshintrc' ),
 			files: [
 				'Gruntfile.js',
-				'js/*.js'
+				'js/*.js',
+				'!js/modal.js'
 			]
 		}
 	});

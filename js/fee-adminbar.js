@@ -13,17 +13,15 @@
 	}
 
 	$( function() {
-		var i = fee.supportedPostTypes.length;
-
-		while ( i-- ) {
-			$( 'a[href="' + fee.postNew + '?post_type=' +fee.supportedPostTypes[ i ] + '"]' )
-			.add( fee.supportedPostTypes[ i ] === 'post' ? 'a[href="' + fee.postNew + '"]' : null )
+		$.each( fee.supportedPostTypes, function( i, value ) {
+			$( 'a[href="' + fee.postNew + '?post_type=' + value + '"]' )
+			.add( value === 'post' ? 'a[href="' + fee.postNew + '"]' : null )
 			.attr( 'href', '#' )
 			.on( 'click', function( event ) {
 				event.preventDefault();
-				_new( fee.supportedPostTypes[ i ] );
+				_new( value );
 			} );
-		}
+		} );
 
 		if ( fee.lock ) {
 			// $( '.post-edit-link' ).tipsy( { fallback: fee.lock + ' is currently editing' } );

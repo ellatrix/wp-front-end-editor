@@ -209,7 +209,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		} );
 
 		if ( settings.placeholder ) {
-			editor.on( 'blur init', function() {
+			editor.on( 'blur LoadContent deactivate', function() {
 				if ( isEmpty() ) {
 					hasPlaceholder = true;
 					editor.setContent( settings.placeholder );
@@ -217,7 +217,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 				}
 			} );
 
-			editor.on( 'focus', function() {
+			editor.on( 'focus activate', function() {
 				if ( hasPlaceholder ) {
 					hasPlaceholder = false;
 					editor.setContent( '' );

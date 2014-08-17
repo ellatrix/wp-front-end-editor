@@ -110,7 +110,7 @@
 			$body.addClass( 'fee-right' );
 		}
 
-		wp.fee.post.post_category = function( categories ) {
+		wp.fee.post.post_category = function() {
 			var _categories = [];
 
 			$( 'input[name="post_category[]"]:checked' ).each( function() {
@@ -118,7 +118,7 @@
 			} );
 
 			return _categories;
-		}
+		};
 
 		function scheduleNoncesRefresh() {
 			checkNonces = false;
@@ -610,7 +610,6 @@
 				post_category: wp.fee.post.post_category()
 			} )
 			.done( function( html ) {
-				console.log( html );
 				$categories.html( html );
 			} );
 		} );
@@ -702,8 +701,10 @@
 			taxonomyParts.shift();
 			taxonomy = taxonomyParts.join('-');
 			settingName = taxonomy + '_tab';
-			if ( taxonomy == 'category' )
+
+			if ( taxonomy === 'category' ) {
 				settingName = 'cats';
+			}
 
 			// TODO: move to jQuery 1.3+, support for multiple hierarchical taxonomies, see wp-lists.js
 			$('a', '#' + taxonomy + '-tabs').click( function(){
@@ -711,15 +712,17 @@
 				$(this).parent().addClass('tabs').siblings('li').removeClass('tabs');
 				$('#' + taxonomy + '-tabs').siblings('.tabs-panel').hide();
 				$(t).show();
-				if ( '#' + taxonomy + '-all' == t )
-					deleteUserSetting( settingName );
-				else
-					setUserSetting( settingName, 'pop' );
+				if ( '#' + taxonomy + '-all' === t ) {
+					window.deleteUserSetting( settingName );
+				} else {
+					window.setUserSetting( settingName, 'pop' );
+				}
 				return false;
 			});
 
-			if ( getUserSetting( settingName ) )
+			if ( window.getUserSetting( settingName ) ) {
 				$('a[href="#' + taxonomy + '-pop"]', '#' + taxonomy + '-tabs').click();
+			}
 
 			// Ajax Cat
 			$( '#new' + taxonomy ).one( 'focus', function() { $( this ).val( '' ).removeClass( 'form-input-tip' ); } );
@@ -733,8 +736,9 @@
 			$('#' + taxonomy + '-add-submit').click( function(){ $('#new' + taxonomy).focus(); });
 
 			catAddBefore = function( s ) {
-				if ( !$('#new'+taxonomy).val() )
+				if ( !$('#new'+taxonomy).val() ) {
 					return false;
+				}
 				s.data += '&' + $( ':checked', '#'+taxonomy+'checklist' ).serialize();
 				$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', true );
 				return s;
@@ -744,7 +748,7 @@
 				var sup, drop = $('#new'+taxonomy+'_parent');
 
 				$( '#' + taxonomy + '-add-submit' ).prop( 'disabled', false );
-				if ( 'undefined' != s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.newcat_parent) ) {
+				if ( 'undefined' !== s.parsed.responses[0] && (sup = s.parsed.responses[0].supplemental.newcat_parent) ) {
 					drop.before(sup);
 					drop.remove();
 				}
@@ -766,8 +770,9 @@
 
 			$('#' + taxonomy + 'checklist, #' + taxonomy + 'checklist-pop').on( 'click', 'li.popular-category > label input[type="checkbox"]', function() {
 				var t = $(this), c = t.is(':checked'), id = t.val();
-				if ( id && t.parents('#taxonomy-'+taxonomy).length )
+				if ( id && t.parents('#taxonomy-'+taxonomy).length ) {
 					$('#in-' + taxonomy + '-' + id + ', #in-popular-' + taxonomy + '-' + id).prop( 'checked', c );
+				}
 			});
 		} );
 
