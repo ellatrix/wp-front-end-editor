@@ -18,7 +18,7 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		}
 	} );
 
-	editor.on( 'keydown blur hide', function() {
+	editor.on( 'keydown blur hide deactivate', function() {
 		insert.hide();
 	} );
 
@@ -31,6 +31,10 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 
 	function getParent( node ) {
 		var body = editor.getBody();
+
+		if ( node === body ) {
+			return node.firstChild;
+		}
 
 		while ( node ) {
 			if ( node.parentNode === body ) {
