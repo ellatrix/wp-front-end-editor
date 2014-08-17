@@ -198,8 +198,9 @@ class FEE {
 			wp_enqueue_script( 'tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'tinymce-toolbar', $this->url( '/js/tinymce.toolbar.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+
+			wp_enqueue_script( 'tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
 			$tinymce_plugins = array(
 				'feeImage',
@@ -208,53 +209,28 @@ class FEE {
 				'wplink',
 				'wpview',
 				'paste',
-				'toolbar',
 				'insert',
 				'hr',
 				'lists'
 			);
 
-			$tinymce_buttons_1 = array(
-				'kitchensink',
-				'formatselect',
+			$tinymce_toolbar = array(
 				'bold',
 				'italic',
 				'strikethrough',
-				'blockquote',
-				'alignleft',
-				'aligncenter',
-				'alignright',
-				'wp_more',
 				'link',
-				'media',
-				'undo',
-				'redo'
-			);
-
-			$tinymce_buttons_2 = array(
-				'kitchensink',
-				'removeformat',
-				'pastetext',
-				'hr',
-				'bullist',
-				'numlist',
-				'outdent',
-				'indent',
-				'undo',
-				'redo'
+				'unlink',
+				'blockquote',
+				'h2',
+				'h3'
 			);
 
 			$tinymce = array(
 				'selector' => '#fee-mce-' . $post->ID,
-				'inline' => true,
 				'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', $tinymce_plugins ) ) ),
-				'toolbar1' => implode( ' ', apply_filters( 'fee_tinymce_buttons_1', $tinymce_buttons_1 ) ),
-				'toolbar2' => implode( ' ', apply_filters( 'fee_tinymce_buttons_2', $tinymce_buttons_2 ) ),
-				'toolbar3' => implode( ' ', apply_filters( 'fee_tinymce_buttons_3', array() ) ),
-				'toolbar4' => implode( ' ', apply_filters( 'fee_tinymce_buttons_4', array() ) ),
-				'menubar' => false,
-				'fixed_toolbar_container' => '#fee-bar',
-				'skin' => false,
+				'toolbar' => apply_filters( 'fee_tinymce_toolbar', $tinymce_toolbar ),
+				'theme' => 'fee',
+				'inline' => true,
 				'relative_urls' => false,
 				'convert_urls' => false,
 				'browser_spellcheck' => true
@@ -537,7 +513,6 @@ class FEE {
 
 		?>
 		<div class="wp-core-ui">
-			<div id="fee-bar"></div>
 			<div id="fee-notice-area" class="wp-core-ui">
 				<div id="lost-connection-notice" class="error hidden">
 					<p><span class="spinner"></span> <?php _e( '<strong>Connection lost.</strong> Saving has been disabled until you&#8217;re reconnected.' ); ?>

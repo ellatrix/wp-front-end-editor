@@ -389,12 +389,10 @@
 
 			tinymce.init( {
 				selector: '.fee-title',
-				skin: false,
-				inline: true,
-				toolbar: false,
-				menubar: false,
+				theme: 'fee',
 				paste_as_text: true,
 				plugins: 'paste',
+				inline: true,
 				setup: function( editor ) {
 					titleEditor = editor;
 
@@ -415,12 +413,10 @@
 
 			tinymce.init( {
 				selector: '.fee-slug',
-				skin: false,
-				inline: true,
-				toolbar: false,
-				menubar: false,
+				theme: 'fee',
 				paste_as_text: true,
 				plugins: 'paste',
+				inline: true,
 				setup: function( editor ) {
 					slugEditor = editor;
 
