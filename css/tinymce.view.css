@@ -1,0 +1,295 @@
+.wpview-wrap {
+	width: 100%;
+	position: relative;
+	clear: both;
+}
+
+/* delegate the handling of the selection to the wpview tinymce plugin */
+.wpview-wrap,
+.wpview-wrap * {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+/* hide the shortcode content, but allow the content to still be selected */
+.wpview-wrap .wpview-clipboard,
+.wpview-wrap > p {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+	clip: rect(1px 1px 1px 1px); /* IE7 */
+	clip: rect(1px, 1px, 1px, 1px);
+	overflow: hidden;
+	outline: 0;
+	padding: 0;
+	border: 0;
+	width: 1px;
+	height: 1px;
+}
+
+/* An ugly box will appear when this is focussed in IE, so we'll move it outside the window. */
+.wpview-wrap.wpview-selection-before > p,
+.wpview-wrap.wpview-selection-after > p {
+	left: -10000px;
+}
+
+.wpview-wrap .wpview-clipboard,
+.wpview-wrap .wpview-clipboard *,
+.wpview-wrap > p {
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+}
+
+.has-focus .wpview-wrap.wpview-selection-before:before,
+.has-focus .wpview-wrap.wpview-selection-after:before {
+	content: '';
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: -2px;
+	left: -3px;
+	bottom: -2px;
+	width: 1px;
+	background-color: black;
+	background-color: currentcolor;
+	-webkit-transition: opacity 0.15s ease-out;
+	-moz-transition: opacity 0.15s ease-out;
+	transition: opacity 0.15s ease-out;
+	opacity: 1;
+}
+
+.has-focus .wpview-wrap.wpview-selection-after:before {
+	left: auto;
+	right: -3px;
+}
+
+.has-focus .wpview-wrap.wpview-cursor-hide:before {
+	opacity: 0;
+}
+
+.wpview-wrap,
+.fee-thumbnail,
+.mce-content-body hr {
+    position: relative;
+}
+
+.has-focus .wpview-wrap[data-mce-selected]:before,
+.wpview-wrap:hover:before,
+.fee-on .fee-thumbnail:hover:before,
+.fee-on .fee-thumbnail.fee-thumbnail-active:before,
+.mce-content-body hr[data-mce-selected]:before,
+.mce-content-body hr:hover:before,
+.mce-content-body img:hover:before {
+	content: '';
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: -5px;
+	left: -5px;
+	right: -5px;
+	bottom: -5px;
+	border-radius: 3px;
+	border: 3px solid #ffe767;
+	width: auto;
+}
+
+.mce-content-body img:hover {
+	outline: 3px solid #ffe767;
+	outline-offset: 2px;
+}
+
+.has-focus .wpview-wrap[data-mce-selected]:before,
+.mce-content-body hr[data-mce-selected]:before,
+.fee-on .fee-thumbnail.fee-thumbnail-active:before {
+	border-color: rgb(88, 144, 255);
+}
+
+.mce-content-body img[data-mce-selected] {
+	outline: 3px solid rgb(88, 144, 255) !important;
+	outline-offset: 2px;
+}
+
+.mce-content-body div.mce-resizehandle {
+	border: none !important;
+	background: rgb(88, 144, 255) !important;
+	width: 7px !important;
+	height: 7px !important;
+}
+
+.wpview-wrap.wpview-selection-before:before,
+.wpview-wrap.wpview-selection-after:before {
+	border: none;
+}
+
+.ie8 .wpview-wrap[data-mce-selected],
+.ie7 .wpview-wrap[data-mce-selected] {
+	background-color: #e5e5e5;
+	border-color: #777;
+}
+
+.wpview-overlay {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+.wpview-wrap[data-mce-selected] .wpview-overlay {
+	display: none;
+}
+
+.wpview-wrap .toolbar,
+.fee-thumbnail .fee-thumbnail-toolbar {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: none;
+	z-index: 100;
+}
+
+.has-focus .wpview-wrap[data-mce-selected] .toolbar,
+.fee-thumbnail.fee-thumbnail-active .fee-thumbnail-toolbar {
+	display: block;
+}
+
+.wpview-wrap .loading-placeholder {
+	border: 1px dashed #ccc;
+	padding: 10px;
+}
+
+.wpview-wrap[data-mce-selected] .loading-placeholder {
+	border-color: transparent;
+}
+
+/* A little "loading" animation, not showing in IE < 10 */
+.wpview-wrap .wpview-loading {
+	width: 60px;
+	height: 5px;
+	overflow: hidden;
+	background-color: transparent;
+	margin: 10px auto 0;
+}
+
+.wpview-wrap .wpview-loading ins {
+	background-color: #333;
+	margin: 0 0 0 -60px;
+	width: 60px;
+	height: 5px;
+	display: block;
+	-webkit-animation: wpview-loading 1.3s infinite 1s linear;
+	animation: wpview-loading 1.3s infinite 1s linear;
+}
+
+@-webkit-keyframes wpview-loading {
+	0% {
+		margin-left: -60px;
+	}
+	100% {
+		margin-left: 60px;
+	}
+}
+
+@keyframes wpview-loading {
+	0% {
+		margin-left: -60px;
+	}
+	100% {
+		margin-left: 60px;
+	}
+}
+
+#wp-image-toolbar {
+	position: absolute;
+	margin: 0;
+}
+
+.wpview-wrap .toolbar div,
+.fee-thumbnail .fee-thumbnail-toolbar div,
+#wp-image-toolbar i {
+	margin-top: 7px;
+	margin-left: 7px;
+	padding: 2px;
+	width: 30px;
+	height: 30px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+	background-color: #000;
+	background-color: rgba(0,0,0,0.9);
+	cursor: pointer;
+	color: white;
+	font-size: 30px;
+}
+
+.wpview-error {
+	border: 1px solid #dedede;
+	padding: 1em 0;
+	margin: 0;
+	word-wrap: break-word;
+}
+
+.wpview-wrap[data-mce-selected] .wpview-error {
+	border-color: transparent;
+}
+
+.wpview-error .dashicons,
+.loading-placeholder .dashicons {
+	display: block;
+	margin: 0 auto;
+	width: 32px;
+	height: 32px;
+	font-size: 32px;
+}
+
+.wpview-error p {
+	margin: 0;
+	text-align: center;
+	font-family: 'Open Sans', sans-serif;
+}
+
+.wpview-wrap .toolbar div:hover,
+#wp-image-toolbar i:hover {
+	box-shadow: 0 1px 3px rgba(0,0,0,0.8);
+	background-color: #000;
+	color: #2ea2cc;
+}
+
+/* more and nextpage views */
+
+.wpview-type-more p {
+	text-align: center;
+	position: relative;
+	overflow: hidden;
+	opacity: 0.5;
+}
+
+.wpview-wrap[data-mce-selected] .wpview-type-more p {
+	opacity: 1;
+}
+
+.wpview-type-more span {
+	position: relative;
+}
+
+.wpview-type-more span:before,
+.wpview-type-more span:after {
+	content: '';
+	position: absolute;
+	border-bottom: 2px dashed currentColor;
+	top: 50%;
+	width: 1000px;
+}
+
+.wpview-type-more span:before {
+	right: 100%;
+	margin-right: 5px;
+}
+
+.wpview-type-more span:after {
+	left: 100%;
+	margin-left: 5px;
+}

@@ -864,6 +864,7 @@ body .mce-abs-layout-item,
 	border: 1px solid transparent;
 	position: relative;
 	display: inline-block;
+	background: none;
 	border-radius: 2px;
 	box-shadow: none;
 	margin: 2px;
@@ -2038,6 +2039,13 @@ i.mce-i-resize {
 i.mce-i-backcolor {
 	text-shadow: none;
 	background: #bbb;
+}
+
+/* Content */
+
+.mce-content-body:focus,
+.mce-edit-focus {
+	outline: none !important; /* TinyMCE adds inline styles for this. */
 }
 
 /* Plugins */
