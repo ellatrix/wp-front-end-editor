@@ -382,7 +382,7 @@
 
 			$title
 			.addClass( 'fee-title' )
-			.after( '<p class="fee-url">' + wp.fee.permalink.replace( /(?:%pagename%|%postname%)/, '<ins><span class="fee-slug">' + wp.fee.postOnServer.post_name + '</span></ins>' ) + '</p>' );
+			.after( '<p class="fee-url">' + wp.fee.permalink.replace( /(?:%pagename%|%postname%)/, '<ins><span class="fee-slug">' + ( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID )  + '</span></ins>' ) + '</p>' );
 
 			$url = $( '.fee-url' );
 			$slug = $( '.fee-slug' );
@@ -447,7 +447,7 @@
 								'_wpnonce': wp.fee.nonces.slug
 							} )
 							.done( function( slug ) {
-								$slug.get( 0 ).textContent = slug;
+								slugEditor.setContent( slug );
 							} );
 						}
 					} );

@@ -211,16 +211,21 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		if ( settings.placeholder ) {
 			editor.on( 'blur LoadContent deactivate', function() {
 				if ( isEmpty() ) {
-					hasPlaceholder = true;
 					editor.setContent( settings.placeholder );
+					hasPlaceholder = true;
 					DOM.addClass( editor.getBody(), 'mce-placeholder' );
 				}
 			} );
 
 			editor.on( 'focus activate', function() {
 				if ( hasPlaceholder ) {
-					hasPlaceholder = false;
 					editor.setContent( '' );
+				}
+			} );
+
+			editor.on( 'SetContent', function( event ) {
+				if ( hasPlaceholder && ! event.load ) {
+					hasPlaceholder = false;
 					DOM.removeClass( editor.getBody(), 'mce-placeholder' );
 				}
 			} );

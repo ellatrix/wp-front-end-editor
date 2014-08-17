@@ -244,7 +244,7 @@ class FEE {
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
-				'permalink' => get_sample_permalink( $post->ID )[0],
+				'permalink' => $this->get_sample_permalink( $post->ID ),
 				'nonces' => array(
 					'post' => wp_create_nonce( 'update-post_' . $post->ID ),
 					'slug' => wp_create_nonce( 'slug-nonce_' . $post->ID ),
@@ -797,5 +797,12 @@ class FEE {
 		$return = rtrim( $return, '#' );
 
 		return $return;
+	}
+
+	function get_sample_permalink( $post ) {
+		$_post = get_post( $post );
+		$_post->post_status = 'published';
+
+		return get_sample_permalink( $_post )[0];
 	}
 }
