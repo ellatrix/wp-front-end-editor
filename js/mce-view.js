@@ -728,4 +728,43 @@ window.wp = window.wp || {};
 		}
 	} ) );
 
+	wp.mce.views.register( 'more', {
+		toView: function( content ) {
+			var re = /<!--(more|nextpage)(.*?)-->/g,
+				match = re.exec( content );
+
+			if ( ! match ) {
+				return;
+			}
+
+			return {
+				index: match.index,
+				content: match[0],
+				options: {
+					_type: match[1],
+					text: tinymce.trim( match[2] )
+				}
+			};
+		},
+		View: {
+			initialize: function( options ) {
+				this.text = options.text;
+				this._type = options._type;
+			},
+			getHtml: function() {
+				var text;
+
+				if ( this._type === 'nextpage' ) {
+					text = 'Page Break';
+				} else if ( this.text ) {
+					text = this.text;
+				} else {
+					text = '(more&hellip;)';
+				}
+
+				return '<p><span>' + text + '</span></p>';
+			}
+		}
+	} );
+
 }(jQuery));
