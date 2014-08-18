@@ -384,11 +384,9 @@ class FEE {
 	}
 
 	function the_title( $title, $id ) {
-		global $wp_the_query;
-
 		if (
 			is_main_query() &&
-			$id === $wp_the_query->queried_object->ID &&
+			$id === get_queried_object_id() &&
 			$this->did_action( 'wp_head' )
 		) {
 			$title .= '<br class="fee-title" />';
@@ -425,12 +423,10 @@ class FEE {
 	}
 
 	function post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-		global $post, $wp_the_query;
-
 		if (
 			is_main_query() &&
 			in_the_loop() &&
-			$wp_the_query->queried_object->ID === $post_id &&
+			get_queried_object_id() === $post_id &&
 			$this->did_action( 'wp_head' )
 		) {
 			return (
@@ -451,12 +447,10 @@ class FEE {
 
 	// Not sure if this is a good idea, this could have unexpected consequences. But otherwise nothing shows up if the featured image is set in edit mode.
 	function get_post_metadata( $n, $object_id, $meta_key, $single ) {
-		global $wp_the_query;
-
 		if (
 			is_main_query() &&
 			in_the_loop() &&
-			$wp_the_query->queried_object->ID === $object_id &&
+			get_queried_object_id() === $object_id &&
 			$this->did_action( 'wp_head' ) &&
 			$meta_key === '_thumbnail_id' &&
 			$single &&
@@ -763,8 +757,6 @@ class FEE {
 	}
 
 	function edit_link( $id ) {
-		global $wp_the_query;
-
 		if ( get_queried_object_id() === $id ) {
 			return '#fee-edit-link';
 		}
