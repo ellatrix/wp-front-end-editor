@@ -518,6 +518,15 @@ div.mce-tinymce-inline.mce-arrow-right:after {
 	left: auto;
 }
 
+div.mce-tinymce-inline.mce-arrow-full {
+	right: 0;
+}
+
+div.mce-tinymce-inline.mce-arrow-full > div {
+	width: 100%;
+	overflow-x: auto;
+}
+
 .mce-toolbar .mce-btn-group .mce-btn.mce-active:hover i.mce-ico {
 	color: #555;
 }

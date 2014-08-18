@@ -275,35 +275,40 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			var toolbarEl = this.getEl(),
 				boundary = editor.selection.getRng().getBoundingClientRect(),
 				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
-				toolbarWidth = toolbarEl.offsetWidth,
-				toolbarHalf = toolbarWidth / 2,
+				windowWidth = window.innerWidth,
+				toolbarWidth, toolbarHalf,
 				margin = parseInt( DOM.getStyle( toolbarEl, 'margin-bottom', true ), 10),
-				top, left;
+				top, left, className;
+
+			toolbarEl.className = ( ' ' + toolbarEl.className + ' ' ).replace( /\smce-arrow-\S+\s/g, ' ' ).slice( 1, -1 );
+
+			toolbarWidth = toolbarEl.offsetWidth;
+			toolbarHalf = toolbarWidth / 2;
 
 			if ( boundary.top < toolbarEl.offsetHeight ) {
-				DOM.addClass( toolbarEl, 'mce-arrow-up' );
-				DOM.removeClass( toolbarEl, 'mce-arrow-down' );
+				className = ' mce-arrow-up';
 				top = boundary.bottom + margin;
 			} else {
-				DOM.addClass( toolbarEl, 'mce-arrow-down' );
-				DOM.removeClass( toolbarEl, 'mce-arrow-up' );
+				className = ' mce-arrow-down';
 				top = boundary.top - toolbarEl.offsetHeight - margin;
 			}
 
 			left = boundaryMiddle - toolbarHalf;
 
-			if ( left < 0 ) {
-				DOM.addClass( toolbarEl, 'mce-arrow-left' );
-				DOM.removeClass( toolbarEl, 'mce-arrow-right' );
+			if ( toolbarWidth >= windowWidth ) {
+				className += ' mce-arrow-full';
+				left = 0;
+			} else if ( ( left < 0 && boundary.left + toolbarWidth > windowWidth ) || ( left + toolbarWidth > windowWidth && boundary.right - toolbarWidth < 0 ) ) {
+				left = ( windowWidth - toolbarWidth ) / 2;
+			} else if ( left < 0 ) {
+				className += ' mce-arrow-left';
 				left = boundary.left;
-			} else if ( left + toolbarWidth > window.innerWidth ) {
-				DOM.addClass( toolbarEl, 'mce-arrow-right' );
-				DOM.removeClass( toolbarEl, 'mce-arrow-left' );
+			} else if ( left + toolbarWidth > windowWidth ) {
+				className += ' mce-arrow-right';
 				left = boundary.right - toolbarWidth;
-			} else {
-				DOM.removeClass( toolbarEl, 'mce-arrow-left' );
-				DOM.removeClass( toolbarEl, 'mce-arrow-right' );
 			}
+
+			toolbarEl.className += className;
 
 			DOM.setStyles( toolbarEl, { 'left': left, 'top': top + window.pageYOffset } );
 
