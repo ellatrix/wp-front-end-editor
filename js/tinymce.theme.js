@@ -181,7 +181,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 								}
 
 								editor.execCommand( 'unlink' );
-							}
+							};
 						}
 
 						item = Factory.create( item );
