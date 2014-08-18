@@ -294,9 +294,11 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 			if ( left < 0 ) {
 				DOM.addClass( toolbarEl, 'mce-arrow-left' );
+				DOM.removeClass( toolbarEl, 'mce-arrow-right' );
 				left = boundary.left;
 			} else if ( left + toolbarWidth > window.innerWidth ) {
 				DOM.addClass( toolbarEl, 'mce-arrow-right' );
+				DOM.removeClass( toolbarEl, 'mce-arrow-left' );
 				left = boundary.right - toolbarWidth;
 			} else {
 				DOM.removeClass( toolbarEl, 'mce-arrow-left' );
