@@ -275,21 +275,33 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			var toolbarEl = this.getEl(),
 				boundary = editor.selection.getRng().getBoundingClientRect(),
 				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
-				toolbarHalf = toolbarEl.offsetWidth / 2,
+				toolbarWidth = toolbarEl.offsetWidth,
+				toolbarHalf = toolbarWidth / 2,
 				margin = parseInt( DOM.getStyle( toolbarEl, 'margin-bottom', true ), 10),
 				top, left;
 
 			if ( boundary.top < toolbarEl.offsetHeight ) {
-				DOM.addClass( toolbarEl, 'mce-inline-toolbar-arrow-up' );
-				DOM.removeClass( toolbarEl, 'mce-inline-toolbar-arrow-down' );
+				DOM.addClass( toolbarEl, 'mce-arrow-up' );
+				DOM.removeClass( toolbarEl, 'mce-arrow-down' );
 				top = boundary.bottom + margin;
 			} else {
-				DOM.addClass( toolbarEl, 'mce-inline-toolbar-arrow-down' );
-				DOM.removeClass( toolbarEl, 'mce-inline-toolbar-arrow-up' );
+				DOM.addClass( toolbarEl, 'mce-arrow-down' );
+				DOM.removeClass( toolbarEl, 'mce-arrow-up' );
 				top = boundary.top - toolbarEl.offsetHeight - margin;
 			}
 
 			left = boundaryMiddle - toolbarHalf;
+
+			if ( left < 0 ) {
+				DOM.addClass( toolbarEl, 'mce-arrow-left' );
+				left = boundary.left;
+			} else if ( left + toolbarWidth > window.innerWidth ) {
+				DOM.addClass( toolbarEl, 'mce-arrow-right' );
+				left = boundary.right - toolbarWidth;
+			} else {
+				DOM.removeClass( toolbarEl, 'mce-arrow-left' );
+				DOM.removeClass( toolbarEl, 'mce-arrow-right' );
+			}
 
 			DOM.setStyles( toolbarEl, { 'left': left, 'top': top + window.pageYOffset } );
 

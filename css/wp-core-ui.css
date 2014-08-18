@@ -55,6 +55,12 @@
 	background: #222;
 }
 
+@media screen and (max-width: 600px) {
+	#wpadminbar {
+		position: absolute;
+	}
+}
+
 /* --- */
 
 /* utility classes */

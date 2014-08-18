@@ -56,6 +56,12 @@
 	}
 }
 
+@media screen and (max-width: 600px) {
+	.fee-toolbar {
+		position: absolute;
+	}
+}
+
 br.fee-title {
 	display: none;
 }
@@ -473,32 +479,43 @@ div.mce-tinymce-inline:after {
 	content: '';
 }
 
-div.mce-tinymce-inline.mce-inline-toolbar-arrow-up:before {
+div.mce-tinymce-inline.mce-arrow-up:before {
 	top: -18px;
 	border-bottom-color: #dedede;
 	border-width: 9px;
 	margin-left: -9px;
 }
 
-div.mce-tinymce-inline.mce-inline-toolbar-arrow-down:before {
+div.mce-tinymce-inline.mce-arrow-down:before {
 	bottom: -18px;
 	border-top-color: #dedede;
 	border-width: 9px;
 	margin-left: -9px;
 }
 
-div.mce-tinymce-inline.mce-inline-toolbar-arrow-up:after {
+div.mce-tinymce-inline.mce-arrow-up:after {
 	top: -16px;
 	border-bottom-color: #f5f5f5;
 	border-width: 8px;
 	margin-left: -8px;
 }
 
-div.mce-tinymce-inline.mce-inline-toolbar-arrow-down:after {
+div.mce-tinymce-inline.mce-arrow-down:after {
 	bottom: -16px;
 	border-top-color: #f5f5f5;
 	border-width: 8px;
 	margin-left: -8px;
+}
+
+div.mce-tinymce-inline.mce-arrow-left:before,
+div.mce-tinymce-inline.mce-arrow-left:after {
+	left: 20px;
+}
+
+div.mce-tinymce-inline.mce-arrow-right:before,
+div.mce-tinymce-inline.mce-arrow-right:after {
+	right: 20px;
+	left: auto;
 }
 
 .mce-toolbar .mce-btn-group .mce-btn.mce-active:hover i.mce-ico {
