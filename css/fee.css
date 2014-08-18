@@ -36,6 +36,26 @@
 	line-height: 23px;
 }
 
+@media screen and (max-width: 782px) {
+	.fee-on #wp-toolbar > ul > li {
+		display: none !important;
+	}
+
+	.fee-on #wp-toolbar #wp-admin-bar-edit {
+		display: block !important;
+	}
+
+	.fee-toolbar {
+		padding: 5px 10px;
+	}
+
+	.fee-toolbar .button {
+		height: 36px;
+		line-height: normal;
+		margin-bottom: 0;
+	}
+}
+
 br.fee-title {
 	display: none;
 }
