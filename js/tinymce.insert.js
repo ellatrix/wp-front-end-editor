@@ -72,7 +72,7 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 			classes: 'insert-modal',
 			ariaRoot: true,
 			ariaRemember: true,
-			items: editor.blocks
+			items: editor.toolbarItems( editor.settings.blocks, true )
 		} );
 
 		insert.on( 'show', function() {
@@ -161,20 +161,12 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		insertModal.renderTo( document.body ).hide();
 	} );
 
-	function addBlock( object ) {
-		editor.blocks = editor.blocks || [];
-		object.icon = 'dashicons dashicons dashicons-' + object.icon;
-		object.type = 'button';
-		object.text = object.title;
-		object = tinymce.ui.Factory.create( object );
-		editor.blocks.push( object );
-	}
-
-	addBlock( {
-		title: 'Image',
-		icon: 'format-image',
+	editor.addButton( 'wp_image', {
+		tooltip: 'Image',
+		icon: 'dashicons-format-image',
 		onclick: function() {
 			var instance = wp.media.editor.open().setState( 'insert' );
+
 			jQuery( instance.el )
 				.find( 'select.attachment-filters' )
 				.val( 'image' )
@@ -182,19 +174,20 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		}
 	} );
 
-	addBlock( {
-		title: 'Gallery',
-		icon: 'format-gallery',
+	editor.addButton( 'wp_gallery', {
+		tooltip: 'Gallery',
+		icon: 'dashicons-format-gallery',
 		onclick: function() {
 			wp.media.editor.open().setState( 'gallery-library' );
 		}
 	} );
 
-	addBlock( {
-		title: 'Audio',
-		icon: 'format-audio',
+	editor.addButton( 'wp_audio', {
+		tooltip: 'Audio',
+		icon: 'dashicons-format-audio',
 		onclick: function() {
 			var instance = wp.media.editor.open().setState( 'insert' );
+
 			jQuery( instance.el )
 				.find( 'select.attachment-filters' )
 				.val( 'audio' )
@@ -202,19 +195,20 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		}
 	} );
 
-	addBlock( {
-		title: 'Audio Playlist',
-		icon: 'playlist-audio',
+	editor.addButton( 'wp_audio_playlist', {
+		tooltip: 'Audio Playlist',
+		icon: 'dashicons-playlist-audio',
 		onclick: function() {
 			wp.media.editor.open().setState( 'playlist' );
 		}
 	} );
 
-	addBlock( {
-		title: 'Video',
-		icon: 'video-alt3',
+	editor.addButton( 'wp_video', {
+		tooltip: 'Video',
+		icon: 'dashicons-video-alt3',
 		onclick: function() {
 			var instance = wp.media.editor.open().setState( 'insert' );
+
 			jQuery( instance.el )
 				.find( 'select.attachment-filters' )
 				.val( 'video' )
@@ -222,39 +216,11 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		}
 	} );
 
-	addBlock( {
-		title: 'Video Playlist',
-		icon: 'playlist-video',
+	editor.addButton( 'wp_video_playlist', {
+		tooltip: 'Video Playlist',
+		icon: 'dashicons-playlist-video',
 		onclick: function() {
 			wp.media.editor.open().setState( 'video-playlist' );
 		}
 	} );
-
-	addBlock( {
-		title: 'Horizontal Rule',
-		icon: 'editor-insertmore',
-		onclick: function() {
-			editor.execCommand( 'InsertHorizontalRule' );
-		}
-	} );
-
-	addBlock( {
-		title: 'More',
-		icon: 'editor-insertmore',
-		onclick: function() {
-			editor.execCommand( 'WP_More' );
-		}
-	} );
-
-	addBlock( {
-		title: 'Next Page',
-		icon: 'editor-insertmore',
-		onclick: function() {
-			editor.execCommand( 'WP_Page' );
-		}
-	} );
-
-	return {
-		addBlock: addBlock
-	};
 } );

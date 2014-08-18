@@ -48,15 +48,15 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		} );
 	} );
 
-	function toolbarItems() {
+	function toolbarItems( array, block ) {
 		var items = [],
 			buttonGroup;
 
-		if ( ! settings.toolbar ) {
+		if ( ! array ) {
 			return;
 		}
 
-		each( settings.toolbar, function( item ) {
+		each( array, function( item ) {
 			var itemName;
 
 			function bindSelectorChanged() {
@@ -124,7 +124,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 					items.push( item );
 					buttonGroup = null;
 				} else {
-					if ( ! buttonGroup ) {
+					if ( ! buttonGroup || block ) {
 						buttonGroup = {
 							type: 'buttongroup',
 							items: []
@@ -138,6 +138,14 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 						if ( typeof( item ) === 'function' ) {
 							item = item();
+						}
+
+						if ( block ) {
+							if ( item.icon.indexOf( 'dashicons' ) !== -1 ) {
+								item.icon = 'dashicon ' + item.icon;
+							}
+
+							item.text = item.tooltip;
 						}
 
 						item.type = item.type || 'button';
@@ -191,6 +199,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 		return items;
 	}
+
+	editor.toolbarItems = toolbarItems;
 
 	self.renderUI = function() {
 		var panel, hasPlaceholder;
@@ -272,7 +282,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 						{
 							type: 'toolbar',
 							layout: 'flow',
-							items: toolbarItems()
+							items: toolbarItems( settings.toolbar )
 						}
 					]
 				}

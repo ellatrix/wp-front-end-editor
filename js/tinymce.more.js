@@ -38,4 +38,18 @@ tinymce.PluginManager.add( 'wpmore', function( editor ) {
 	editor.addCommand( 'WP_Page', function() {
 		editor.execCommand( 'WP_More', 'nextpage' );
 	});
+
+	editor.addButton( 'wp_more', {
+		tooltip: 'Read More',
+		onclick: function() {
+			editor.execCommand( 'WP_More', 'more' );
+		}
+	});
+
+	editor.addButton( 'wp_page', {
+		tooltip: 'Page Break',
+		onclick: function() {
+			editor.execCommand( 'WP_More', 'nextpage' );
+		}
+	});
 } );

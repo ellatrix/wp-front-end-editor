@@ -366,7 +366,7 @@ div.mce-insert.open .dashicons {
 	transition: all 0.2s;
 }
 
-div.mce-insert-modal .dashicons {
+div.mce-insert-modal .mce-ico {
 	width: 30px;
 	height: 30px;
 	font-size: 30px;

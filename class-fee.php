@@ -225,10 +225,23 @@ class FEE {
 				'h3'
 			);
 
+			$tinymce_blocks = array(
+				'wp_image',
+				'wp_gallery',
+				'wp_audio',
+				'wp_audio_playlist',
+				'wp_video',
+				'wp_video_playlist',
+				'hr',
+				'wp_more',
+				'wp_page'
+			);
+
 			$tinymce = array(
 				'selector' => '#fee-mce-' . $post->ID,
 				'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', $tinymce_plugins ) ) ),
 				'toolbar' => apply_filters( 'fee_tinymce_toolbar', $tinymce_toolbar ),
+				'blocks' => apply_filters( 'fee_tinymce_blocks', $tinymce_blocks ),
 				'theme' => 'fee',
 				'inline' => true,
 				'relative_urls' => false,
