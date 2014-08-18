@@ -166,6 +166,14 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 									DOM.setAttrib( self.getEl(), 'tabindex', disabled ? '0' : '-1' );
 								} );
 							};
+
+							item.onclick = function() {
+								if ( editor.selection.getContent().indexOf( '<a' ) === -1 ) {
+									editor.selection.select( editor.selection.getNode() );
+								}
+
+								editor.execCommand( 'unlink' );
+							}
 						}
 
 						item = Factory.create( item );
