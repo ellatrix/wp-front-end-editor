@@ -765,7 +765,7 @@ class FEE {
 	function edit_link( $id ) {
 		global $wp_the_query;
 
-		if ( is_object( $wp_the_query ) && is_object( $wp_the_query->queried_object ) && $wp_the_query->queried_object->ID === $id ) {
+		if ( get_queried_object_id() === $id ) {
 			return '#fee-edit-link';
 		}
 
