@@ -21,7 +21,7 @@
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
-			$thumbnailEdit = $( '.fee-edit-thumbnail' ),
+			$thumbnailEdit = $( '.fee-edit-thumbnail' ).add( '.fee-insert-thumbnail' ),
 			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
 			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
@@ -663,6 +663,13 @@
 					size: $thumbnail.data( 'size' )
 				} ).done( function( html ) {
 					$thumbnailWrap.html( html );
+					$thumbnail.removeClass( 'fee-thumbnail-active' );
+
+					if ( html === '' ) {
+						$thumbnail.addClass( 'fee-empty' );
+					} else {
+						$thumbnail.removeClass( 'fee-empty' );
+					}
 				} );
 			}
 		} );
@@ -676,7 +683,7 @@
 		} );
 
 		$thumbnail.on( 'click.fee-thumbnail-active', function() {
-			if ( hidden ) {
+			if ( hidden || $thumbnail.hasClass( 'fee-empty' ) ) {
 				return;
 			}
 

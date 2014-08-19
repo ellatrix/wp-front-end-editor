@@ -5,7 +5,8 @@
 .fee-off .wp-core-ui,
 .fee-url,
 .fee-alert,
-.wp-hidden-children .wp-hidden-child {
+.wp-hidden-children .wp-hidden-child,
+.fee-insert-thumbnail {
 	display: none;
 }
 
@@ -18,7 +19,8 @@
 	min-height: 70px;
 }
 
-.fee-on .fee-url {
+.fee-on .fee-url,
+.fee-on .fee-empty .fee-insert-thumbnail {
 	display: block;
 }
 
@@ -320,7 +322,8 @@ br.fee-title {
 	font-size: 14px;
 }
 
-div.mce-insert {
+div.mce-insert,
+.fee-insert-thumbnail {
 	background: transparent;
 	position: absolute;
 	z-index: 998;
@@ -341,18 +344,25 @@ div.mce-insert {
 	outline: none;
 }
 
-div.mce-insert:hover {
+.fee-insert-thumbnail {
+	top: 25px;
+}
+
+div.mce-insert:hover,
+.fee-insert-thumbnail:hover {
 	opacity: 1;
 }
 
 div.mce-insert .dashicons,
+.fee-insert-thumbnail .dashicons,
 div.mce-insert-modal .dashicons {
 	font-family: 'dashicons';
 	font-size: 20px;
 	line-height: 20px;
 }
 
-div.mce-insert .dashicons {
+div.mce-insert .dashicons,
+.fee-insert-thumbnail {
 	margin-top: -1px;
 	-webkit-transition: all 0.2s;
 	transition: all 0.2s;

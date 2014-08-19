@@ -98,6 +98,10 @@
 	width: auto;
 }
 
+.fee-on .fee-thumbnail.fee-empty:hover:before {
+	opacity: 0;
+}
+
 .mce-content-body img:hover {
 	outline: 3px solid #ffe767;
 	outline-offset: 2px;
