@@ -5,7 +5,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		settings = editor.settings,
 		Factory = tinymce.ui.Factory,
 		each = tinymce.each,
-		DOM = tinymce.DOM;
+		DOM = tinymce.DOM,
+		adminBarHeight = 32;
 
 	function getParent( node, nodeName ) {
 		while ( node ) {
@@ -140,12 +141,13 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 							item = item();
 						}
 
-						if ( block ) {
-							if ( item.icon.indexOf( 'dashicons' ) !== -1 ) {
-								item.icon = 'dashicon ' + item.icon;
-							}
+						if ( item.icon && item.icon.indexOf( 'dashicons' ) !== -1 ) {
+							item.icon = 'dashicon ' + item.icon;
+						}
 
+						if ( block ) {
 							item.text = item.tooltip;
+							item.tooltip = false;
 						}
 
 						item.type = item.type || 'button';
@@ -153,8 +155,6 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 						if ( settings.toolbar_items_size ) {
 							item.size = settings.toolbar_items_size;
 						}
-
-						item.tooltip = false;
 
 						if ( itemName === 'link' ) {
 							item.onPostRender = function() {
@@ -200,10 +200,27 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		return items;
 	}
 
+	function createToolbar( items ) {
+		return Factory.create( {
+			type: 'panel',
+			layout: 'stack',
+			classes: 'toolbar-grp',
+			ariaRoot: true,
+			ariaRemember: true,
+			items: [
+				{
+					type: 'toolbar',
+					layout: 'flow',
+					items: toolbarItems( items )
+				}
+			]
+		} );
+	}
+
 	editor.toolbarItems = toolbarItems;
 
 	self.renderUI = function() {
-		var panel, hasPlaceholder;
+		var panel, toolbars = {}, hasPlaceholder;
 
 		settings.content_editable = true;
 
@@ -212,12 +229,10 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		}
 
 		editor.on( 'nodeChange', function() {
-			panel && panel.show();
 			DOM.addClass( editor.getBody(), 'mce-edit-focus' );
 		} );
 
 		editor.on( 'deactivate blur hide', function() {
-			panel && panel.hide();
 			DOM.removeClass( editor.getBody(), 'mce-edit-focus' );
 		} );
 
@@ -265,6 +280,9 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			return {};
 		}
 
+		toolbars.normal = createToolbar( settings.toolbar );
+		toolbars.img = createToolbar( [ 'imgalignleft', 'imgaligncenter', 'imgalignright', 'imgalignnone', 'edit', 'remove' ] );
+
 		panel = self.panel = Factory.create( {
 			type: 'floatpanel',
 			role: 'application',
@@ -272,24 +290,12 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			layout: 'stack',
 			autohide: true,
 			items: [
-				{
-					type: 'panel',
-					layout: 'stack',
-					classes: 'toolbar-grp',
-					ariaRoot: true,
-					ariaRemember: true,
-					items: [
-						{
-							type: 'toolbar',
-							layout: 'flow',
-							items: toolbarItems( settings.toolbar )
-						}
-					]
-				}
+				toolbars.normal,
+				toolbars.img
 			]
 		} );
 
-		panel.reposition = function() {
+		panel.reposition = function( name ) {
 			var toolbarEl = this.getEl(),
 				boundary = editor.selection.getRng().getBoundingClientRect(),
 				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
@@ -300,10 +306,20 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 			toolbarEl.className = ( ' ' + toolbarEl.className + ' ' ).replace( /\smce-arrow-\S+\s/g, ' ' ).slice( 1, -1 );
 
+			name = name || 'normal';
+
+			if ( ! toolbars[ name ]._visible ) {
+				each( toolbars, function( toolbar ) {
+					toolbar.hide();
+				} );
+
+				toolbars[ name ].show();
+			}
+
 			toolbarWidth = toolbarEl.offsetWidth;
 			toolbarHalf = toolbarWidth / 2;
 
-			if ( boundary.top < toolbarEl.offsetHeight ) {
+			if ( boundary.top < toolbarEl.offsetHeight + adminBarHeight ) {
 				className = ' mce-arrow-up';
 				top = boundary.bottom + margin;
 			} else {
@@ -334,8 +350,11 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		};
 
 		panel.on( 'show', function() {
-			this.reposition();
-			DOM.addClass( this.getEl(), 'mce-inline-toolbar-active' );
+			var self = this;
+
+			setTimeout( function() {
+				self._visible && DOM.addClass( self.getEl(), 'mce-inline-toolbar-active' );
+			}, 100 );
 		} );
 
 		panel.on( 'hide', function() {
@@ -357,23 +376,19 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			}
 
 			setTimeout( function() {
-				var element = editor.selection.getNode();
+				var element = editor.selection.getNode(),
+					content;
 
 				if ( ! editor.selection.isCollapsed() &&
-						editor.selection.getContent().replace( /<[^>]+>/g, '' ).trim() &&
-						element.nodeName !== 'IMG' &&
+						( content = editor.selection.getContent() ) &&
+						( content.replace( /<[^>]+>/g, '' ).trim() || content.indexOf( '<' ) === 0 ) &&
 						element.nodeName !== 'HR' &&
-						element.id !== 'wp-title' &&
 						( ! editor.plugins.wpview || ! editor.plugins.wpview.getView( element ) ) ) {
-					if ( panel._visible ) {
-						panel.reposition();
-					} else {
-						panel.show();
-					}
+					panel.show().reposition( element.nodeName === 'IMG' ? 'img' : 'normal' );
 				} else {
 					panel.hide();
 				}
-			}, 50 );
+			}, 100 );
 		} );
 
 		editor.shortcuts.add( 'Alt+F10', '', function() {
@@ -382,7 +397,11 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			item && item.focus( true );
 		} );
 
-		panel.renderTo( document.body );
+		panel.renderTo( document.body ).reflow().hide();
+
+		each( toolbars, function( toolbar ) {
+			toolbar.hide();
+		} );
 
 		return {};
 	};

@@ -473,7 +473,10 @@ div.mce-insert-modal {
 }
 
 div.mce-tinymce-inline.mce-inline-toolbar-active {
-	transition: top 0.1s ease-out, left 0.1s ease-out, opacity 0.1s ease-in-out;
+	transition:
+		top 0.1s ease-out,
+		left 0.1s ease-out,
+		opacity 0.1s ease-in-out;
 	opacity: 1;
 }
 

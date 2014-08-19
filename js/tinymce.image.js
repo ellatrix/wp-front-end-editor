@@ -1,8 +1,6 @@
 /* global tinymce */
 
 tinymce.PluginManager.add( 'feeImage', function( editor ) {
-	var toolbarActive = false;
-
 	function parseShortcode( content ) {
 		return content.replace( /(?:<p>)?\[(?:wp_)?caption([^\]]+)\]([\s\S]+?)\[\/(?:wp_)?caption\](?:<\/p>)?/g, function( a, b, c ) {
 			var id, align, classes, caption, img, width,
@@ -115,6 +113,8 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 				return '[caption id="' + id + '" align="' + align + '" width="' + width + '"' + classes + ']' + c + ' ' + caption + '[/caption]';
 			});
+
+			out = tinymce.trim( out );
 
 			if ( out.indexOf('[caption') !== 0 ) {
 				// the caption html seems broken, try to find the image that may be wrapped in a link
@@ -370,8 +370,6 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 		}
 
 		editor.nodeChanged();
-		// Refresh the toolbar
-		addToolbar( imageNode );
 	}
 
 	function editImage( img ) {
@@ -441,64 +439,6 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 		} else {
 			editor.dom.remove( node );
 		}
-		removeToolbar();
-	}
-
-	function addToolbar( node ) {
-		var pos, toolbarHtml, toolbar,
-			body = editor.getBody(),
-			dom = editor.dom;
-
-		removeToolbar();
-
-		// Don't add to placeholders
-		if ( ! node || node.nodeName !== 'IMG' || isPlaceholder( node ) ) {
-			return;
-		}
-
-		dom.setAttrib( node, 'data-wp-imgselect', 1 );
-		pos = dom.getPos( node, body );
-
-		toolbarHtml = '<i class="dashicons dashicons-edit edit" data-mce-bogus="1"></i>' +
-			'<i class="dashicons dashicons-no-alt remove" data-mce-bogus="1"></i>';
-
-		toolbar = dom.create( 'p', {
-			'id': 'wp-image-toolbar',
-			'data-mce-bogus': '1',
-			'contenteditable': false
-		}, toolbarHtml );
-
-		body.appendChild( toolbar );
-		dom.setStyles( toolbar, {
-			top: pos.y,
-			left: pos.x
-		});
-
-		toolbarActive = true;
-	}
-
-	function removeToolbar() {
-		var toolbar = editor.dom.get( 'wp-image-toolbar' );
-
-		if ( toolbar ) {
-			editor.dom.remove( toolbar );
-		}
-
-		editor.dom.setAttrib( editor.dom.select( 'img[data-wp-imgselect]' ), 'data-wp-imgselect', null );
-
-		toolbarActive = false;
-	}
-
-	function isPlaceholder( node ) {
-		var dom = editor.dom;
-
-		if ( dom.hasClass( node, 'mceItem' ) || dom.getAttrib( node, 'data-mce-placeholder' ) ||
-			dom.getAttrib( node, 'data-mce-object' ) ) {
-
-			return true;
-		}
-
-		return false;
 	}
 
 	editor.on( 'init', function() {
@@ -741,9 +681,6 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			if ( node.nodeName === 'IMG' && dom.getParent( node, '.wp-caption' ) ) {
 				event.preventDefault();
 			}
-
-			// Remove toolbar to avoid an orphaned toolbar when dragging an image to a new location
-			removeToolbar();
 		});
 
 		// Prevent IE11 from making dl.wp-caption resizable
@@ -793,8 +730,6 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 						dom.setStyle( parent, 'width', width + 'px' );
 					}
 				}
-				// refresh toolbar
-				addToolbar( node );
 			});
 		}
     });
@@ -813,40 +748,25 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				editor.selection.setCursorLocation( p, 0 );
 				editor.nodeChanged();
 			}
-		} else if ( cmd === 'JustifyLeft' || cmd === 'JustifyRight' || cmd === 'JustifyCenter' ) {
+		} else if ( cmd === 'JustifyLeft' || cmd === 'JustifyRight' || cmd === 'JustifyCenter' || cmd === 'alignnone' ) {
 			node = editor.selection.getNode();
-			align = cmd.substr(7).toLowerCase();
-			align = 'align' + align,
-			DL = dom.getParent( node, 'dl.wp-caption' );
+			align = 'align' + cmd.slice( 7 ).toLowerCase();
+			DL = editor.dom.getParent( node, 'dl.wp-caption' );
 
-			removeToolbar();
-
-			if ( DL ) {
-				// When inside an image caption, set the align* class on dl.wp-caption
-				if ( dom.hasClass( DL, align ) ) {
-					dom.removeClass( DL, align );
-					dom.addClass( DL, 'alignnone' );
-				} else {
-					DL.className = DL.className.replace( /align[^ ]+/g, '' );
-					dom.addClass( DL, align );
-				}
-
-				if ( node.nodeName === 'IMG' ) {
-					// Re-select the image to update resize handles, etc.
-					editor.nodeChanged();
-				}
-
-				event.preventDefault();
+			if ( node.nodeName !== 'IMG' && ! DL ) {
+				return;
 			}
 
-			if ( node.nodeName === 'IMG' ) {
-				if ( dom.hasClass( node, align ) ) {
-					// The align class is being removed
-					dom.addClass( node, 'alignnone' );
-				} else {
-					dom.removeClass( node, 'alignnone' );
-				}
-			}
+			node = DL || node;
+
+			'alignleft' !== align && editor.dom.removeClass( node, 'alignleft' );
+			'aligncenter' !== align && editor.dom.removeClass( node, 'aligncenter' );
+			'alignright' !== align && editor.dom.removeClass( node, 'alignright' );
+			'alignnone' !== align && editor.dom.toggleClass( node, align );
+
+			editor.nodeChanged();
+
+			event.preventDefault();
 		}
 	});
 
@@ -897,72 +817,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				removeImage( node );
 				return false;
 			}
-
-			removeToolbar();
 		}
-
-		// Key presses will replace the image so we need to remove the toolbar
-		if ( toolbarActive ) {
-			if ( event.ctrlKey || event.metaKey || event.altKey ||
-				( keyCode < 48 && keyCode > 90 ) || keyCode > 186 ) {
-				return;
-			}
-
-			removeToolbar();
-		}
-	});
-
-	editor.on( 'mousedown', function( event ) {
-		if ( editor.dom.getParent( event.target, '#wp-image-toolbar' ) ) {
-			if ( tinymce.Env.ie ) {
-				// Stop IE > 8 from making the wrapper resizable on mousedown
-				event.preventDefault();
-			}
-		} else if ( event.target.nodeName !== 'IMG' ) {
-			removeToolbar();
-		}
-	});
-
-	editor.on( 'mouseup', function( event ) {
-		var image,
-			node = event.target,
-			dom = editor.dom;
-
-		// Don't trigger on right-click
-		if ( event.button && event.button > 1 ) {
-			return;
-		}
-
-		if ( editor.plugins.wpview && editor.plugins.wpview.getView( node ) ) {
-			return;
-		}
-
-		if ( node.nodeName === 'I' && dom.getParent( node, '#wp-image-toolbar' ) ) {
-			image = dom.select( 'img[data-wp-imgselect]' )[0];
-
-			if ( image ) {
-				editor.selection.select( image );
-
-				if ( dom.hasClass( node, 'remove' ) ) {
-					removeImage( image );
-				} else if ( dom.hasClass( node, 'edit' ) ) {
-					editImage( image );
-				}
-			}
-		} else if ( node.nodeName === 'IMG' && ! editor.dom.getAttrib( node, 'data-wp-imgselect' ) && ! isPlaceholder( node ) ) {
-			addToolbar( node );
-		} else if ( node.nodeName !== 'IMG' ) {
-			removeToolbar();
-		}
-	});
-
-	// Remove toolbar from undo levels
-	editor.on( 'BeforeAddUndo', function( event ) {
-		event.level.content = event.level.content.replace( /<p [^>]*data-mce-bogus[^>]+>[\s\S]*?<\/p>/g, '' );
-	});
-
-	editor.on( 'cut', function() {
-		removeToolbar();
 	});
 
 	editor.wpSetImgCaption = function( content ) {
@@ -985,6 +840,52 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			event.content = event.content.replace( / data-wp-imgselect="1"/g, '' );
 		}
 	});
+
+	editor.addButton( 'remove', {
+		tooltip: 'Remove',
+		icon: 'dashicons-no',
+		onclick: function() {
+			removeImage( editor.selection.getNode() );
+		}
+	} );
+
+	editor.addButton( 'edit', {
+		tooltip: 'Edit',
+		icon: 'dashicons-edit',
+		onclick: function() {
+			editImage( editor.selection.getNode() );
+		}
+	} );
+
+	tinymce.each( {
+		alignleft: 'Align Left',
+		aligncenter: 'Align Center',
+		alignright: 'Align Right',
+		alignnone: 'Don’t Align'
+	}, function( tooltip, name ) {
+		var direction = name.slice( 5 );
+
+		editor.addButton( 'img' + name, {
+			tooltip: tooltip,
+			icon: 'dashicons-align-' + direction,
+			cmd: 'alignnone' === name ? name : 'Justify' + direction.slice( 0, 1 ).toUpperCase() + direction.slice( 1 ),
+			onPostRender: function() {
+				var self = this;
+
+				editor.on( 'NodeChange', function( event ) {
+					var node = editor.dom.getParent( event.element, 'dl.wp-caption' ) || event.element;
+
+					if ( 'alignnone' === name ) {
+						self.active( ! editor.dom.hasClass( node, 'alignleft' ) &&
+							! editor.dom.hasClass( node, 'aligncenter' ) &&
+							! editor.dom.hasClass( node, 'alignright' ) );
+					} else {
+						self.active( editor.dom.hasClass( node, name ) );
+					}
+				} );
+			}
+		} );
+	} );
 
 	return {
 		_do_shcode: parseShortcode,
