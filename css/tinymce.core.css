@@ -506,6 +506,7 @@ body .mce-abs-layout-item,
 	padding: 5px;
 	opacity: .8;
 	zoom: 1;
+	margin: 2px 0;
 }
 
 .mce-tooltip-inner {
