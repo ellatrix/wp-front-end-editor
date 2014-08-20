@@ -640,6 +640,29 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		}
 	});
 
+	editor.addButton( 'removeview', {
+		tooltip: 'Remove',
+		icon: 'dashicons-no',
+		onclick: function() {
+			removeView( selected );
+		}
+	} );
+
+	editor.addButton( 'editview', {
+		tooltip: 'Edit',
+		icon: 'dashicons-edit',
+		onclick: function() {
+			wp.mce.views.edit( selected );
+		},
+		onPostRender: function() {
+			var self = this;
+
+			editor.on( 'NodeChange', function() {
+				selected && self.disabled( ! wp.mce.views.canEdit( selected ) );
+			} );
+		}
+	} );
+
 	return {
 		getViewText: getViewText,
 		setViewText: setViewText,

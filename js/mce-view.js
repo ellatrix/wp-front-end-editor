@@ -48,10 +48,6 @@ window.wp = window.wp || {};
 				this.setContent(
 					'<p class="wpview-selection-before">\u00a0</p>' +
 					'<div class="wpview-body" contenteditable="false">' +
-						'<div class="toolbar">' +
-							( _.isFunction( views[ this.type ].edit ) ? '<div class="dashicons dashicons-edit edit"></div>' : '' ) +
-							'<div class="dashicons dashicons-no-alt remove"></div>' +
-						'</div>' +
 						'<div class="wpview-content wpview-type-' + this.type + '">' +
 							( this.getHtml() || this.loadingPlaceholder() ) +
 						'</div>' +
@@ -116,69 +112,6 @@ window.wp = window.wp || {};
 					el.appendChild( insert );
 				}
 			} );
-		},
-		/* jshint scripturl: true */
-		setIframes: function ( html ) {
-			var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-
-			if ( html.indexOf( '<script' ) !== -1 ) {
-				this.getNodes( function ( editor, node, content ) {
-					var dom = editor.dom,
-						iframe, iframeDoc, i, resize;
-
-					content.innerHTML = '';
-
-					iframe = dom.add( content, 'iframe', {
-						src: tinymce.Env.ie ? 'javascript:""' : '',
-						frameBorder: '0',
-						allowTransparency: 'true',
-						scrolling: 'no',
-						'class': 'wpview-sandbox',
-						style: {
-							width: '100%',
-							display: 'block'
-						}
-					} );
-
-					iframeDoc = iframe.contentWindow.document;
-
-					iframeDoc.open();
-					iframeDoc.write(
-						'<!DOCTYPE html>' +
-						'<html>' +
-							'<head>' +
-								'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />' +
-							'</head>' +
-							'<body data-context="iframe-sandbox" style="padding: 0; margin: 0;" class="' + editor.getBody().className + '">' +
-								html +
-							'</body>' +
-						'</html>'
-					);
-					iframeDoc.close();
-
-					resize = function() {
-						// Make sure the iframe still exists.
-						iframe.contentWindow && $( iframe ).height( $( iframeDoc.body ).height() );
-					};
-
-					if ( MutationObserver ) {
-						new MutationObserver( _.debounce( function() {
-							resize();
-						}, 100 ) )
-						.observe( iframeDoc.body, {
-							attributes: true,
-							childList: true,
-							subtree: true
-						} );
-					} else {
-						for ( i = 1; i < 6; i++ ) {
-							setTimeout( resize, i * 700 );
-						}
-					}
-				});
-			} else {
-				this.setContent( html );
-			}
 		},
 		setError: function( message, dashicon ) {
 			this.setContent(
@@ -428,6 +361,10 @@ window.wp = window.wp || {};
 			if ( view ) {
 				view.edit( node );
 			}
+		},
+
+		canEdit: function( node ) {
+			return typeof this.get( $( node ).data('wpview-type') ).edit === 'function';
 		}
 	};
 

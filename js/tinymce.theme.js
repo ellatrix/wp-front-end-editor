@@ -282,6 +282,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 		toolbars.normal = createToolbar( settings.toolbar );
 		toolbars.img = createToolbar( [ 'imgalignleft', 'imgaligncenter', 'imgalignright', 'imgalignnone', 'edit', 'remove' ] );
+		toolbars.view = createToolbar( [ 'editview', 'removeview' ] );
 
 		panel = self.panel = Factory.create( {
 			type: 'floatpanel',
@@ -291,13 +292,15 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			autohide: true,
 			items: [
 				toolbars.normal,
-				toolbars.img
+				toolbars.img,
+				toolbars.view
 			]
 		} );
 
-		panel.reposition = function( name ) {
+		panel.reposition = function( name, view ) {
 			var toolbarEl = this.getEl(),
-				boundary = editor.selection.getRng().getBoundingClientRect(),
+				selection = view || editor.selection.getRng(),
+				boundary = selection.getBoundingClientRect(),
 				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
 				windowWidth = window.innerWidth,
 				toolbarWidth, toolbarHalf,
@@ -369,22 +372,32 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			panel.hide();
 		} );
 
-		editor.on( 'keyup mouseup nodechange', function() {
-			if ( editor.selection.isCollapsed() ) {
+		editor.on( 'selectionchange nodechange', function( event ) {
+			var element = event.element || editor.selection.getNode(),
+				view = editor.plugins.wpview.getView( element );
+
+			if ( editor.selection.isCollapsed() && ! view ) {
 				panel.hide();
 				return;
 			}
 
 			setTimeout( function() {
-				var element = editor.selection.getNode(),
-					content;
+				var content, name;
 
-				if ( ! editor.selection.isCollapsed() &&
+				if ( ( ! editor.selection.isCollapsed() &&
 						( content = editor.selection.getContent() ) &&
 						( content.replace( /<[^>]+>/g, '' ).trim() || content.indexOf( '<' ) === 0 ) &&
-						element.nodeName !== 'HR' &&
-						( ! editor.plugins.wpview || ! editor.plugins.wpview.getView( element ) ) ) {
-					panel.show().reposition( element.nodeName === 'IMG' ? 'img' : 'normal' );
+						element.nodeName !== 'HR' ) || view ) {
+
+					if ( view ) {
+						name = 'view';
+					} else if ( element.nodeName === 'IMG' ) {
+						name = 'img';
+					} else {
+						name = 'normal';
+					}
+
+					panel.show().reposition( name, view );
 				} else {
 					panel.hide();
 				}
