@@ -496,6 +496,10 @@
 				wp.fee.post.post_title( postData.post_title );
 				wp.fee.post.post_content( postData.content );
 			} );
+
+			if ( wp.fee.postOnServer.post_content !== wp.fee.post.post_content() ) {
+				window.alert( 'We detected some errors. It looks like the content does not extract form the editor correctly' );
+			}
 		} )
 		.on( 'autosave-enable-buttons.fee', function() {
 			$buttons.prop( 'disabled', false );
