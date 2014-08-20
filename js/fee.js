@@ -58,7 +58,9 @@
 
 		wp.fee.post.post_title = function( content, notself ) {
 			if ( content ) {
-				document.title = docTitle.replace( '<!--replace-->', content );
+				if ( docTitle ) {
+					document.title = docTitle.replace( '<!--replace-->', content );
+				}
 
 				$titles.each( function( i, title ) {
 					title.textContent = content;
@@ -71,11 +73,15 @@
 				return this.post_title();
 			}
 
-			return titleEditor.getContent() || '';
+			if ( titleEditor ) {
+				return titleEditor.getContent() || '';
+			} else {
+				return wp.fee.postOnServer.post_title;
+			}
 		};
 
 		wp.fee.post.post_name = function() {
-			if ( $slug.length ) {
+			if ( slugEditor ) {
 				return slugEditor.getContent() || '';
 			}
 
@@ -176,8 +182,11 @@
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
 			$title.text( wp.fee.postOnServer.post_title ).attr( 'contenteditable', 'false' );
-			document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
 			$titles.text( wp.fee.postOnServer.post_title );
+
+			if ( docTitle ) {
+				document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
+			}
 
 			getEditors( function( editor ) {
 				editor.hide();
@@ -498,7 +507,7 @@
 			} );
 
 			if ( wp.fee.postOnServer.post_content !== wp.fee.post.post_content() ) {
-				window.alert( 'We detected some errors. It looks like the content does not extract form the editor correctly' );
+				window.console.log( 'The content on the server and the content in the editor is different. This may be due to errors.' );
 			}
 		} )
 		.on( 'autosave-enable-buttons.fee', function() {
