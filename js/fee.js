@@ -29,7 +29,7 @@
 			$categories = $( '.fee-categories' ),
 			$leave = $( '.fee-leave' ),
 			$noticeArea = $( '#fee-notice-area' ),
-			$autoSaveNotice,
+			$autoSaveNotice, $saveNotice,
 			$contentParents = $content.parents(),
 			contentRect = $content.get( 0 ).getBoundingClientRect(),
 			$titleTags, $titles, $title, docTitle,
@@ -240,7 +240,9 @@
 				// Invalidate the browser backup.
 				window.wpCookies.set( 'wp-saving-post-' + wp.fee.postOnServer.ID, 'saved' );
 				// Add a message. :)
-				data.message && addNotice( data.message, 'updated', true );
+				$autoSaveNotice && $autoSaveNotice.remove();
+				$saveNotice && $saveNotice.remove();
+				data.message && ( $saveNotice = addNotice( data.message, 'updated', true ) );
 				// Add an undo level for all editors.
 				addUndoLevel();
 				// The editors are no longer dirty.
