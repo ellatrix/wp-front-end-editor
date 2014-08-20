@@ -1,6 +1,11 @@
 /* global tinymce */
 
 tinymce.PluginManager.add( 'feeImage', function( editor ) {
+	var html5 = editor.getParam( 'wpeditimage_html5_captions' ),
+		captionWrap = html5 ? 'figure' : 'dl',
+		captionImg = html5 ? 'section' : 'dt',
+		captionText = html5 ? 'figcaption' : 'dd';
+
 	function parseShortcode( content ) {
 		return content.replace( /(?:<p>)?\[(?:wp_)?caption([^\]]+)\]([\s\S]+?)\[\/(?:wp_)?caption\](?:<\/p>)?/g, function( a, b, c ) {
 			var id, align, classes, caption, img, width,
@@ -55,12 +60,18 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			}
 
 			width = parseInt( width, 10 );
-			if ( ! editor.getParam( 'wpeditimage_html5_captions' ) ) {
+			if ( ! html5 ) {
 				width += 10;
 			}
 
-			return '<div class="mceTemp"><dl id="' + id + '" class="wp-caption ' + align + classes + '" style="width: ' + width + 'px">' +
-				'<dt class="wp-caption-dt">'+ img +'</dt><dd class="wp-caption-dd">'+ caption +'</dd></dl></div>';
+			return (
+				'<div class="mceTemp">' +
+					'<' + captionWrap + ' id="' + id + '" class="wp-caption ' + align + classes + '" style="width: ' + width + 'px">' +
+						'<' + captionImg + ' class="wp-caption-dt">'+ img +'</' + captionImg + '>' +
+						'<' + captionText + ' class="wp-caption-dd wp-caption-text">'+ caption +'</' + captionText + '>' +
+					'</' + captionWrap + '>' +
+				'</div>'
+			);
 		});
 	}
 
@@ -71,7 +82,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			if ( b.indexOf('<img ') === -1 ) {
 				// Broken caption. The user managed to drag the image out?
 				// Try to return the caption text as a paragraph.
-				out = b.match( /<dd [^>]+>([\s\S]+?)<\/dd>/i );
+				out = b.match( new RegExp( '<' + captionText + ' [^>]+>([\\s\\S]+?)<\\/' + captionText + '>', 'i' ) );
 
 				if ( out && out[1] ) {
 					return '<p>' + out[1] + '</p>';
@@ -80,7 +91,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				return '';
 			}
 
-			out = b.replace( /<dl ([^>]+)>\s*<dt [^>]+>([\s\S]+?)<\/dt>\s*<dd [^>]+>([\s\S]*?)<\/dd>\s*<\/dl>/gi, function( a, b, c, caption ) {
+			out = b.replace( new RegExp( '<' + captionWrap + ' ([^>]+)>\\s*<' + captionImg + ' [^>]+>([\\s\\S]+?)<\\/' + captionImg + '>\\s*<' + captionText + ' [^>]+>([\\s\\S]*?)<\\/' + captionText + '>\\s*<\\/' + captionWrap + '>', 'gi' ), function( a, b, c, caption ) {
 				var id, classes, align, width;
 
 				width = c.match( /width="([0-9]*)"/ );
@@ -201,7 +212,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 			metadata.captionClassName = captionClassName.join( ' ' );
 
-			caption = dom.select( 'dd.wp-caption-dd', captionBlock );
+			caption = dom.select( '.wp-caption-dd', captionBlock );
 			if ( caption.length ) {
 				caption = caption[0];
 
@@ -312,13 +323,13 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				className += ' ' + imageData.captionClassName.replace( /[<>&]+/g,  '' );
 			}
 
-			if ( ! editor.getParam( 'wpeditimage_html5_captions' ) ) {
+			if ( ! html5 ) {
 				width = parseInt( width, 10 );
 				width += 10;
 			}
 
 			if ( captionNode ) {
-				dl = dom.select( 'dl.wp-caption', captionNode );
+				dl = dom.select( '.wp-caption', captionNode );
 
 				if ( dl.length ) {
 					dom.setAttribs( dl, {
@@ -338,8 +349,8 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				id = id ? 'id="'+ id +'" ' : '';
 
 				// should create a new function for generating the caption markup
-				html =  '<dl ' + id + 'class="' + className +'" style="width: '+ width +'px">' +
-					'<dt class="wp-caption-dt">' + dom.getOuterHTML( node ) + '</dt><dd class="wp-caption-dd">'+ imageData.caption +'</dd></dl>';
+				html =  '<' + captionWrap + ' ' + id + 'class="' + className +'" style="width: '+ width +'px">' +
+					'<' + captionImg + ' class="wp-caption-dt">' + dom.getOuterHTML( node ) + '</' + captionImg + '><' + captionText + ' class="wp-caption-dd wp-caption-text">'+ imageData.caption +'</' + captionText + '></' + captionWrap + '>';
 
 				if ( parent = dom.getParent( node, 'p' ) ) {
 					wrap = dom.create( 'div', { 'class': 'mceTemp' }, html );
@@ -442,10 +453,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 	}
 
 	editor.on( 'init', function() {
-		var dom = editor.dom,
-			captionClass = editor.getParam( 'wpeditimage_html5_captions' ) ? 'html5-captions' : 'html4-captions';
-
-		dom.addClass( editor.getBody(), captionClass );
+		var dom = editor.dom;
 
 		// Add caption field to the default image dialog
 		editor.on( 'wpLoadImageForm', function( event ) {
@@ -470,7 +478,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 		editor.on( 'wpNewImageRefresh', function( event ) {
 			var parent, captionWidth;
 
-			if ( parent = dom.getParent( event.node, 'dl.wp-caption' ) ) {
+			if ( parent = dom.getParent( event.node, '.wp-caption' ) ) {
 				if ( ! parent.style.width ) {
 					captionWidth = parseInt( event.node.clientWidth, 10 ) + 10;
 					captionWidth = captionWidth ? captionWidth + 'px' : '50%';
@@ -533,15 +541,15 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 					if ( data.width ) {
 						captionWidth = parseInt( data.width, 10 );
 
-						if ( ! editor.getParam( 'wpeditimage_html5_captions' ) ) {
+						if ( ! html5 ) {
 							captionWidth += 10;
 						}
 
 						captionWidth = ' style="width: ' + captionWidth + 'px"';
 					}
 
-					html = '<dl class="wp-caption alignnone"' + captionWidth + '>' +
-						'<dt class="wp-caption-dt">'+ html +'</dt><dd class="wp-caption-dd">'+ caption +'</dd></dl>';
+					html = '<' + captionWrap + ' class="wp-caption alignnone"' + captionWidth + '>' +
+						'<' + captionImg + ' class="wp-caption-dt">'+ html +'</' + captionImg + '><' + captionText + ' class="wp-caption-dd wp-caption-text">'+ caption +'</' + captionText + '></' + captionWrap + '>';
 
 					if ( node.nodeName === 'P' ) {
 						parent = node;
@@ -571,11 +579,11 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				imgId = imgNode.id || null;
 				// Update the image node
 				dom.setAttribs( imgNode, data );
-				wrap = dom.getParent( imgNode, 'dl.wp-caption' );
+				wrap = dom.getParent( imgNode, '.wp-caption' );
 
 				if ( caption ) {
 					if ( wrap ) {
-						if ( parent = dom.select( 'dd.wp-caption-dd', wrap )[0] ) {
+						if ( parent = dom.select( '.wp-caption-dd', wrap )[0] ) {
 							parent.innerHTML = caption;
 						}
 					} else {
@@ -602,7 +610,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 						if ( captionWidth ) {
 							captionWidth = parseInt( captionWidth, 10 );
 
-							if ( ! editor.getParam( 'wpeditimage_html5_captions' ) ) {
+							if ( ! html5 ) {
 								captionWidth += 10;
 							}
 
@@ -617,8 +625,8 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 							node = imgNode;
 						}
 
-						html = '<dl ' + captionId + captionAlign + captionWidth + '>' +
-							'<dt class="wp-caption-dt">'+ html +'</dt><dd class="wp-caption-dd">'+ caption +'</dd></dl>';
+						html = '<' + captionWrap + ' ' + captionId + captionAlign + captionWidth + '>' +
+							'<' + captionImg + ' class="wp-caption-dt">'+ html +'</' + captionImg + '><' + captionText + ' class="wp-caption-dd wp-caption-text">'+ caption +'</' + captionText + '></' + captionWrap + '>';
 
 						if ( parent = dom.getParent( imgNode, 'p' ) ) {
 							wrap = dom.create( 'div', { 'class': 'mceTemp' }, html );
@@ -664,8 +672,8 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				data = event.imgData.data,
 				imgNode = event.imgData.node;
 
-			if ( parent = dom.getParent( imgNode, 'dl.wp-caption' ) ) {
-				parent = dom.select( 'dd.wp-caption-dd', parent )[0];
+			if ( parent = dom.getParent( imgNode, '.wp-caption' ) ) {
+				parent = dom.select( '.wp-caption-dd', parent )[0];
 
 				if ( parent ) {
 					data.caption = editor.serializer.serialize( parent )
@@ -683,12 +691,12 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 			}
 		});
 
-		// Prevent IE11 from making dl.wp-caption resizable
+		// Prevent IE11 from making .wp-caption resizable
 		if ( tinymce.Env.ie && tinymce.Env.ie > 10 ) {
 			// The 'mscontrolselect' event is supported only in IE11+
 			dom.bind( editor.getBody(), 'mscontrolselect', function( event ) {
 				if ( event.target.nodeName === 'IMG' && dom.getParent( event.target, '.wp-caption' ) ) {
-					// Hide the thick border with resize handles around dl.wp-caption
+					// Hide the thick border with resize handles around .wp-caption
 					editor.getBody().focus(); // :(
 				} else if ( event.target.nodeName === 'DL' && dom.hasClass( event.target, 'wp-caption' ) ) {
 					// Trigger the thick border with resize handles...
@@ -699,7 +707,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 			editor.on( 'click', function( event ) {
 				if ( event.target.nodeName === 'IMG' && dom.getAttrib( event.target, 'data-wp-imgselect' ) &&
-					dom.getParent( event.target, 'dl.wp-caption' ) ) {
+					dom.getParent( event.target, '.wp-caption' ) ) {
 
 					editor.getBody().focus();
 				}
@@ -723,7 +731,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 					if ( width ) {
 						width = parseInt( width, 10 );
 
-						if ( ! editor.getParam( 'wpeditimage_html5_captions' ) ) {
+						if ( ! html5 ) {
 							width += 10;
 						}
 
@@ -751,7 +759,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 		} else if ( cmd === 'JustifyLeft' || cmd === 'JustifyRight' || cmd === 'JustifyCenter' || cmd === 'alignnone' ) {
 			node = editor.selection.getNode();
 			align = 'align' + cmd.slice( 7 ).toLowerCase();
-			DL = editor.dom.getParent( node, 'dl.wp-caption' );
+			DL = editor.dom.getParent( node, '.wp-caption' );
 
 			if ( node.nodeName !== 'IMG' && ! DL ) {
 				return;
@@ -785,7 +793,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				dom.events.cancel( event ); // Doesn't cancel all :(
 
 				// Remove any extra dt and dd cleated on pressing Enter...
-				tinymce.each( dom.select( 'dt, dd', wrap ), function( element ) {
+				tinymce.each( dom.select( '.wp-caption-dt, .wp-caption-dd', wrap ), function( element ) {
 					if ( dom.isEmpty( element ) ) {
 						dom.remove( element );
 					}
@@ -873,7 +881,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				var self = this;
 
 				editor.on( 'NodeChange', function( event ) {
-					var node = editor.dom.getParent( event.element, 'dl.wp-caption' ) || event.element;
+					var node = editor.dom.getParent( event.element, '.wp-caption' ) || event.element;
 
 					if ( 'alignnone' === name ) {
 						self.active( ! editor.dom.hasClass( node, 'alignleft' ) &&

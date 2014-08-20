@@ -247,7 +247,8 @@ class FEE {
 				'relative_urls' => false,
 				'convert_urls' => false,
 				'browser_spellcheck' => true,
-				'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write&hellip;' ) )
+				'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write&hellip;' ) ),
+				'wpeditimage_html5_captions' => current_theme_supports( 'html5', 'caption' )
 			);
 
 			wp_enqueue_script( 'wp-lists' );
