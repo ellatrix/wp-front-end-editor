@@ -6,7 +6,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		Factory = tinymce.ui.Factory,
 		each = tinymce.each,
 		DOM = tinymce.DOM,
-		adminBarHeight = 32;
+		adminBarHeight = 32,
+		focus;
 
 	function getParent( node, nodeName ) {
 		while ( node ) {
@@ -228,11 +229,13 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			return editor.getContent( { format: 'raw' } ).replace( /(?:<p[^>]*>)?(?:<br[^>]*>)?(?:<\/p>)?/, '' ) === '';
 		}
 
-		editor.on( 'nodeChange', function() {
+		editor.on( 'activate focus', function() {
+			focus = true;
 			DOM.addClass( editor.getBody(), 'mce-edit-focus' );
 		} );
 
 		editor.on( 'deactivate blur hide', function() {
+			focus = false;
 			DOM.removeClass( editor.getBody(), 'mce-edit-focus' );
 		} );
 
@@ -383,6 +386,10 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 			setTimeout( function() {
 				var content, name;
+
+				if ( ! focus ) {
+					return;
+				}
 
 				if ( ( ! editor.selection.isCollapsed() &&
 						( content = editor.selection.getContent() ) &&
