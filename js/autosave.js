@@ -47,9 +47,14 @@ window.autosave = function(){};
 
 		// Concatenate title, content and excerpt. Used to track changes when auto-saving.
 		function getCompareString( postData, type ) {
+			if ( ! initialCompareString ) {
+				return initialCompareString;
+			}
+
 			if ( typeof postData === 'object' ) {
 				return ( postData.post_title || '' ) + '::' + ( postData.content || '' ) + '::' + ( postData.excerpt || '' );
 			}
+
 			return ( getPostData( type ).post_title ) + '::' + ( getPostData( type ).content ) + '::' + ( getPostData( type ).excerpt );
 		}
 
@@ -507,8 +512,9 @@ window.autosave = function(){};
 		// then 'save' to the textarea before setting initialCompareString.
 		// This avoids any insignificant differences between the initial textarea content and the content
 		// extracted from the editor.
-		$document.on( 'tinymce-editor-init.autosave', function() {
+		$document.on( 'fee-editor-init.autosave', function() {
 			window.setTimeout( function() {
+				initialCompareString = true;
 				initialCompareString = getCompareString();
 			}, 1000 );
 		});
