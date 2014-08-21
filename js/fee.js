@@ -370,7 +370,7 @@
 		} ) );
 
 		function titleInit() {
-			var i, slugHTML,
+			var i, slugHTML, titleFocus, slugFocus,
 				indexes = {};
 
 			$titleTags = $( '.fee-title' );
@@ -405,16 +405,19 @@
 
 				$title.addClass( 'fee-title' );
 
-				if ( ( slugHTML = wp.fee.permalink.replace( /(?:%pagename%|%postname%)/,
-						'<ins>' +
-							'<span class="fee-slug">' +
-								( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID ) +
-							'</span>' +
-						'</ins>' ) ) && wp.fee.permalink !== slugHTML ) {
+				slugHTML = wp.fee.permalink.replace( /(?:%pagename%|%postname%)/,
+					'<ins>' +
+						'<span class="fee-slug">' +
+							( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID ) +
+						'</span>' +
+					'</ins>'
+				);
+
+				if ( wp.fee.permalink !== slugHTML ) {
 					$title.after( '<p class="fee-url">' + slugHTML + '</p>' );
 				}
 
-				$url = $( '.fee-url' );
+				$url = $( '.fee-url' ).hide();
 				$slug = $( '.fee-slug' );
 
 				tinymce.init( {
@@ -438,6 +441,19 @@
 								contentEditor.focus();
 								event.preventDefault();
 							}
+						} );
+
+						editor.on( 'activate focus', function() {
+							titleFocus = true;
+							$url.show();
+						} );
+
+						editor.on( 'deactivate blur hide', function() {
+							titleFocus = false;
+
+							setTimeout( function() {
+								! slugFocus && $url.hide();
+							}, 100 );
 						} );
 					}
 				} );
@@ -484,6 +500,18 @@
 
 						$url.on( 'click.fee', function() {
 							editor.focus();
+						} );
+
+						editor.on( 'activate focus', function() {
+							slugFocus = true;
+						} );
+
+						editor.on( 'deactivate blur hide', function() {
+							slugFocus = false;
+
+							setTimeout( function() {
+								! titleFocus && $url.hide();
+							}, 100 );
 						} );
 					}
 				} );
