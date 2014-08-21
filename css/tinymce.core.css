@@ -669,7 +669,10 @@ body .mce-abs-layout-item,
 	display: inline-block;
 }
 
-.mce-btn button {
+.mce-btn button,
+.mce-btn button:hover,
+.mce-btn button:focus,
+.mce-btn button:active {
 	padding: 4px 10px;
 	font-size: 14px;
 	line-height: 20px;
