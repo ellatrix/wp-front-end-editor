@@ -10,6 +10,7 @@
 
 	$( function() {
 		var tinymce = window.tinymce,
+			VK = tinymce.util.VK,
 			feeL10n = window.feeL10n,
 			hidden = true,
 			$window = $( window ),
@@ -532,7 +533,7 @@
 			}
 		} )
 		.on( 'keydown.fee', function( event ) {
-			if ( event.keyCode === 83 && ( event.metaKey || event.ctrlKey ) ) {
+			if ( event.keyCode === 83 && VK.metaKeyPressed( event ) ) {
 				event.preventDefault();
 				save();
 			}
@@ -655,7 +656,7 @@
 		$( 'a' ).not( 'a[href^="#"]' ).on( 'click.fee', function( event ) {
 			var $this = $( this );
 
-			if ( isDirty() && ! ( event.metaKey || event.ctrlKey ) ) {
+			if ( isDirty() && ! VK.metaKeyPressed( event ) ) {
 				event.preventDefault();
 
 				leaveMessage( function() {
