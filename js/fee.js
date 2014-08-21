@@ -40,9 +40,7 @@
 			initializedEditors = 0,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
-			indexes = {},
-			initialPost,
-			i;
+			initialPost;
 
 		// This object's methods can be used to get the edited post data.
 		// It falls back tot the post data on the server.
@@ -371,114 +369,128 @@
 			}
 		} ) );
 
-		$titleTags = $( '.fee-title' );
-		$titles = $titleTags.parent();
-		$titleTags.remove();
+		function titleInit() {
+			var i, slugHTML,
+				indexes = {};
 
-		// Try: $postClass.find( '.entry-title' )
-		$title = $( 'blabla' );
+			$titleTags = $( '.fee-title' );
+			$titles = $titleTags.parent();
+			$titleTags.remove();
 
-		! $title.length && $titles.each( function( i, title ) {
-			$( title ).parents().each( function( i, titleParent ) {
-				var index = $.inArray( titleParent, $contentParents );
+			// Try: $postClass.find( '.entry-title' )?
+			$title = [];
 
-				if ( index > -1 ) {
-					indexes[ index ] = indexes[ index ] || [];
-					indexes[ index ].push( title );
-					return false;
-				}
+			! $title.length && $titles.each( function( i, title ) {
+				$( title ).parents().each( function( i, titleParent ) {
+					var index = $.inArray( titleParent, $contentParents );
+
+					if ( index > -1 ) {
+						indexes[ index ] = indexes[ index ] || [];
+						indexes[ index ].push( title );
+						return false;
+					}
+				} );
 			} );
-		} );
 
-		for ( i in indexes ) {
-			$title = $( indexes[ i ] );
+			for ( i in indexes ) {
+				$title = $( indexes[ i ] );
 
-			break;
+				break;
+			}
+
+			if ( $title.length ) {
+				$titles = $titles.not( $title );
+
+				docTitle = ( $title.text().length ? document.title.replace( $title.text(), '<!--replace-->' ) : document.title );
+
+				$title.addClass( 'fee-title' );
+
+				if ( ( slugHTML = wp.fee.permalink.replace( /(?:%pagename%|%postname%)/,
+						'<ins>' +
+							'<span class="fee-slug">' +
+								( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID ) +
+							'</span>' +
+						'</ins>' ) ) && wp.fee.permalink !== slugHTML ) {
+					$title.after( '<p class="fee-url">' + slugHTML + '</p>' );
+				}
+
+				$url = $( '.fee-url' );
+				$slug = $( '.fee-slug' );
+
+				tinymce.init( {
+					selector: '.fee-title',
+					theme: 'fee',
+					paste_as_text: true,
+					plugins: 'paste',
+					inline: true,
+					placeholder: feeL10n.title,
+					setup: function( editor ) {
+						titleEditor = editor;
+
+						registerEditor( editor );
+
+						editor.on( 'setcontent keyup', function() {
+							wp.fee.post.post_title( wp.fee.post.post_title(), true );
+						} );
+
+						editor.on( 'keydown', function( event ) {
+							if ( event.keyCode === 13 ) {
+								contentEditor.focus();
+								event.preventDefault();
+							}
+						} );
+					}
+				} );
+
+				tinymce.init( {
+					selector: '.fee-slug',
+					theme: 'fee',
+					paste_as_text: true,
+					plugins: 'paste',
+					inline: true,
+					setup: function( editor ) {
+						slugEditor = editor;
+
+						registerEditor( editor );
+
+						editor.on( 'setcontent keyup', function() {
+							if ( editor.dom.isEmpty( editor.getBody() ) ) {
+								$slug.get( 0 ).textContent = '';
+							}
+						} );
+
+						editor.on( 'keydown', function( event ) {
+							if ( tinymce.util.VK.ENTER === event.keyCode ) {
+								event.preventDefault();
+							} else if ( tinymce.util.VK.SPACEBAR === event.keyCode ) {
+								event.preventDefault();
+								editor.insertContent( '-' );
+							}
+						} );
+
+						editor.on( 'blur', function() {
+							if ( editor.isDirty() ) {
+								wp.ajax.post( 'fee_slug', {
+									'post_ID': wp.fee.post.post_ID(),
+									'post_title': wp.fee.post.post_title(),
+									'post_name': wp.fee.post.post_name(),
+									'_wpnonce': wp.fee.nonces.slug
+								} )
+								.done( function( slug ) {
+									slugEditor.setContent( slug );
+								} );
+							}
+						} );
+
+						$url.on( 'click.fee', function() {
+							editor.focus();
+						} );
+					}
+				} );
+			}
 		}
 
-		if ( $title.length ) {
-			$titles = $titles.not( $title );
-
-			docTitle = ( $title.text().length ? document.title.replace( $title.text(), '<!--replace-->' ) : document.title );
-
-			$title
-			.addClass( 'fee-title' )
-			.after( '<p class="fee-url">' + wp.fee.permalink.replace( /(?:%pagename%|%postname%)/, '<ins><span class="fee-slug">' + ( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID )  + '</span></ins>' ) + '</p>' );
-
-			$url = $( '.fee-url' );
-			$slug = $( '.fee-slug' );
-
-			tinymce.init( {
-				selector: '.fee-title',
-				theme: 'fee',
-				paste_as_text: true,
-				plugins: 'paste',
-				inline: true,
-				placeholder: feeL10n.title,
-				setup: function( editor ) {
-					titleEditor = editor;
-
-					registerEditor( editor );
-
-					editor.on( 'setcontent keyup', function() {
-						wp.fee.post.post_title( wp.fee.post.post_title(), true );
-					} );
-
-					editor.on( 'keydown', function( event ) {
-						if ( event.keyCode === 13 ) {
-							contentEditor.focus();
-							event.preventDefault();
-						}
-					} );
-				}
-			} );
-
-			tinymce.init( {
-				selector: '.fee-slug',
-				theme: 'fee',
-				paste_as_text: true,
-				plugins: 'paste',
-				inline: true,
-				setup: function( editor ) {
-					slugEditor = editor;
-
-					registerEditor( editor );
-
-					editor.on( 'setcontent keyup', function() {
-						if ( editor.dom.isEmpty( editor.getBody() ) ) {
-							$slug.get( 0 ).textContent = '';
-						}
-					} );
-
-					editor.on( 'keydown', function( event ) {
-						if ( tinymce.util.VK.ENTER === event.keyCode ) {
-							event.preventDefault();
-						} else if ( tinymce.util.VK.SPACEBAR === event.keyCode ) {
-							event.preventDefault();
-							editor.insertContent( '-' );
-						}
-					} );
-
-					editor.on( 'blur', function() {
-						if ( editor.isDirty() ) {
-							wp.ajax.post( 'fee_slug', {
-								'post_ID': wp.fee.post.post_ID(),
-								'post_title': wp.fee.post.post_title(),
-								'post_name': wp.fee.post.post_name(),
-								'_wpnonce': wp.fee.nonces.slug
-							} )
-							.done( function( slug ) {
-								slugEditor.setContent( slug );
-							} );
-						}
-					} );
-
-					$url.on( 'click.fee', function() {
-						editor.focus();
-					} );
-				}
-			} );
-		}
+		titleInit();
 
 		$window
 		.on( 'beforeunload.fee', function() {
