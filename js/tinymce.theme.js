@@ -221,7 +221,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 	editor.toolbarItems = toolbarItems;
 
 	self.renderUI = function() {
-		var panel, toolbars = {}, hasPlaceholder;
+		var panel, toolbars = {}, hasPlaceholder, upperMargin;
 
 		settings.content_editable = true;
 
@@ -283,6 +283,13 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			return {};
 		}
 
+		if ( DOM.getStyle( document.body, 'position', true ) === 'relative' ) {
+			upperMargin =
+				parseInt( DOM.getStyle( document.body, 'margin-top', true ), 10 ) +
+				parseInt( DOM.getStyle( document.documentElement, 'padding-top', true ), 10 ) +
+				parseInt( DOM.getStyle( document.documentElement, 'margin-top', true ), 10 );
+		}
+
 		toolbars.normal = createToolbar( settings.toolbar );
 		toolbars.img = createToolbar( [ 'imgalignleft', 'imgaligncenter', 'imgalignright', 'imgalignnone', 'edit', 'remove' ] );
 		toolbars.view = createToolbar( [ 'editview', 'removeview' ] );
@@ -307,7 +314,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
 				windowWidth = window.innerWidth,
 				toolbarWidth, toolbarHalf,
-				margin = parseInt( DOM.getStyle( toolbarEl, 'margin-bottom', true ), 10),
+				margin = parseInt( DOM.getStyle( toolbarEl, 'margin-bottom', true ), 10 ) + upperMargin,
 				top, left, className;
 
 			toolbarEl.className = ( ' ' + toolbarEl.className + ' ' ).replace( /\smce-arrow-\S+\s/g, ' ' ).slice( 1, -1 );
