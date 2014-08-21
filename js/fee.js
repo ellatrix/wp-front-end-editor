@@ -161,7 +161,7 @@
 		}
 
 		function off( location ) {
-			if ( hidden ) {
+			if ( hidden || wp.fee.post.post_status() === 'auto-draft' ) {
 				return;
 			}
 
