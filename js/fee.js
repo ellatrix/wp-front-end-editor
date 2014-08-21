@@ -142,11 +142,6 @@
 				return;
 			}
 
-			if ( wp.autosave ) {
-				wp.autosave.local.resume();
-				wp.autosave.server.resume();
-			}
-
 			$( '#wp-admin-bar-edit' ).addClass( 'active' );
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
@@ -155,6 +150,13 @@
 			getEditors( function( editor ) {
 				editor.show();
 			} );
+
+			initialPost = getPost();
+
+			if ( wp.autosave ) {
+				wp.autosave.local.resume();
+				wp.autosave.server.resume();
+			}
 
 			$document.trigger( 'fee-on' );
 
@@ -182,7 +184,7 @@
 			if ( ! $thumbnail.find( 'img' ).length ) {
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
-			$title.text( wp.fee.postOnServer.post_title ).attr( 'contenteditable', 'false' );
+			$title.text( wp.fee.postOnServer.post_title );
 			$titles.text( wp.fee.postOnServer.post_title );
 
 			if ( docTitle ) {
@@ -298,9 +300,11 @@
 			$leave.show();
 			$leave.find( '.fee-exit' ).focus().on( 'click.fee', function() {
 				callback();
+				$leave.hide();
 			} );
 			$leave.find( '.fee-save-and-exit' ).on( 'click.fee', function() {
 				save( callback );
+				$leave.hide();
 			} );
 			$leave.find( '.fee-cancel' ).on( 'click.fee', function() {
 				$leave.hide();
