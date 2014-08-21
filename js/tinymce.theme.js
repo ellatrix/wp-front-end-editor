@@ -221,7 +221,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 	editor.toolbarItems = toolbarItems;
 
 	self.renderUI = function() {
-		var panel, toolbars = {}, hasPlaceholder, upperMargin;
+		var panel, toolbars = {}, hasPlaceholder,
+			upperMargin = 0;
 
 		settings.content_editable = true;
 
