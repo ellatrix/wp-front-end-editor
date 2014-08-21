@@ -40,6 +40,7 @@
 			releaseLock = true,
 			checkNonces, timeoutNonces,
 			indexes = {},
+			initialPost,
 			i;
 
 		// This object's methods can be used to get the edited post data.
@@ -213,14 +214,22 @@
 			return hidden;
 		}
 
-		function save( callback, _publish ) {
+		function getPost() {
 			var postData = {};
-
-			$document.trigger( 'fee-before-save' );
 
 			_.each( wp.fee.post, function( fn, key ) {
 				postData[ key ] = fn();
 			} );
+
+			return postData;
+		}
+
+		function save( callback, _publish ) {
+			var postData;
+
+			$document.trigger( 'fee-before-save' );
+
+			postData = getPost();
 
 			postData.publish = _publish ? true : undefined;
 			postData.save = _publish ? undefined : true;
@@ -246,7 +255,7 @@
 				// Add an undo level for all editors.
 				addUndoLevel();
 				// The editors are no longer dirty.
-				isDirty( false );
+				initialPost = getPost();
 
 				$document.trigger( 'fee-after-save' );
 
@@ -261,22 +270,18 @@
 			save( callback, true );
 		}
 
-		function isDirty( dirty ) {
+		function isDirty() {
 			if ( hidden ) {
 				return;
 			}
 
-			var thisIsDirty = false;
-
-			getEditors( function( editor ) {
-				if ( dirty === false ) {
-					editor.isNotDirty = true;
-				} else if ( editor.isDirty() ) {
-					thisIsDirty = true;
+			return _.some( arguments.length ? arguments : [ 'post_title', 'post_content' ], function( key ) {
+				if ( initialPost[ key ] && wp.fee.post[ key ] ) {
+					return wp.fee.post[ key ]() !== initialPost[ key ];
 				}
-			} );
 
-			return thisIsDirty;
+				return;
+			} );
 		}
 
 		function addUndoLevel() {
@@ -507,6 +512,8 @@
 				wp.fee.post.post_title( postData.post_title );
 				wp.fee.post.post_content( postData.content );
 			} );
+
+			initialPost = getPost();
 
 			if ( wp.fee.postOnServer.post_content !== wp.fee.post.post_content() ) {
 				window.console.log( 'The content on the server and the content in the editor is different. This may be due to errors.' );
