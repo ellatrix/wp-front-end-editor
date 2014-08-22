@@ -548,12 +548,14 @@ class FEE {
 			</div>
 			<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
 			<div class="fee-toolbar">
-				<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
-					<button class="button fee-save"><?php _e( 'Save' ); ?></button>
-					<button class="button button-primary fee-publish"><?php _e( 'Publish' ); ?></button>
-				<?php } else { ?>
-					<button class="button button-primary fee-save"><?php _e( 'Update' ); ?></button>
-				<?php } ?>
+				<div class="fee-toolbar-right">
+					<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
+						<button class="button button-large fee-save"><?php _e( 'Save' ); ?></button>
+						<button class="button button-primary button-large fee-publish"><?php _e( 'Publish' ); ?></button>
+					<?php } else { ?>
+						<button class="button button-primary button-large fee-save"><?php _e( 'Update' ); ?></button>
+					<?php } ?>
+				</div>
 			</div>
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">

@@ -14,7 +14,6 @@
 			feeL10n = window.feeL10n,
 			hidden = true,
 			$window = $( window ),
-			windowWidth = $window.width(),
 			$document = $( document ),
 			$body = $( document.body ),
 			$postClass = $( '.fee-post' ),
@@ -24,7 +23,8 @@
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
 			$thumbnailEdit = $( '.fee-edit-thumbnail' ).add( '.fee-insert-thumbnail' ),
 			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
-			$buttons = $( '.fee-toolbar' ).find( '.button' ).add( $( '.fee-save-and-exit' ) ),
+			$toolbar = $( '.fee-toolbar' ),
+			$buttons = $toolbar.find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
 			$contentOriginal = $( '.fee-content-original' ),
 			$categories = $( '.fee-categories' ),
@@ -32,7 +32,6 @@
 			$noticeArea = $( '#fee-notice-area' ),
 			$autoSaveNotice, $saveNotice,
 			$contentParents = $content.parents(),
-			contentRect = $content.get( 0 ).getBoundingClientRect(),
 			$titleTags, $titles, $title, docTitle,
 			$url, $slug,
 			titleEditor, slugEditor, contentEditor,
@@ -40,7 +39,35 @@
 			initializedEditors = 0,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
-			initialPost;
+			initialPost,
+			UITimer, blockUIfading, toolbarShown;
+
+		function bindEvents( unbind ) {
+			var type = unbind ? 'off' : 'on';
+
+			_.each( {
+				'resize.fee-adjust-ui': adjustUI
+			}, function( callback, eventName ) {
+				$window[ type ]( eventName, callback );
+			} );
+
+			_.each( {
+				'mousemove.fee-show-ui': showUI
+			}, function( callback, eventName ) {
+				$document[ type ]( eventName, callback );
+			} );
+
+			_.each( {
+				'mouseenter.fee-disable-ui-fading': disableUIfading,
+				'mouseleave.fee-enable-ui-fading': enableUIfading
+			}, function( callback, eventName ) {
+				$toolbar[ type ]( eventName, callback );
+			} );
+		}
+
+		function unbindEvents() {
+			bindEvents( true );
+		}
 
 		// This object's methods can be used to get the edited post data.
 		// It falls back tot the post data on the server.
@@ -110,12 +137,6 @@
 			return returnContent;
 		};
 
-		if ( contentRect.left >= windowWidth - contentRect.right ) {
-			$body.addClass( 'fee-left' );
-		} else {
-			$body.addClass( 'fee-right' );
-		}
-
 		wp.fee.post.post_category = function() {
 			var _categories = [];
 
@@ -141,9 +162,13 @@
 				return;
 			}
 
+			bindEvents();
+			adjustUI();
+
 			$( '#wp-admin-bar-edit' ).addClass( 'active' );
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
+
 			$title.text( wp.fee.postOnServer.post_title );
 
 			getEditors( function( editor ) {
@@ -177,6 +202,8 @@
 				wp.autosave.local.suspend();
 				wp.autosave.server.suspend();
 			}
+
+			unbindEvents();
 
 			$( '#wp-admin-bar-edit' ).removeClass( 'active' );
 			$body.removeClass( 'fee-on' ).addClass( 'fee-off' );
@@ -445,14 +472,18 @@
 
 						editor.on( 'activate focus', function() {
 							titleFocus = true;
-							$url.show();
+							$url.slideDown( 'fast' );
 						} );
 
 						editor.on( 'deactivate blur hide', function() {
 							titleFocus = false;
 
 							setTimeout( function() {
-								! slugFocus && $url.hide();
+								if ( ! slugFocus ) {
+									$url.slideUp( 'fast', function() {
+										contentEditor.nodeChanged();
+									} );
+								}
 							}, 100 );
 						} );
 					}
@@ -510,7 +541,11 @@
 							slugFocus = false;
 
 							setTimeout( function() {
-								! titleFocus && $url.hide();
+								if ( ! titleFocus ) {
+									$url.slideUp( 'fast', function() {
+										contentEditor.nodeChanged();
+									} );
+								}
 							}, 100 );
 						} );
 					}
@@ -519,6 +554,46 @@
 		}
 
 		titleInit();
+
+		function adjustUI() {
+			var contentRect = $content.get( 0 ).getBoundingClientRect(),
+				windowWidth = $window.width();
+
+			if ( contentRect.left >= windowWidth - contentRect.right ) {
+				$body.removeClass( 'fee-right' ).addClass( 'fee-left' );
+			} else {
+				$body.removeClass( 'fee-left' ).addClass( 'fee-right' );
+			}
+
+			$toolbar.css( {
+				left: contentRect.left,
+				width: contentRect.right - contentRect.left
+			} );
+		}
+
+		function showUI() {
+			clearTimeout( UITimer );
+
+			! toolbarShown && $toolbar.animate( { bottom: 0 }, 'slow' );
+
+			toolbarShown = true;
+
+			if ( ! blockUIfading ) {
+				UITimer = setTimeout( function() {
+					$toolbar.animate( { bottom: -50 }, 'slow' );
+
+					toolbarShown = false;
+				}, 5000 );
+			}
+		}
+
+		function disableUIfading() {
+			blockUIfading = true;
+		}
+
+		function enableUIfading() {
+			blockUIfading = false;
+		}
 
 		$window
 		.on( 'beforeunload.fee', function() {
