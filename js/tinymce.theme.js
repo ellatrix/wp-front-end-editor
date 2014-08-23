@@ -385,7 +385,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 		editor.on( 'selectionchange nodechange', function( event ) {
 			var element = event.element || editor.selection.getNode(),
-				view = editor.plugins.wpview.getView( element );
+				view = editor.plugins.wpview.getView();
 
 			if ( editor.selection.isCollapsed() && ! view ) {
 				panel.hide();

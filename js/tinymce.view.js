@@ -14,7 +14,7 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		cursorInterval, lastKeyDownNode, setViewCursorTries, focus, execCommandView;
 
 	function getView( node ) {
-		return getParent( node, 'wpview-wrap' );
+		return node ? getParent( node, 'wpview-wrap' ) : selected;
 	}
 
 	/**
