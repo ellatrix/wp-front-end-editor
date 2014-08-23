@@ -39,8 +39,7 @@
 			initializedEditors = 0,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
-			initialPost,
-			UITimer, blockUIfading, toolbarShown;
+			initialPost, toolbarShown, toolbarTop, mouseY;
 
 		function bindEvents( unbind ) {
 			var type = unbind ? 'off' : 'on';
@@ -55,13 +54,6 @@
 				'mousemove.fee-show-ui': showUI
 			}, function( callback, eventName ) {
 				$document[ type ]( eventName, callback );
-			} );
-
-			_.each( {
-				'mouseenter.fee-disable-ui-fading': disableUIfading,
-				'mouseleave.fee-enable-ui-fading': enableUIfading
-			}, function( callback, eventName ) {
-				$toolbar[ type ]( eventName, callback );
 			} );
 		}
 
@@ -571,28 +563,32 @@
 			} );
 		}
 
-		function showUI() {
-			clearTimeout( UITimer );
+		function showUI( event ) {
+			var show;
 
-			! toolbarShown && $toolbar.animate( { bottom: 0 }, 'slow' );
+			mouseY = event.clientY;
+			show = mouseY < 100 || mouseY > $window.height() - 100;
 
-			toolbarShown = true;
+			if ( show ) {
+				if ( ! toolbarShown ) {
+					if ( toolbarTop = mouseY < 100 ) {
+						setTimeout( function() {
+							toolbarTop = false;
 
-			if ( ! blockUIfading ) {
-				UITimer = setTimeout( function() {
-					$toolbar.animate( { bottom: -50 }, 'slow' );
+							if ( toolbarShown && ! show ) {
+								$toolbar.animate( { bottom: -50 }, 'slow' );
+								toolbarShown = false;
+							}
+						}, 3000 );
+					}
 
-					toolbarShown = false;
-				}, 5000 );
+					$toolbar.animate( { bottom: 0 }, 'slow' );
+					toolbarShown = true;
+				}
+			} else if ( ! toolbarTop && ( toolbarShown || toolbarShown == null ) ) {
+				$toolbar.animate( { bottom: -50 }, 'slow' );
+				toolbarShown = false;
 			}
-		}
-
-		function disableUIfading() {
-			blockUIfading = true;
-		}
-
-		function enableUIfading() {
-			blockUIfading = false;
 		}
 
 		$window
