@@ -39,7 +39,7 @@
 			initializedEditors = 0,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
-			initialPost, toolbarShown, toolbarTop, mouseY;
+			initialPost, toolbarShown, toolbarTop, mouseY, toolbarTimeout;
 
 		function bindEvents( unbind ) {
 			var type = unbind ? 'off' : 'on';
@@ -568,19 +568,21 @@
 
 			if ( mouseY < 100 || mouseY > $window.height() - 100 ) {
 				if ( ! toolbarShown ) {
-					if ( toolbarTop = mouseY < 100 ) {
-						setTimeout( function() {
-							toolbarTop = false;
-
-							if ( toolbarShown && ! ( mouseY < 100 || mouseY > $window.height() - 100 ) ) {
-								$toolbar.animate( { bottom: -50 }, 'slow' );
-								toolbarShown = false;
-							}
-						}, 3000 );
-					}
-
 					$toolbar.animate( { bottom: 0 }, 'slow' );
 					toolbarShown = true;
+				}
+
+				if ( toolbarTop = mouseY < 100 ) {
+					clearTimeout( toolbarTimeout );
+
+					toolbarTimeout = setTimeout( function() {
+						toolbarTop = false;
+
+						if ( toolbarShown && ! ( mouseY < 100 || mouseY > $window.height() - 100 ) ) {
+							$toolbar.animate( { bottom: -50 }, 'slow' );
+							toolbarShown = false;
+						}
+					}, 3000 );
 				}
 			} else if ( ! toolbarTop && ( toolbarShown || toolbarShown == null ) ) {
 				$toolbar.animate( { bottom: -50 }, 'slow' );
