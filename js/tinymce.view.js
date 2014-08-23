@@ -215,42 +215,6 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		wp.mce.views.render();
 	});
 
-	// Set the cursor before or after a view when clicking next to it.
-	editor.on( 'click', function( event ) {
-		var x = event.clientX,
-			y = event.clientY,
-			body = editor.getBody(),
-			bodyRect = body.getBoundingClientRect(),
-			first = body.firstChild,
-			firstRect = first.getBoundingClientRect(),
-			last = body.lastChild,
-			lastRect = last.getBoundingClientRect(),
-			view;
-
-		if ( y < firstRect.top && ( view = getView( first ) ) ) {
-			setViewCursor( true, view );
-			event.preventDefault();
-		} else if ( y > lastRect.bottom && ( view = getView( last ) ) ) {
-			setViewCursor( false, view );
-			event.preventDefault();
-		} else {
-			tinymce.each( editor.dom.select( '.wpview-wrap' ), function( view ) {
-				var rect = view.getBoundingClientRect();
-
-				if ( y >= rect.top && y <= rect.bottom ) {
-					if ( x < bodyRect.left ) {
-						setViewCursor( true, view );
-						event.preventDefault();
-					} else if ( x > bodyRect.right ) {
-						setViewCursor( false, view );
-						event.preventDefault();
-					}
-					return;
-				}
-			});
-		}
-	});
-
 	editor.on( 'init', function() {
 		var selection = editor.selection;
 
@@ -310,6 +274,43 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 				if ( event.type === 'mousedown' ) {
 					deselect();
 				}
+			}
+		});
+
+		// Set the cursor before or after a view when clicking next to it.
+		editor.dom.bind( document, 'click', function( event ) {
+			var x = event.clientX,
+				y = event.clientY,
+				body = editor.getBody(),
+				bodyRect = body.getBoundingClientRect(),
+				first = body.firstChild,
+				firstRect = first.getBoundingClientRect(),
+				last = body.lastChild,
+				lastRect = last.getBoundingClientRect(),
+				view;
+
+			if ( firstRect.top - 10 <= y && y < firstRect.top && ( view = getView( first ) ) ) {
+				setViewCursor( true, view );
+				event.preventDefault();
+			} else if ( lastRect.bottom + 10 >= y && y > lastRect.bottom && ( view = getView( last ) ) ) {
+				setViewCursor( false, view );
+				event.preventDefault();
+			} else {
+				tinymce.each( editor.dom.select( '.wpview-wrap' ), function( view ) {
+					var rect = view.getBoundingClientRect();
+
+					if ( rect.top - 10 <= y && y <= rect.bottom + 10 ) {
+						if ( bodyRect.left - 10 <= x && x < bodyRect.left ) {
+							setViewCursor( true, view );
+							event.preventDefault();
+						} else if ( bodyRect.right + 10 >= x && x > bodyRect.right ) {
+							setViewCursor( false, view );
+							event.preventDefault();
+						}
+
+						return;
+					}
+				});
 			}
 		});
 	});
