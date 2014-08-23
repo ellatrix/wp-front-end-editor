@@ -564,18 +564,15 @@
 		}
 
 		function showUI( event ) {
-			var show;
-
 			mouseY = event.clientY;
-			show = mouseY < 100 || mouseY > $window.height() - 100;
 
-			if ( show ) {
+			if ( mouseY < 100 || mouseY > $window.height() - 100 ) {
 				if ( ! toolbarShown ) {
 					if ( toolbarTop = mouseY < 100 ) {
 						setTimeout( function() {
 							toolbarTop = false;
 
-							if ( toolbarShown && ! show ) {
+							if ( toolbarShown && ! ( mouseY < 100 || mouseY > $window.height() - 100 ) ) {
 								$toolbar.animate( { bottom: -50 }, 'slow' );
 								toolbarShown = false;
 							}
