@@ -178,7 +178,7 @@ class FEE {
 
 			wp_enqueue_script( 'wp-auth-check' );
 
-			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
+			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'blog_id' => get_current_blog_id()
@@ -258,7 +258,7 @@ class FEE {
 			wp_enqueue_script( 'wp-lists' );
 			wp_localize_script( 'wp-lists', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
@@ -283,12 +283,12 @@ class FEE {
 			wp_enqueue_media( array( 'post' => $post ) );
 
 			wp_deregister_script( 'mce-view' );
-			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), self::VERSION, true );
+			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view' . $suffix . '.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), self::VERSION, true );
 
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal.js' ), array( 'jquery' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, self::VERSION, 'screen' );
 
 			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
@@ -307,7 +307,7 @@ class FEE {
 			}
 
 			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
