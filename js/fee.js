@@ -82,11 +82,11 @@
 				}
 
 				$titles.each( function( i, title ) {
-					title.textContent = content;
+					title.innerHTML = content;
 				} );
 
 				if ( ! notself ) {
-					$title.get( 0 ).textContent = content;
+					$title.get( 0 ).innerHTML = content;
 				}
 
 				return this.post_title();
@@ -161,8 +161,6 @@
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
 
-			$title.text( wp.fee.postOnServer.post_title );
-
 			getEditors( function( editor ) {
 				editor.show();
 			} );
@@ -202,8 +200,9 @@
 			if ( ! $thumbnail.find( 'img' ).length ) {
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
-			$title.text( wp.fee.postOnServer.post_title );
-			$titles.text( wp.fee.postOnServer.post_title );
+
+			$title.html( wp.fee.postOnServer.post_title );
+			$titles.html( wp.fee.postOnServer.post_title );
 
 			if ( docTitle ) {
 				document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
@@ -494,7 +493,7 @@
 
 						editor.on( 'setcontent keyup', function() {
 							if ( editor.dom.isEmpty( editor.getBody() ) ) {
-								$slug.get( 0 ).textContent = '';
+								$slug.get( 0 ).innerHTML = '';
 							}
 						} );
 
