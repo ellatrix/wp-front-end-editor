@@ -1,3 +1,6 @@
 .DS_Store
 .svn
 node_modules
+
+**/*.min.js
+**/*.min.css
