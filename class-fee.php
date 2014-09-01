@@ -168,7 +168,7 @@ class FEE {
 			isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
 			false !== stripos( $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip' );
 
-		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.git' ) ? '' : '.min';
 
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
