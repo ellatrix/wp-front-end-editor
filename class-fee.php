@@ -2,7 +2,7 @@
 
 class FEE {
 	const VERSION = '1.0.0';
-	const MIN_VERSION = '4.0-beta4-src';
+	const MIN_VERSION = '4.0-RC';
 	const MAX_VERSION = '4.1-beta';
 
 	private $fee;
