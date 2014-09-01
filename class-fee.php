@@ -606,6 +606,15 @@ class FEE {
 						<?php } ?>
 					</select>
 				</label>
+				<label for="fee-post-author">
+					<div class="dashicons dashicons-admin-users" style="margin-top: 5px;"></div>
+					<?php wp_dropdown_users( array(
+						'who' => 'authors',
+						'name' => 'fee-post-author',
+						'selected' => $post->post_author,
+						'include_selected' => true
+					) ); ?>
+				</label>
 			</div>
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">

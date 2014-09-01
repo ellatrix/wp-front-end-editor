@@ -145,6 +145,10 @@
 			return $( '#fee-post-status' ).val() || '';
 		};
 
+		wp.fee.post.post_author_override = function() {
+			return $( '#fee-post-author' ).val() || 0;
+		};
+
 		function scheduleNoncesRefresh() {
 			checkNonces = false;
 			clearTimeout( timeoutNonces );

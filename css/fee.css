@@ -56,6 +56,10 @@
 	display: none;
 }
 
+.fee-publish-options-dropdown label {
+	display: block;
+}
+
 /*@media screen and (max-width: 782px) {
 	.fee-on #wp-toolbar > ul > li {
 		display: none !important;
