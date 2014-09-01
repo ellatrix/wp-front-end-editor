@@ -142,11 +142,19 @@
 		};
 
 		wp.fee.post.post_status = function() {
-			return $( '#fee-post-status' ).val() || '';
+			return $( '#fee-post-visibility' ).val() === 'private' ? 'private' : $( '#fee-post-status' ).val() || '';
 		};
 
 		wp.fee.post.post_author_override = function() {
 			return $( '#fee-post-author' ).val() || 0;
+		};
+
+		wp.fee.post.sticky = function() {
+			return $( '#fee-post-visibility' ).val() === 'sticky';
+		};
+
+		wp.fee.post.post_password = function() {
+			return $( '#fee-post-visibility' ).val() === 'password' ? $( '#fee-post-password' ).val() || '' : '';
 		};
 
 		function scheduleNoncesRefresh() {
@@ -595,6 +603,10 @@
 					toolbarTimeout = setTimeout( function() {
 						toolbarTop = false;
 
+						if ( publishOptionsVisible ) {
+							return;
+						}
+
 						if ( toolbarShown && ! ( mouseY < 100 || mouseY > $window.height() - 100 ) ) {
 							$toolbar.animate( { bottom: -50 }, 'slow' );
 							toolbarShown = false;
@@ -861,6 +873,15 @@
 			} );
 		} );
 
+		$( '#fee-post-visibility' ).on( 'change.fee-visibility', function() {
+			if ( $( this ).val() === 'password' ) {
+				$( '#fee-post-password' ).parent().show();
+				$( '#fee-post-password' ).val( wp.fee.postOnServer.post_password ).focus();
+			} else {
+				$( '#fee-post-password' ).parent().hide();
+			}
+		} );
+
 		// This part is copied from post.js.
 		$( '.categorydiv' ).each( function() {
 			var this_id = $(this).attr('id'), catAddBefore, catAddAfter, taxonomyParts, taxonomy, settingName;
@@ -953,7 +974,8 @@
 			isDirty: isDirty,
 			save: save,
 			publish: publish,
-			addNotice: addNotice
+			addNotice: addNotice,
+			getPost: getPost
 		} );
 	} );
 } )( jQuery );

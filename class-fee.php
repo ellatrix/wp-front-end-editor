@@ -356,6 +356,8 @@ class FEE {
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
 		add_filter( 'the_category', array( $this, 'the_category' ), 10, 3 );
+		add_filter( 'private_title_format', array( $this, 'private_title_format' ), 10, 2 );
+		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
 
@@ -481,8 +483,6 @@ class FEE {
 	}
 
 	function the_category( $thelist, $separator = '', $parents = '' ) {
-		global $wp_the_query;
-
 		if (
 			is_main_query() &&
 			in_the_loop() &&
@@ -492,6 +492,14 @@ class FEE {
 		}
 
 		return $thelist;
+	}
+
+	function private_title_format( $title, $post ) {
+		if ( $post->ID === get_queried_object_id() ) {
+			$title = '%s';
+		}
+
+		return $title;
 	}
 
 	function wp_before_admin_bar_render() {
@@ -590,31 +598,62 @@ class FEE {
 					<div class="dashicons dashicons-post-status" style="margin-top: 5px;"></div>
 					<select id="fee-post-status">
 						<?php if ( 'publish' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'publish' ); ?> value='publish'><?php _e( 'Published' ); ?></option>
+							<option<?php selected( $post->post_status, 'publish' ); ?> value="publish"><?php _e( 'Published' ); ?></option>
 						<?php } elseif ( 'private' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'private' ); ?> value='publish'><?php _e( 'Privately Published' ); ?></option>
+							<option<?php selected( $post->post_status, 'private' ); ?> value="publish"><?php _e( 'Privately Published' ); ?></option>
 						<?php } elseif ( 'future' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'future' ); ?> value='future'><?php _e( 'Scheduled' ); ?></option>
+							<option<?php selected( $post->post_status, 'future' ); ?> value="future"><?php _e( 'Scheduled' ); ?></option>
 						<?php } ?>
 
-						<option<?php selected( $post->post_status, 'pending' ); ?> value='pending'><?php _e( 'Pending Review' ); ?></option>
+						<option<?php selected( $post->post_status, 'pending' ); ?> value="pending"><?php _e( 'Pending Review' ); ?></option>
 
 						<?php if ( 'auto-draft' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'auto-draft' ); ?> value='draft'><?php _e( 'Draft' ); ?></option>
+							<option<?php selected( $post->post_status, 'auto-draft' ); ?> value="draft"><?php _e( 'Draft' ); ?></option>
 						<?php } else { ?>
-							<option<?php selected( $post->post_status, 'draft' ); ?> value='draft'><?php _e( 'Draft' ); ?></option>
+							<option<?php selected( $post->post_status, 'draft' ); ?> value="draft"><?php _e( 'Draft' ); ?></option>
 						<?php } ?>
 					</select>
 				</label>
-				<label for="fee-post-author">
-					<div class="dashicons dashicons-admin-users" style="margin-top: 5px;"></div>
-					<?php wp_dropdown_users( array(
-						'who' => 'authors',
-						'name' => 'fee-post-author',
-						'selected' => $post->post_author,
-						'include_selected' => true
-					) ); ?>
-				</label>
+
+				<?php if ( $can_publish ) {
+					if ( 'private' === $post->post_status ) {
+						$post->post_password = '';
+						$visibility = 'private';
+					} elseif ( ! empty( $post->post_password ) ) {
+						$visibility = 'password';
+					} elseif ( $post_type == 'post' && is_sticky( $post->ID ) ) {
+						$visibility = 'sticky';
+						$visibility_trans = __('Public, Sticky');
+					} else {
+						$visibility = 'public';
+					}
+				?>
+					<label for="fee-post-visibility">
+						<div class="dashicons dashicons-visibility" style="margin-top: 5px;"></div>
+						<select id="fee-post-visibility">
+							<option<?php selected( $visibility, 'public' ); ?> value="public"><?php _e( 'Public' ); ?></option>
+							<option<?php selected( $visibility, 'sticky' ); ?> value="sticky"><?php _e( 'Public, Sticky' ); ?></option>
+							<option<?php selected( $visibility, 'password' ); ?> value="password"><?php _e( 'Password protected' ); ?></option>
+							<option<?php selected( $visibility, 'private' ); ?> value="private"><?php _e( 'Private' ); ?></option>
+						</select>
+						<div<?php  echo $visibility === 'password' ? '' : ' style="display: none;"'; ?>>
+							<div class="dashicons dashicons-admin-network" style="margin-top: 5px;"></div>
+							<input type="text" id="fee-post-password" value="<?php echo esc_attr( $post->post_password ); ?>"  maxlength="20" />
+						</div>
+					</label>
+				<?php } ?>
+
+				<?php if ( post_type_supports( $post_type, 'author' ) && ( is_super_admin() || current_user_can( $post_type_object->cap->edit_others_posts ) ) ) { ?>
+					<label for="fee-post-author">
+						<div class="dashicons dashicons-admin-users" style="margin-top: 5px;"></div>
+						<?php wp_dropdown_users( array(
+							'who' => 'authors',
+							'name' => 'fee-post-author',
+							'selected' => $post->post_author,
+							'include_selected' => true
+						) ); ?>
+					</label>
+				<?php } ?>
 			</div>
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">
