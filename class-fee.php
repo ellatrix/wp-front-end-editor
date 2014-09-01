@@ -532,6 +532,10 @@ class FEE {
 	function footer() {
 		global $post;
 
+		$post_type = $post->post_type;
+		$post_type_object = get_post_type_object( $post_type );
+		$can_publish = current_user_can( $post_type_object->cap->publish_posts );
+
 		?>
 		<div class="wp-core-ui">
 			<div id="fee-notice-area" class="wp-core-ui">
@@ -553,13 +557,55 @@ class FEE {
 			<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
 			<div class="fee-toolbar">
 				<div class="fee-toolbar-right">
-					<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
-						<button class="button button-large fee-save"><?php _e( 'Save' ); ?></button>
-						<button class="button button-primary button-large fee-publish"><?php _e( 'Publish' ); ?></button>
-					<?php } else { ?>
-						<button class="button button-primary button-large fee-save"><?php _e( 'Update' ); ?></button>
+					<button class="button button-large fee-button-categories"><div class="dashicons dashicons-category"></div></button>
+
+					<?php if ( ! in_array( $post->post_status, array( 'publish', 'future', 'pending' ) ) ) { ?>
+						<button <?php if ( 'private' == $post->post_status ) { ?>style="display:none"<?php } ?> class="button button-large fee-save"><?php _e( 'Save Draft' ); ?></button>
+					<?php } elseif ( 'pending' === $post->post_status && $can_publish ) { ?>
+						<button class="button button-large fee-save"><?php _e( 'Save as Pending' ); ?></button>
 					<?php } ?>
+
+					<div class="button-group">
+						<?php if ( ! in_array( $post->post_status, array( 'publish', 'future', 'private' ) ) || 0 === $post->ID ) { ?>
+							<?php if ( $can_publish ) { ?>
+								<?php if ( ! empty($post->post_date_gmt ) && time() < strtotime( $post->post_date_gmt . ' +0000' ) ) { ?>
+									<button class="button button-primary button-large fee-publish"><?php _e( 'Schedule' ); ?></button>
+								<?php } else { ?>
+									<button class="button button-primary button-large fee-publish"><?php _e( 'Publish' ); ?></button>
+								<?php } ?>
+							<?php } else { ?>
+								<button class="button button-primary button-large fee-publish"><?php _e( 'Submit for Review' ); ?></button>
+							<?php } ?>
+						<?php } else { ?>
+							<button class="button button-primary button-large fee-save"><?php _e( 'Update' ); ?></button>
+						<?php } ?>
+						<button class="button button-primary button-large fee-publish-options" style="padding: 0 2px 2px 1px;">
+							<div class="dashicons dashicons-arrow-down"></div>
+						</button>
+					</div>
 				</div>
+			</div>
+			<div class="fee-publish-options-dropdown">
+				<label for="fee-post-status">
+					<div class="dashicons dashicons-post-status" style="margin-top: 5px;"></div>
+					<select id="fee-post-status">
+						<?php if ( 'publish' === $post->post_status ) { ?>
+							<option<?php selected( $post->post_status, 'publish' ); ?> value='publish'><?php _e( 'Published' ); ?></option>
+						<?php } elseif ( 'private' === $post->post_status ) { ?>
+							<option<?php selected( $post->post_status, 'private' ); ?> value='publish'><?php _e( 'Privately Published' ); ?></option>
+						<?php } elseif ( 'future' === $post->post_status ) { ?>
+							<option<?php selected( $post->post_status, 'future' ); ?> value='future'><?php _e( 'Scheduled' ); ?></option>
+						<?php } ?>
+
+						<option<?php selected( $post->post_status, 'pending' ); ?> value='pending'><?php _e( 'Pending Review' ); ?></option>
+
+						<?php if ( 'auto-draft' === $post->post_status ) { ?>
+							<option<?php selected( $post->post_status, 'auto-draft' ); ?> value='draft'><?php _e( 'Draft' ); ?></option>
+						<?php } else { ?>
+							<option<?php selected( $post->post_status, 'draft' ); ?> value='draft'><?php _e( 'Draft' ); ?></option>
+						<?php } ?>
+					</select>
+				</label>
 			</div>
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">

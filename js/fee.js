@@ -30,6 +30,7 @@
 			$categories = $( '.fee-categories' ),
 			$leave = $( '.fee-leave' ),
 			$noticeArea = $( '#fee-notice-area' ),
+			$publishOptions = $( '.fee-publish-options' ),
 			$autoSaveNotice, $saveNotice,
 			$contentParents = $content.parents(),
 			$titleTags, $titles, $title, docTitle,
@@ -39,7 +40,8 @@
 			initializedEditors = 0,
 			releaseLock = true,
 			checkNonces, timeoutNonces,
-			initialPost, toolbarShown, toolbarTop, mouseY, toolbarTimeout;
+			initialPost, toolbarShown, toolbarTop, mouseY, toolbarTimeout,
+			publishOptionsVisible;
 
 		function bindEvents( unbind ) {
 			var type = unbind ? 'off' : 'on';
@@ -137,6 +139,10 @@
 			} );
 
 			return _categories;
+		};
+
+		wp.fee.post.post_status = function() {
+			return $( '#fee-post-status' ).val() || '';
 		};
 
 		function scheduleNoncesRefresh() {
@@ -560,14 +566,22 @@
 				left: contentRect.left,
 				width: contentRect.right - contentRect.left
 			} );
+
+			$( '.fee-publish-options-dropdown' ).css( {
+				right: windowWidth - contentRect.right
+			} );
 		}
 
 		function showUI( event ) {
 			mouseY = event.clientY;
 
+			if ( publishOptionsVisible ) {
+				return;
+			}
+
 			if ( mouseY < 100 || mouseY > $window.height() - 100 ) {
 				if ( ! toolbarShown ) {
-					$toolbar.animate( { bottom: 0 }, 'slow' );
+					$toolbar.animate( { bottom: 0 }, 'fast' );
 					toolbarShown = true;
 				}
 
@@ -728,7 +742,7 @@
 			toggle();
 		} );
 
-		$categories.on( 'click.fee', function( event ) {
+		$categories.add( '.fee-button-categories' ).on( 'click.fee', function( event ) {
 			if ( hidden ) {
 				return;
 			}
@@ -780,6 +794,13 @@
 
 		$( '.fee-publish' ).on( 'click.fee', function() {
 			publish();
+		} );
+
+		$publishOptions.on( 'click.fee', function() {
+			$publishOptions[ publishOptionsVisible ? 'removeClass' : 'addClass' ]( 'active' );
+			$( '.fee-publish-options-dropdown' )[ publishOptionsVisible ? 'hide' : 'show' ]();
+
+			publishOptionsVisible = ! publishOptionsVisible;
 		} );
 
 		if ( wp.fee.notices.autosave ) {
