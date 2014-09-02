@@ -916,6 +916,8 @@ class FEE {
 		$_post = get_post( $post );
 		$_post->post_status = 'published';
 
-		return get_sample_permalink( $_post )[0];
+		$sample = get_sample_permalink( $_post );
+
+		return $sample[0];
 	}
 }
