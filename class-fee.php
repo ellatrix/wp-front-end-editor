@@ -10,10 +10,12 @@ class FEE {
 	function __construct() {
 		global $wp_version;
 
+		$version = str_replace( '-src', '', $wp_version );
+
 		if (
-			empty( $wp_version ) ||
-			version_compare( $wp_version, self::MIN_VERSION, '<' ) ||
-			version_compare( $wp_version, self::MAX_VERSION, '>' )
+			empty( $version ) ||
+			version_compare( $version, self::MIN_VERSION, '<' ) ||
+			version_compare( $version, self::MAX_VERSION, '>' )
 		) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
