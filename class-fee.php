@@ -108,7 +108,9 @@ class FEE {
 	function ajax_slug() {
 		check_ajax_referer( 'slug-nonce_' . $_POST['post_ID'], '_wpnonce' );
 
-		wp_send_json_success( get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] )[1] );
+		$sample = get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] );
+
+		wp_send_json_success( $sample[1] );
 	}
 
 	function ajax_shortcode() {
@@ -148,7 +150,8 @@ class FEE {
 
 		setup_postdata( $post );
 
-		$orignal_categories = $this->get_post_tax_and_terms()['category'];
+		$orignal_categories = $this->get_post_tax_and_terms();
+		$orignal_categories = $orignal_categories['category'];
 		wp_set_post_categories( $_POST['post_ID'], isset( $_POST['post_category'] ) ? $_POST['post_category'] : array() );
 		$list = get_the_category_list( urldecode( $_POST['separator'] ), urldecode( $_POST['parents'] ) );
 		wp_set_post_categories( $_POST['post_ID'], $orignal_categories );
@@ -170,7 +173,7 @@ class FEE {
 			isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
 			false !== stripos( $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip' );
 
-		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.git' ) ? '' : '.min';
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.gitignore' ) ? '' : '.min';
 
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
@@ -920,6 +923,8 @@ class FEE {
 		$_post = get_post( $post );
 		$_post->post_status = 'published';
 
-		return get_sample_permalink( $_post )[0];
+		$sample = get_sample_permalink( $_post );
+
+		return $sample[0];
 	}
 }
