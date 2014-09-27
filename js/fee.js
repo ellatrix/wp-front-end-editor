@@ -150,7 +150,7 @@
 		};
 
 		wp.fee.post.sticky = function() {
-			return $( '#fee-post-visibility' ).val() === 'sticky';
+			return $( '#fee-post-visibility' ).val() === 'sticky' || '';
 		};
 
 		wp.fee.post.post_password = function() {
