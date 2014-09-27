@@ -630,7 +630,7 @@ class FEE {
 						$visibility = 'password';
 					} elseif ( $post_type == 'post' && is_sticky( $post->ID ) ) {
 						$visibility = 'sticky';
-						$visibility_trans = __('Public, Sticky');
+						$visibility_trans = __( 'Public, Sticky' );
 					} else {
 						$visibility = 'public';
 					}
@@ -725,33 +725,33 @@ class FEE {
 
 		$messages['post'] = array(
 			 0 => '', // Unused. Messages start at index 1.
-			 1 => __('Post updated.'),
-			 2 => __('Custom field updated.'),
-			 3 => __('Custom field deleted.'),
-			 4 => __('Post updated.'),
+			 1 => __( 'Post updated.' ),
+			 2 => __( 'Custom field updated.' ),
+			 3 => __( 'Custom field deleted.' ),
+			 4 => __( 'Post updated.' ),
 			/* translators: %s: date and time of the revision */
-			 5 => isset( $revision_id ) ? sprintf( __('Post restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __('Post published.'),
-			 7 => __('Post saved.'),
-			 8 => __('Post submitted.'),
-			 9 => sprintf( __('Post scheduled for: <strong>%1$s</strong>.'),
+			 5 => isset( $revision_id ) ? sprintf( __( 'Post restored to revision from %s' ), wp_post_revision_title( (int) $revision_id, false ) ) : false,
+			 6 => __( 'Post published.' ),
+			 7 => __( 'Post saved.' ),
+			 8 => __( 'Post submitted.' ),
+			 9 => sprintf( __( 'Post scheduled for: <strong>%1$s</strong>.' ),
 				// translators: Publish box date format, see http://php.net/date
 				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __('Post draft updated.')
+			10 => __( 'Post draft updated.' )
 		);
 
 		$messages['page'] = array(
 			 0 => '', // Unused. Messages start at index 1.
-			 1 => __('Page updated.'),
-			 2 => __('Custom field updated.'),
-			 3 => __('Custom field deleted.'),
-			 4 => __('Page updated.'),
-			 5 => isset( $revision_id ) ? sprintf( __('Page restored to revision from %s'), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __('Page published.'),
-			 7 => __('Page saved.'),
-			 8 => __('Page submitted.' ),
-			 9 => sprintf( __('Page scheduled for: <strong>%1$s</strong>.'), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __('Page draft updated.')
+			 1 => __( 'Page updated.' ),
+			 2 => __( 'Custom field updated.' ),
+			 3 => __( 'Custom field deleted.' ),
+			 4 => __( 'Page updated.' ),
+			 5 => isset( $revision_id ) ? sprintf( __( 'Page restored to revision from %s' ), wp_post_revision_title( (int) $revision_id, false ) ) : false,
+			 6 => __( 'Page published.' ),
+			 7 => __( 'Page saved.' ),
+			 8 => __( 'Page submitted.' ),
+			 9 => sprintf( __( 'Page scheduled for: <strong>%1$s</strong>.' ), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
+			10 => __( 'Page draft updated.' )
 		);
 
 		$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
