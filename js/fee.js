@@ -463,6 +463,7 @@
 					plugins: 'paste',
 					inline: true,
 					placeholder: feeL10n.title,
+					entity_encoding: 'raw',
 					setup: function( editor ) {
 						titleEditor = editor;
 
