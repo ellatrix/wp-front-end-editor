@@ -2,7 +2,7 @@
 
 class FEE {
 	const VERSION = '1.0.0-beta1.1';
-	const MIN_VERSION = '4.1';
+	const MIN_VERSION = '4.0';
 	const MAX_VERSION = '4.2-beta';
 
 	private $fee;
@@ -27,7 +27,7 @@ class FEE {
 	}
 
 	function admin_notices() {
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> currently only works between versions ' . self::MIN_VERSION . ' and ' . self::MAX_VERSION . '.</p></div>';
+		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> currently only works between versions %s and %s.' ), self::MIN_VERSION, self::MAX_VERSION ) . '</p></div>';
 	}
 
 	function init() {
@@ -150,11 +150,11 @@ class FEE {
 
 		setup_postdata( $post );
 
-		$orignal_categories = $this->get_post_tax_and_terms();
-		$orignal_categories = $orignal_categories['category'];
+		$original_categories = $this->get_post_tax_and_terms();
+		$original_categories = $original_categories['category'];
 		wp_set_post_categories( $_POST['post_ID'], isset( $_POST['post_category'] ) ? $_POST['post_category'] : array() );
 		$list = get_the_category_list( urldecode( $_POST['separator'] ), urldecode( $_POST['parents'] ) );
-		wp_set_post_categories( $_POST['post_ID'], $orignal_categories );
+		wp_set_post_categories( $_POST['post_ID'], $original_categories );
 
 		wp_send_json_success( $list );
 	}
@@ -454,7 +454,7 @@ class FEE {
 						'<div class="fee-edit-thumbnail dashicons dashicons-edit"></div>' .
 						'<div class="fee-remove-thumbnail dashicons dashicons-no-alt"></div>' .
 					'</div>' .
-					'<div class="fee-insert-thumbnail wp-core-ui"><span class="dashicons dashicons-plus-alt"></span> Add a featured image</div>' .
+					'<div class="fee-insert-thumbnail wp-core-ui"><span class="dashicons dashicons-plus-alt"></span> ' . __( 'Add a featured image' ) . '</div>' .
 				'</div>'
 			);
 		}
@@ -560,10 +560,10 @@ class FEE {
 			</div>
 			<div id="local-storage-notice" class="hidden">
 				<p class="local-restore">
-					The backup of this post in your browser is different from the version below. <a class="restore-backup" href="#">Restore the backup.</a>
+					<?php _e( 'The backup of this post in your browser is different from the version below.' ); ?> <a class="restore-backup" href="#"><?php _e( 'Restore the backup.' ); ?></a>
 				</p>
 				<p class="undo-restore hidden">
-					Post restored successfully. <a class="undo-restore-backup" href="#">Undo.</a>
+					<?php _e( 'Post restored successfully.' ); ?> <a class="undo-restore-backup" href="#"><?php _e( 'Undo.' ); ?></a>
 				</p>
 				<div class="dashicons dashicons-dismiss"></div>
 			</div>
@@ -692,14 +692,14 @@ class FEE {
 						<div class="modal-dialog modal-sm">
 							<div class="modal-content">
 								<div class="modal-header">
-									<button data-dismiss="modal" style="float: right;"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+									<button data-dismiss="modal" style="float: right;"><span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close' ); ?></span></button>
 									<div class="modal-title" id="myModalLabel"><?php echo $taxonomy->labels->name; ?></div>
 								</div>
 								<div class="modal-body">
 									<?php call_user_func( $taxonomy->meta_box_cb, $post, array( 'args' => array( 'taxonomy' => $tax_name ) ) ); ?>
 								</div>
 								<div class="modal-footer">
-									<button class="button button-primary" data-dismiss="modal">Close</button>
+									<button class="button button-primary" data-dismiss="modal"><?php _e( 'Close' ); ?></button>
 								</div>
 							</div>
 						</div>
