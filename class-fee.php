@@ -804,7 +804,7 @@ class FEE {
 			post_type_supports( $post->post_type, 'front-end-editor' ) &&
 			current_user_can( 'edit_post', $post->ID ) &&
 			$post->ID !== (int) get_option( 'page_for_posts' ) &&
-			( function_exists( 'bp_is_blog_page' ) &&  bp_is_blog_page() )
+			( ! function_exists( 'bp_is_blog_page' ) || function_exists( 'bp_is_blog_page' ) &&  bp_is_blog_page() )
 		) {
 			$supports_fee = true;
 		}
