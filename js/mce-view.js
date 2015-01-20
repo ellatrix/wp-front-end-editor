@@ -100,7 +100,16 @@ window.wp = window.wp || {};
 			this.getNodes( function ( editor, node, content ) {
 				var el = ( option === 'wrap' || option === 'replace' ) ? node : content,
 					insert = html;
-
+				
+				if (_.isObject(insert)) {
+		                    $.each( insert, function( key, val ) {
+		                        if ( key === 'body' ) {
+		                            insert = val;
+		                            return;
+		                        }
+		                    });
+		                }
+		                
 				if ( _.isString( insert ) ) {
 					insert = editor.dom.createFragment( insert );
 				}
