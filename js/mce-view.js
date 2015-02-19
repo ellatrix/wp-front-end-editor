@@ -446,7 +446,7 @@ window.wp = window.wp || {};
 				} )
 				.done( function( response ) {
 					if ( response ) {
-						self.parsed = response;
+						self.parsed = response.body || response;
 						self.setNodes();
 					}
 				} )
