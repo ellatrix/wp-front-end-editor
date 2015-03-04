@@ -243,12 +243,7 @@ class FEE {
 			);
 
 			$tinymce_blocks = array(
-				'wp_image',
-				'wp_gallery',
-				'wp_audio',
-				'wp_audio_playlist',
-				'wp_video',
-				'wp_video_playlist',
+				'wp_media',
 				'hr',
 				'wp_more',
 				'wp_page'
