@@ -759,7 +759,7 @@
 			toggle();
 		} );
 
-		$categories.add( '.fee-button-categories' ).on( 'click.fee', function( event ) {
+		$categories.on( 'click.fee', function( event ) {
 			if ( hidden ) {
 				return;
 			}
