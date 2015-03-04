@@ -8,7 +8,7 @@ class FEE {
 	private $fee;
 
 	function __construct() {
-		global $wp_version;
+		require ABSPATH . WPINC . '/version.php';
 
 		$version = str_replace( '-src', '', $wp_version );
 
