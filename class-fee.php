@@ -1,7 +1,7 @@
 <?php
 
 class FEE {
-	const VERSION = '1.0.0-beta1.1';
+	const VERSION = '1.0.0-beta1.2';
 	const MIN_VERSION = '4.0';
 	const MAX_VERSION = '4.2-beta';
 
