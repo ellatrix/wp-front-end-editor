@@ -1,3 +1,10 @@
+1.0.4
+
+* Fixed issue where you could not insert an image after uploading.
+* Media types are now under one tile in the 'add block' drop down.
+* Fixed minification.
+* Better build process.
+
 1.0.3
 
 * Fixed audio and video issues.
