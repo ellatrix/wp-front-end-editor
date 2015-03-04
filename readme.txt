@@ -4,7 +4,7 @@ Contributors: iseulde, wordpressdotorg
 Tags: front-end editor, inline editing
 Requires at least: 4.1
 Tested up to: 4.1-alpha
-Stable tag: 1.0.0-beta1.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,9 +18,9 @@ If you found a bug or if you have ideas, add them to [the GitHub issue tracker](
 
 == Changelog ==
 
-= 1.0.0 =
+= 1.0.3 =
 
-*
+* Fixed audio and video issues.
 
 = 0.9.1 =
 
