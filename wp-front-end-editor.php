@@ -1,11 +1,11 @@
 <?php
 
 /*
-Plugin Name: WordPress Front-end Editor
+Plugin Name: Front-end Editor
 Plugin URI: http://wordpress.org/plugins/wp-front-end-editor/
-Description: WordPress Front-end Editor
-Author: Janneke Van Dorpe
-Author URI: http://make.wordpress.org/ui/tag/front-end-editor/
+Description: Front-end Editor
+Author: Ella Iseulde Van Dorpe
+Author URI: http://iseulde.com
 Version: 1.0.0-beta1.2
 Text Domain: wp-front-end-editor
 License: GPLv2 or later

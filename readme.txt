@@ -1,9 +1,9 @@
 === WordPress Front-end Editor ===
 
-Contributors: avryl, wordpressdotorg
+Contributors: iseulde, wordpressdotorg
 Tags: front-end editor, inline editing
-Requires at least: 4.0
-Tested up to: 4.0
+Requires at least: 4.1
+Tested up to: 4.1-alpha
 Stable tag: 1.0.0-beta1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
