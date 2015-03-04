@@ -1,6 +1,7 @@
 module.exports = function( grunt ) {
 	var SOURCE_DIR = 'src/';
 	var BUILD_DIR = 'build/';
+	var SVN = 'https://plugins.svn.wordpress.org';
 
 	require( 'matchdep' ).filterDev( ['grunt-*'] ).forEach( grunt.loadNpmTasks );
 
@@ -66,9 +67,12 @@ module.exports = function( grunt ) {
 				src: BUILD_DIR + 'js/*.js'
 			}
 		},
-		svncheckout: {
-			all: {
-				plugin: '<%= pkg.name %>'
+		svn: {
+			checkout: {
+				cmd: 'checkout ' + SVN + '/<%= pkg.name %>/trunk ' + BUILD_DIR
+			},
+			tag: {
+				cmd: 'copy ' + SVN + '/<%= pkg.name %>/trunk ' + SVN + '/<%= pkg.name %>/tags/<%= pkg.version %> -m "<%= pkg.version %>"'
 			}
 		},
 		uglify: {
@@ -82,14 +86,16 @@ module.exports = function( grunt ) {
 		}
 	} );
 
-	grunt.registerMultiTask( 'svncheckout', function() {
+	grunt.registerMultiTask( 'svn', function() {
 		grunt.util.spawn( {
 			cmd: 'svn',
-			args: [ 'co', 'http://plugins.svn.wordpress.org/' + this.data.plugin + '/trunk/', BUILD_DIR ],
-			opts: { stdio: 'inherit' }
+			args: this.data.cmd.split( ' ' ),
+			opts: {
+				stdio: 'inherit'
+			}
 		}, this.async() );
 	} );
 
 	grunt.registerTask( 'default', [ 'jshint' ] );
-	grunt.registerTask( 'build', [ 'clean:all', 'svncheckout', 'clean:svn', 'copy', 'uglify', 'jsvalidate' ] );
+	grunt.registerTask( 'build', [ 'clean:all', 'svn:checkout', 'clean:svn', 'copy', 'uglify', 'jsvalidate' ] );
 };
