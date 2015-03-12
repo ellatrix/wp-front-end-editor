@@ -854,6 +854,8 @@ class FEE {
 		$_post = get_post( $post );
 		$_post->post_status = 'published';
 
+		require_once( ABSPATH . '/wp-admin/includes/post.php' );
+
 		$sample = get_sample_permalink( $_post );
 
 		return $sample[0];
