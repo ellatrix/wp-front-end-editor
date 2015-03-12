@@ -93,6 +93,7 @@ class FEE {
 			$message = 4;
 		}
 
+		global $post;
 		$post = get_post( $post_id );
 
 		wp_send_json_success( array(
