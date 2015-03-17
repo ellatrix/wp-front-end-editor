@@ -301,10 +301,8 @@ window.wp = window.wp || {};
 		 * @param {Boolean} force Rerender all view nodes tied to this view instance.
 		 */
 		render: function( force ) {
-			var content = this.getContent();
-
 			// If there's nothing to render an no loader needs to be shown, stop.
-			if ( ! this.loader && ! content ) {
+			if ( ! this.loader && ! this.getContent() ) {
 				return;
 			}
 
@@ -314,8 +312,8 @@ window.wp = window.wp || {};
 			// Replace any left over markers.
 			this.replaceMarkers();
 
-			if ( content ) {
-				this.setContent( content, function( editor, node ) {
+			if ( this.getContent() ) {
+				this.setContent( this.getContent(), function( editor, node ) {
 					$( node ).data( 'rendered', true ).trigger( 'wp-mce-view-bind' );
 				}, force ? null : false );
 			} else {
@@ -677,7 +675,7 @@ window.wp = window.wp || {};
  * and a view for embeddable URLs.
  */
 ( function( window, views, $ ) {
-	var postID = wp.fee.postOnServer.ID || 0,
+	var postID = $( '#post_ID' ).val() || 0,
 		media, gallery, av, embed;
 
 	media = {
@@ -705,17 +703,38 @@ window.wp = window.wp || {};
 
 	gallery = _.extend( {}, media, {
 		state: [ 'gallery-edit' ],
+		template: wp.media.template( 'editor-gallery' ),
 
 		initialize: function() {
-			var self = this;
+			var attachments = wp.media.gallery.attachments( this.shortcode, postID ),
+				attrs = this.shortcode.attrs.named,
+				self = this;
 
-			wp.ajax.post( 'fee_shortcode', {
-				post_ID: postID,
-				shortcode: this.text
-			} )
-			.done( function( content ) {
-				self.content = content;
+			attachments.more()
+			.done( function() {
+				attachments = attachments.toJSON();
+
+				_.each( attachments, function( attachment ) {
+					if ( attachment.sizes ) {
+						if ( attrs.size && attachment.sizes[ attrs.size ] ) {
+							attachment.thumbnail = attachment.sizes[ attrs.size ];
+						} else if ( attachment.sizes.thumbnail ) {
+							attachment.thumbnail = attachment.sizes.thumbnail;
+						} else if ( attachment.sizes.full ) {
+							attachment.thumbnail = attachment.sizes.full;
+						}
+					}
+				} );
+
+				self.content = self.template( {
+					attachments: attachments,
+					columns: attrs.columns ? parseInt( attrs.columns, 10 ) : wp.media.galleryDefaults.columns
+				} );
+
 				self.render();
+			} )
+			.fail( function( jqXHR, textStatus ) {
+				self.setError( textStatus );
 			} );
 		}
 	} );

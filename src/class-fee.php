@@ -293,6 +293,8 @@ class FEE {
 			wp_deregister_script( 'mce-view' );
 			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view' . $suffix . '.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist', 'fee' ), $this->package['version'], true );
 
+			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register' . $suffix . '.js' ), array( 'mce-view', 'fee' ), $this->package['version'], true );
+
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
