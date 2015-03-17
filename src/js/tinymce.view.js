@@ -206,13 +206,26 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 			return;
 		}
 
-		event.content = wp.mce.views.toViews( event.content );
+		event.content = wp.mce.views.setMarkers( event.content );
 	});
 
 	// When the editor's content has been updated and the DOM has been
 	// processed, render the views in the document.
-	editor.on( 'SetContent show', function() {
+	editor.on( 'SetContent', function() {
 		wp.mce.views.render();
+	});
+
+	editor.on( 'hide', function() {
+		tinymce.each( editor.dom.select( '[data-wpview-text]' ), function( node ) {
+			editor.dom.replace(
+				editor.dom.createFragment( '<p>' + getViewText( node ) + '</p>' ),
+				node
+			);
+		});
+
+		tinymce.each( editor.dom.select( '[data-wpview-marker]' ), function( node ) {
+			editor.dom.setAttrib( node, 'data-wpview-marker', null );
+		});
 	});
 
 	editor.on( 'init', function() {
@@ -668,13 +681,6 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		icon: 'dashicons-edit',
 		onclick: function() {
 			wp.mce.views.edit( selected );
-		},
-		onPostRender: function() {
-			var self = this;
-
-			editor.on( 'NodeChange', function() {
-				selected && self.disabled( ! wp.mce.views.canEdit( selected ) );
-			} );
 		}
 	} );
 
