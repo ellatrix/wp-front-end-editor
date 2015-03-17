@@ -17,8 +17,7 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		setViewCursorTries,
 		focus,
 		execCommandView,
-		execCommandBefore,
-		toolbar;
+		execCommandBefore;
 
 	function getView( node ) {
 		return getParent( node, 'wpview-wrap' );
