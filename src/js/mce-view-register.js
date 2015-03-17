@@ -2,6 +2,21 @@
 	var postID = wp.fee.postOnServer.ID || 0,
 		media, gallery, av, embed;
 
+	wp.mce.View.prototype.setContent = function( content, callback, rendered ) {
+		this.getNodes( function( editor, node, contentNode ) {
+			content = content.body || content;
+
+			if ( content.indexOf( '<iframe' ) !== -1 ) {
+				content += '<div class="wpview-overlay"></div>';
+			}
+
+			contentNode.innerHTML = '';
+			contentNode.appendChild( _.isString( content ) ? editor.dom.createFragment( content ) : content );
+
+			callback && callback.apply( this, arguments );
+		}, rendered );
+	};
+
 	_.each( [
 		'gallery',
 		'audio',
@@ -88,6 +103,22 @@
 					self.pausePlayers();
 				} );
 			} );
+		},
+
+		bind: function( editor, node, contentNode ) {
+			var $node = $( contentNode );
+			var $audio = $node.find( '.wp-audio-shortcode' );
+			var $video = $node.find( '.wp-video-shortcode' );
+			var $playlist = $node.find( '.wp-playlist' );
+
+			$audio.add( $video ).mediaelementplayer( window._wpmejsSettings );
+
+			if ( $playlist.length ) {
+				new window.WPPlaylistView( {
+					el: $playlist.get( 0 ),
+					metadata: $.parseJSON( $( this.content ).find( 'script' ).html() )
+				} );
+			}
 		},
 
 		pausePlayers: function() {

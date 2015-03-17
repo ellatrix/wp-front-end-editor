@@ -77,7 +77,7 @@ window.wp = window.wp || {};
 		 */
 		unbind: function() {
 			_.each( instances, function( instance ) {
-				instance.unbind();
+				instance.unbindAll();
 			} );
 		},
 
@@ -307,14 +307,15 @@ window.wp = window.wp || {};
 			}
 
 			// We're about to rerender all views of this instance, so unbind rendered views.
-			force && this.unbind();
+			force && this.unbindAll();
 
 			// Replace any left over markers.
 			this.replaceMarkers();
 
 			if ( this.getContent() ) {
 				this.setContent( this.getContent(), function( editor, node ) {
-					$( node ).data( 'rendered', true ).trigger( 'wp-mce-view-bind' );
+					$( node ).data( 'rendered', true );
+					this.bind.apply( this, arguments );
 				}, force ? null : false );
 			} else {
 				this.setLoader();
@@ -322,11 +323,22 @@ window.wp = window.wp || {};
 		},
 
 		/**
+		 * Binds a given node after its content is added to the DOM.
+		 */
+		bind: function() {},
+
+		/**
+		 * Unbinds a given node before its content is removed from the DOM.
+		 */
+		unbind: function() {},
+
+		/**
 		 * Unbinds all view nodes tied to this view instance.
 		 * Runs before their content is removed from the DOM.
 		 */
-		unbind: function() {
+		unbindAll: function() {
 			this.getNodes( function( editor, node ) {
+				this.unbind.apply( this, arguments );
 				$( node ).trigger( 'wp-mce-view-unbind' );
 			}, true );
 		},
@@ -663,6 +675,7 @@ window.wp = window.wp || {};
 		 * @param {HTMLElement}    node   The view node to remove.
 		 */
 		remove: function( editor, node ) {
+			this.unbind.call( this, editor, node, $( node ).find( '.wpview-content' ).get( 0 ) );
 			$( node ).trigger( 'wp-mce-view-unbind' );
 			editor.dom.remove( node );
 		}
