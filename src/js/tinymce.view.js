@@ -307,24 +307,6 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		});
 	});
 
-	editor.on( 'PreProcess', function( event ) {
-		// Empty the wpview wrap nodes
-		tinymce.each( editor.dom.select( 'div[data-wpview-text]', event.node ), function( node ) {
-			node.textContent = node.innerText = '\u00a0';
-		});
-    });
-
-    editor.on( 'PostProcess', function( event ) {
-		if ( event.content ) {
-			event.content = event.content.replace( /<div [^>]*?data-wpview-text="([^"]*)"[^>]*>[\s\S]*?<\/div>/g, function( match, shortcode ) {
-				if ( shortcode ) {
-					return '<p>' + window.decodeURIComponent( shortcode ) + '</p>';
-				}
-				return ''; // If error, remove the view wrapper
-			});
-		}
-	});
-
 	// Excludes arrow keys, delete, backspace, enter, space bar.
 	// Ref: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode
 	function isSpecialKey( key ) {
@@ -647,6 +629,8 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 		}
 	});
 
+	editor.on( 'hide preprocess', wp.mce.views.reset );
+
 	editor.addButton( 'wp_view_edit', {
 		tooltip: 'Edit ', // trailing space is needed, used for context
 		icon: 'dashicon dashicons-edit',
@@ -662,19 +646,6 @@ tinymce.PluginManager.add( 'wpview', function( editor ) {
 			selected && removeView( selected );
 		}
 	} );
-
-	editor.on( 'hide', function() {
-		tinymce.each( editor.dom.select( '[data-wpview-text]' ), function( node ) {
-			editor.dom.replace(
-				editor.dom.createFragment( '<p>' + wp.mce.views.getText( node ) + '</p>' ),
-				node
-			);
-		});
-
-		tinymce.each( editor.dom.select( '[data-wpview-marker]' ), function( node ) {
-			editor.dom.setAttrib( node, 'data-wpview-marker', null );
-		});
-	});
 
 	// Add to editor.wp
 	editor.wp = editor.wp || {};

@@ -206,6 +206,12 @@ window.wp = window.wp || {};
 			} );
 		},
 
+		reset: function() {
+			_.each( instances, function( instance ) {
+				instance.reset();
+			} );
+		},
+
 		/**
 		 * Update the text of a given view node.
 		 *
@@ -320,6 +326,14 @@ window.wp = window.wp || {};
 			} else {
 				this.setLoader();
 			}
+		},
+
+		reset: function() {
+			this.removeMarkers();
+
+			this.getNodes( function( editor, node ) {
+				$( node ).replaceWith( '<p>' + this.text + '</p>' );
+			} );
 		},
 
 		/**
