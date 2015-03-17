@@ -33,8 +33,6 @@
 			var media = wp.media[ this.type ],
 				frame = media.edit( text );
 
-			this.pausePlayers && this.pausePlayers();
-
 			_.each( this.state, function( state ) {
 				frame.state( state ).on( 'update', function( selection ) {
 					update( media.shortcode( selection ).string() );
@@ -79,12 +77,10 @@
 				} );
 			}
 
-			wp.ajax.send( this.action, {
-				data: {
-					post_ID: postID,
-					type: this.shortcode.tag,
-					shortcode: this.shortcode.string()
-				}
+			wp.ajax.post( this.action, {
+				post_ID: postID,
+				type: this.shortcode.tag,
+				shortcode: this.shortcode.string()
 			} )
 			.done( function( response ) {
 				self.content = response;
@@ -96,12 +92,6 @@
 				} else {
 					self.setError( response.message || response.statusText, 'admin-media' );
 				}
-			} );
-
-			this.getEditors( function( editor ) {
-				editor.on( 'wpview-selected', function() {
-					self.pausePlayers();
-				} );
 			} );
 		},
 
@@ -121,18 +111,12 @@
 			}
 		},
 
-		pausePlayers: function() {
-			this.getNodes( function( editor, node, content ) {
-				var win = $( 'iframe.wpview-sandbox', content ).get( 0 );
+		unbind: function( editor, node, contentNode ) {
+			var $player = $( contentNode ).find( '.mejs-container' );
 
-				if ( win && ( win = win.contentWindow ) && win.mejs ) {
-					_.each( win.mejs.players, function( player ) {
-						try {
-							player.pause();
-						} catch ( e ) {}
-					} );
-				}
-			} );
+			if ( $player.length ) {
+				window.mejs.players[ $player.get( 0 ).id ].remove();
+			}
 		}
 	} );
 
@@ -144,8 +128,6 @@
 				frame = media.edit( text, this.url ),
 				self = this,
 				events = 'change:url change:width change:height';
-
-			this.pausePlayers();
 
 			frame.state( 'embed' ).props.on( events, function( model, url ) {
 				if ( url && model.get( 'url' ) ) {
