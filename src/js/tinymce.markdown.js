@@ -64,10 +64,6 @@ tinymce.PluginManager.add( 'feeMarkDown', function( editor ) {
 		this.insertContent( '<hr>' );
 	}, '-' );
 
-	addMarkDown( /\:-?([()?oxPD|])/, function() {
-		this.insertContent( '<img src="http://wp/src/wp-includes/images/smilies/icon_smile.gif" alt=":-' + arguments[1] + '" class="wp-smiley">' );
-	}, '()?oxPD|' );
-
 	editor.on( 'keydown', function() {
 		index = editor.selection.getRng().startOffset;
 	} );
