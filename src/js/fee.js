@@ -33,8 +33,7 @@
 			$autoSaveNotice, $saveNotice,
 			$contentParents = $content.parents(),
 			$titleTags, $titles, $title, docTitle,
-			$url, $slug,
-			titleEditor, slugEditor, contentEditor,
+			titleEditor, contentEditor,
 			editors = [],
 			initializedEditors = 0,
 			releaseLock = true,
@@ -97,14 +96,6 @@
 			} else {
 				return wp.fee.postOnServer.post_title;
 			}
-		};
-
-		wp.fee.post.post_name = function() {
-			if ( slugEditor ) {
-				return slugEditor.getContent() || '';
-			}
-
-			return '';
 		};
 
 		wp.fee.post.post_content = function( content ) {
@@ -387,7 +378,7 @@
 		} ) );
 
 		function titleInit() {
-			var i, slugHTML, titleFocus, slugFocus,
+			var i,
 				indexes = {};
 
 			$titleTags = $( '.fee-title' );
@@ -422,21 +413,6 @@
 
 				$title.addClass( 'fee-title' );
 
-				slugHTML = wp.fee.permalink.replace( /(?:%pagename%|%postname%)/,
-					'<ins>' +
-						'<span class="fee-slug">' +
-							( wp.fee.postOnServer.post_name || wp.fee.postOnServer.ID ) +
-						'</span>' +
-					'</ins>'
-				);
-
-				if ( wp.fee.permalink !== slugHTML ) {
-					$title.after( '<p class="fee-url">' + slugHTML + '</p>' );
-				}
-
-				$url = $( '.fee-url' ).hide();
-				$slug = $( '.fee-slug' );
-
 				tinymce.init( {
 					selector: '.fee-title',
 					theme: 'fee',
@@ -459,85 +435,6 @@
 								contentEditor.focus();
 								event.preventDefault();
 							}
-						} );
-
-						editor.on( 'activate focus', function() {
-							titleFocus = true;
-							$url.slideDown( 'fast' );
-						} );
-
-						editor.on( 'deactivate blur hide', function() {
-							titleFocus = false;
-
-							setTimeout( function() {
-								if ( ! slugFocus ) {
-									$url.slideUp( 'fast', function() {
-										contentEditor.nodeChanged();
-									} );
-								}
-							}, 100 );
-						} );
-					}
-				} );
-
-				tinymce.init( {
-					selector: '.fee-slug',
-					theme: 'fee',
-					paste_as_text: true,
-					plugins: 'paste',
-					inline: true,
-					setup: function( editor ) {
-						slugEditor = editor;
-
-						registerEditor( editor );
-
-						editor.on( 'setcontent keyup', function() {
-							if ( editor.dom.isEmpty( editor.getBody() ) ) {
-								$slug.get( 0 ).innerHTML = '';
-							}
-						} );
-
-						editor.on( 'keydown', function( event ) {
-							if ( tinymce.util.VK.ENTER === event.keyCode ) {
-								event.preventDefault();
-							} else if ( tinymce.util.VK.SPACEBAR === event.keyCode ) {
-								event.preventDefault();
-								editor.insertContent( '-' );
-							}
-						} );
-
-						editor.on( 'blur', function() {
-							if ( editor.isDirty() ) {
-								wp.ajax.post( 'fee_slug', {
-									'post_ID': wp.fee.post.post_ID(),
-									'post_title': wp.fee.post.post_title(),
-									'post_name': wp.fee.post.post_name(),
-									'_wpnonce': wp.fee.nonces.slug
-								} )
-								.done( function( slug ) {
-									slugEditor.setContent( slug );
-								} );
-							}
-						} );
-
-						$url.on( 'click.fee', function() {
-							editor.focus();
-						} );
-
-						editor.on( 'activate focus', function() {
-							slugFocus = true;
-						} );
-
-						editor.on( 'deactivate blur hide', function() {
-							slugFocus = false;
-
-							setTimeout( function() {
-								if ( ! titleFocus ) {
-									$url.slideUp( 'fast', function() {
-										contentEditor.nodeChanged();
-									} );
-								}
-							}, 100 );
 						} );
 					}
 				} );
