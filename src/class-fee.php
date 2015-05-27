@@ -21,12 +21,12 @@ class FEE {
 
 		$this->wp_version = str_replace( '-src', '', $wp_version );
 
-		/* if (
+		if (
 			version_compare( $this->wp_version, $this->package['wp']['min'], '<' ) ||
 			version_compare( $this->wp_version, $this->package['wp']['max'], '>' )
 		) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
-		} */
+		}
 
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
