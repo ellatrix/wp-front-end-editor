@@ -293,7 +293,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 		toolbars.normal = createToolbar( settings.toolbar );
 		toolbars.img = createToolbar( [ 'imgalignleft', 'imgaligncenter', 'imgalignright', 'imgalignnone', 'edit', 'remove' ] );
-		toolbars.view = createToolbar( [ 'editview', 'removeview' ] );
+		toolbars.view = createToolbar( [ 'wp_view_edit', 'wp_view_remove' ] );
 
 		panel = self.panel = Factory.create( {
 			type: 'floatpanel',
@@ -385,7 +385,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 		editor.on( 'selectionchange nodechange', function( event ) {
 			var element = event.element || editor.selection.getNode(),
-				view = editor.plugins.wpview.getView();
+				view = editor.wp.getView( element );
 
 			if ( editor.selection.isCollapsed() && ! view ) {
 				panel.hide();

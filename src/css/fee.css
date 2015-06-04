@@ -1,3 +1,8 @@
+body.progress,
+body.progress * {
+	cursor: progress !important;
+}
+
 .fee-on .fee-content-original,
 .fee-on .fee-link-pages,
 .fee-off .fee-content-body,
@@ -9,9 +14,42 @@
 	display: none;
 }
 
+.fee-on #wpadminbar #wp-admin-bar-edit > .ab-item:before {
+	content: '\f140';
+}
+
 #wpadminbar .ab-top-menu > li.active > .ab-item {
 	background: #333;
 	color: #2ea2cc;
+}
+
+#wp-admin-bar-edit li {
+	display: none;
+}
+
+#wp-admin-bar-edit #wp-admin-bar-edit-in-admin,
+.fee-on #wp-admin-bar-edit li {
+	display: block;
+}
+
+#wpadminbar #wp-admin-bar-edit-save > .ab-item:before {
+	content: '\f464';
+	padding: 3px 0 0;
+}
+
+#wpadminbar #wp-admin-bar-edit-publish > .ab-item:before {
+	content: '\f319';
+	padding: 3px 0 0;
+}
+
+#wpadminbar #wp-admin-bar-edit-in-admin > .ab-item:before {
+	content: '\f108';
+	padding: 3px 0 0;
+}
+
+#wpadminbar #wp-admin-bar-edit-cancel > .ab-item:before {
+	content: '\f158';
+	padding: 3px 0 0;
 }
 
 .fee-on .fee-thumbnail {
@@ -22,69 +60,6 @@
 .fee-on .fee-empty .fee-insert-thumbnail {
 	display: block;
 }
-
-.fee-toolbar {
-	position: fixed;
-	bottom: 0;
-	z-index: 100000;
-	padding: 8px;
-	background: #f5f5f5;
-	box-shadow: 0 1px 1px rgba( 0, 0, 0, 0.04 );
-	border: 1px solid #dedede;
-	border-radius: 3px 3px 0 0;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
-.fee-toolbar .fee-toolbar-right {
-	float: right;
-}
-
-.fee-publish-options-dropdown {
-	position: fixed;
-	bottom: 60px;
-	z-index: 100000;
-	padding: 8px;
-	background: #f5f5f5;
-	box-shadow: 0 1px 1px rgba( 0, 0, 0, 0.04 );
-	border: 1px solid #dedede;
-	border-radius: 3px;
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	box-sizing: border-box;
-	display: none;
-}
-
-.fee-publish-options-dropdown label {
-	display: block;
-}
-
-/*@media screen and (max-width: 782px) {
-	.fee-on #wp-toolbar > ul > li {
-		display: none !important;
-	}
-
-	.fee-on #wp-toolbar #wp-admin-bar-edit {
-		display: block !important;
-	}
-
-	.fee-toolbar {
-		padding: 5px 10px;
-	}
-
-	.fee-toolbar .button {
-		height: 36px;
-		line-height: normal;
-		margin-bottom: 0;
-	}
-}
-
-@media screen and (max-width: 600px) {
-	.fee-toolbar {
-		position: absolute;
-	}
-}*/
 
 br.fee-title {
 	display: none;

@@ -1,21 +1,29 @@
 <?php
 
 class FEE {
-	const VERSION = '1.0.0-beta1.1';
-	const MIN_VERSION = '4.0-RC';
-	const MAX_VERSION = '4.1-beta';
+	public $package;
+	public $wp_version;
 
 	private $fee;
 
 	function __construct() {
-		global $wp_version;
+		$dir = dirname( __FILE__ );
 
-		$version = str_replace( '-src', '', $wp_version );
+		if ( file_exists( $dir . '/package.json' ) ) {
+			$package = $dir . '/package.json';
+		} elseif ( file_exists( dirname( $dir ) . '/package.json' ) ) {
+			$package = dirname( $dir ) . '/package.json';
+		}
+
+		$this->package = json_decode( file_get_contents( $package ), true );
+
+		include ABSPATH . WPINC . '/version.php';
+
+		$this->wp_version = str_replace( '-src', '', $wp_version );
 
 		if (
-			empty( $version ) ||
-			version_compare( $version, self::MIN_VERSION, '<' ) ||
-			version_compare( $version, self::MAX_VERSION, '>' )
+			version_compare( $this->wp_version, $this->package['wp']['min'], '<' ) ||
+			version_compare( $this->wp_version, $this->package['wp']['max'], '>' )
 		) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
@@ -27,7 +35,7 @@ class FEE {
 	}
 
 	function admin_notices() {
-		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> currently only works between versions %s and %s.' ), self::MIN_VERSION, self::MAX_VERSION ) . '</p></div>';
+		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> currently only works between versions %s and %s.' ), $this->package['wp']['min'], $this->package['wp']['max'] ) . '</p></div>';
 	}
 
 	function init() {
@@ -176,14 +184,14 @@ class FEE {
 		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.gitignore' ) ? '' : '.min';
 
 		if ( $this->has_fee() ) {
-			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, $this->package['version'], 'screen' );
 			wp_enqueue_style( 'buttons' );
 			wp_enqueue_style( 'wp-auth-check' );
 
 			wp_enqueue_script( 'wp-auth-check' );
 
-			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
+			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), $this->package['version'], true );
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'blog_id' => get_current_blog_id()
@@ -200,15 +208,15 @@ class FEE {
 			}
 
 			if ( empty( $suffix ) ) {
-				wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
 
-				wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
 			} else {
-				wp_enqueue_script( 'fee-tinymce-plugins', $this->url( '/js/tinymce.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-plugins', $this->url( '/js/tinymce.min.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
 			}
 
 			$tinymce_plugins = array(
@@ -235,12 +243,7 @@ class FEE {
 			);
 
 			$tinymce_blocks = array(
-				'wp_image',
-				'wp_gallery',
-				'wp_audio',
-				'wp_audio_playlist',
-				'wp_video',
-				'wp_video_playlist',
+				'wp_media',
 				'hr',
 				'wp_more',
 				'wp_page'
@@ -263,7 +266,7 @@ class FEE {
 			wp_enqueue_script( 'wp-lists' );
 			wp_localize_script( 'wp-lists', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), $this->package['version'], true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
@@ -287,19 +290,23 @@ class FEE {
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
-			wp_deregister_script( 'mce-view' );
-			wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view' . $suffix . '.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), self::VERSION, true );
+			// if ( version_compare( $this->wp_version, '4.2-beta', '<' ) ) {
+				wp_deregister_script( 'mce-view' );
+				wp_enqueue_script( 'mce-view', $this->url( '/js/mce-view' . $suffix . '.js' ), array( 'shortcode', 'media-models', 'media-audiovideo', 'wp-playlist' ), $this->package['version'], true );
+			// }
+
+			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register' . $suffix . '.js' ), array( 'mce-view', 'fee' ), $this->package['version'], true );
 
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), self::VERSION, true );
-			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), $this->package['version'], true );
+			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, $this->package['version'], 'screen' );
 
-			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, $this->package['version'], 'screen' );
 			wp_enqueue_style( 'dashicons' );
 		}
 
@@ -311,8 +318,8 @@ class FEE {
 				$user = get_userdata( $user_id );
 			}
 
-			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), self::VERSION, true );
+			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), $this->package['version'], true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
@@ -523,9 +530,31 @@ class FEE {
 			$post_type_object->show_in_admin_bar
 		) {
 			$wp_admin_bar->remove_node( 'edit' );
+
 			$wp_admin_bar->add_node( array(
 				'id' => 'edit',
 				'title' => $post_type_object->labels->edit_item,
+				'href' => '#'
+			) );
+
+			$wp_admin_bar->add_node( array(
+				'parent' => 'edit',
+				'id' => 'edit-save',
+				'title' => __( 'Save Draft' ),
+				'href' => '#'
+			) );
+
+			$wp_admin_bar->add_node( array(
+				'parent' => 'edit',
+				'id' => 'edit-publish',
+				'title' => __( 'Publish' ),
+				'href' => '#'
+			) );
+
+			$wp_admin_bar->add_node( array(
+				'parent' => 'edit',
+				'id' => 'edit-cancel',
+				'title' => __( 'Cancel' ),
 				'href' => get_edit_post_link( $current_object->ID )
 			) );
 
@@ -568,100 +597,6 @@ class FEE {
 				<div class="dashicons dashicons-dismiss"></div>
 			</div>
 			<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
-			<div class="fee-toolbar">
-				<div class="fee-toolbar-right">
-					<?php if ( in_array( 'category', get_object_taxonomies( $post ) ) ) { ?>
-						<button class="button button-large fee-button-categories"><div class="dashicons dashicons-category"></div></button>
-					<?php } ?>
-
-					<?php if ( ! in_array( $post->post_status, array( 'publish', 'future', 'pending' ) ) ) { ?>
-						<button <?php if ( 'private' == $post->post_status ) { ?>style="display:none"<?php } ?> class="button button-large fee-save"><?php _e( 'Save Draft' ); ?></button>
-					<?php } elseif ( 'pending' === $post->post_status && $can_publish ) { ?>
-						<button class="button button-large fee-save"><?php _e( 'Save as Pending' ); ?></button>
-					<?php } ?>
-
-					<div class="button-group">
-						<?php if ( ! in_array( $post->post_status, array( 'publish', 'future', 'private' ) ) || 0 === $post->ID ) { ?>
-							<?php if ( $can_publish ) { ?>
-								<?php if ( ! empty($post->post_date_gmt ) && time() < strtotime( $post->post_date_gmt . ' +0000' ) ) { ?>
-									<button class="button button-primary button-large fee-publish"><?php _e( 'Schedule' ); ?></button>
-								<?php } else { ?>
-									<button class="button button-primary button-large fee-publish"><?php _e( 'Publish' ); ?></button>
-								<?php } ?>
-							<?php } else { ?>
-								<button class="button button-primary button-large fee-publish"><?php _e( 'Submit for Review' ); ?></button>
-							<?php } ?>
-						<?php } else { ?>
-							<button class="button button-primary button-large fee-save"><?php _e( 'Update' ); ?></button>
-						<?php } ?>
-						<button class="button button-primary button-large fee-publish-options" style="padding: 0 2px 2px 1px;">
-							<div class="dashicons dashicons-arrow-down"></div>
-						</button>
-					</div>
-				</div>
-			</div>
-			<div class="fee-publish-options-dropdown">
-				<label for="fee-post-status">
-					<div class="dashicons dashicons-post-status" style="margin-top: 5px;"></div>
-					<select id="fee-post-status">
-						<?php if ( 'publish' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'publish' ); ?> value="publish"><?php _e( 'Published' ); ?></option>
-						<?php } elseif ( 'private' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'private' ); ?> value="publish"><?php _e( 'Privately Published' ); ?></option>
-						<?php } elseif ( 'future' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'future' ); ?> value="future"><?php _e( 'Scheduled' ); ?></option>
-						<?php } ?>
-
-						<option<?php selected( $post->post_status, 'pending' ); ?> value="pending"><?php _e( 'Pending Review' ); ?></option>
-
-						<?php if ( 'auto-draft' === $post->post_status ) { ?>
-							<option<?php selected( $post->post_status, 'auto-draft' ); ?> value="draft"><?php _e( 'Draft' ); ?></option>
-						<?php } else { ?>
-							<option<?php selected( $post->post_status, 'draft' ); ?> value="draft"><?php _e( 'Draft' ); ?></option>
-						<?php } ?>
-					</select>
-				</label>
-
-				<?php if ( $can_publish ) {
-					if ( 'private' === $post->post_status ) {
-						$post->post_password = '';
-						$visibility = 'private';
-					} elseif ( ! empty( $post->post_password ) ) {
-						$visibility = 'password';
-					} elseif ( $post_type == 'post' && is_sticky( $post->ID ) ) {
-						$visibility = 'sticky';
-						$visibility_trans = __( 'Public, Sticky' );
-					} else {
-						$visibility = 'public';
-					}
-				?>
-					<label for="fee-post-visibility">
-						<div class="dashicons dashicons-visibility" style="margin-top: 5px;"></div>
-						<select id="fee-post-visibility">
-							<option<?php selected( $visibility, 'public' ); ?> value="public"><?php _e( 'Public' ); ?></option>
-							<option<?php selected( $visibility, 'sticky' ); ?> value="sticky"><?php _e( 'Public, Sticky' ); ?></option>
-							<option<?php selected( $visibility, 'password' ); ?> value="password"><?php _e( 'Password protected' ); ?></option>
-							<option<?php selected( $visibility, 'private' ); ?> value="private"><?php _e( 'Private' ); ?></option>
-						</select>
-						<div<?php  echo $visibility === 'password' ? '' : ' style="display: none;"'; ?>>
-							<div class="dashicons dashicons-admin-network" style="margin-top: 5px;"></div>
-							<input type="text" id="fee-post-password" value="<?php echo esc_attr( $post->post_password ); ?>"  maxlength="20" />
-						</div>
-					</label>
-				<?php } ?>
-
-				<?php if ( post_type_supports( $post_type, 'author' ) && ( is_super_admin() || current_user_can( $post_type_object->cap->edit_others_posts ) ) ) { ?>
-					<label for="fee-post-author">
-						<div class="dashicons dashicons-admin-users" style="margin-top: 5px;"></div>
-						<?php wp_dropdown_users( array(
-							'who' => 'authors',
-							'name' => 'fee-post-author',
-							'selected' => $post->post_author,
-							'include_selected' => true
-						) ); ?>
-					</label>
-				<?php } ?>
-			</div>
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">
 					<p><?php _e( 'The changes you made will be lost if you navigate away from this page.' ); ?></p>

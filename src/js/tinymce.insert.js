@@ -161,66 +161,11 @@ tinymce.PluginManager.add( 'insert', function( editor ) {
 		insertModal.renderTo( document.body ).hide();
 	} );
 
-	editor.addButton( 'wp_image', {
-		tooltip: 'Image',
-		icon: 'dashicons-format-image',
+	editor.addButton( 'wp_media', {
+		tooltip: 'Media',
+		icon: 'dashicons-admin-media',
 		onclick: function() {
-			var instance = wp.media.editor.open().setState( 'insert' );
-
-			jQuery( instance.el )
-				.find( 'select.attachment-filters' )
-				.val( 'image' )
-				.trigger( 'change' );
-		}
-	} );
-
-	editor.addButton( 'wp_gallery', {
-		tooltip: 'Gallery',
-		icon: 'dashicons-format-gallery',
-		onclick: function() {
-			wp.media.editor.open().setState( 'gallery-library' );
-		}
-	} );
-
-	editor.addButton( 'wp_audio', {
-		tooltip: 'Audio',
-		icon: 'dashicons-format-audio',
-		onclick: function() {
-			var instance = wp.media.editor.open().setState( 'insert' );
-
-			jQuery( instance.el )
-				.find( 'select.attachment-filters' )
-				.val( 'audio' )
-				.trigger( 'change' );
-		}
-	} );
-
-	editor.addButton( 'wp_audio_playlist', {
-		tooltip: 'Audio Playlist',
-		icon: 'dashicons-playlist-audio',
-		onclick: function() {
-			wp.media.editor.open().setState( 'playlist' );
-		}
-	} );
-
-	editor.addButton( 'wp_video', {
-		tooltip: 'Video',
-		icon: 'dashicons-video-alt3',
-		onclick: function() {
-			var instance = wp.media.editor.open().setState( 'insert' );
-
-			jQuery( instance.el )
-				.find( 'select.attachment-filters' )
-				.val( 'video' )
-				.trigger( 'change' );
-		}
-	} );
-
-	editor.addButton( 'wp_video_playlist', {
-		tooltip: 'Video Playlist',
-		icon: 'dashicons-playlist-video',
-		onclick: function() {
-			wp.media.editor.open().setState( 'video-playlist' );
+			wp.media.editor.open( editor.id );
 		}
 	} );
 } );
