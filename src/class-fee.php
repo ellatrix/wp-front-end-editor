@@ -9,9 +9,9 @@ class FEE {
 	function __construct() {
 		$dir = dirname( __FILE__ );
 
-		if ( file_exists( $dir . '/package.json' ) ) {
+		if ( is_readable( $dir . '/package.json' ) ) {
 			$package = $dir . '/package.json';
-		} elseif ( file_exists( dirname( $dir ) . '/package.json' ) ) {
+		} elseif ( is_readable( dirname( $dir ) . '/package.json' ) ) {
 			$package = dirname( $dir ) . '/package.json';
 		}
 
