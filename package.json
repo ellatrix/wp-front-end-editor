@@ -53,7 +53,7 @@
   "wp": {
     "name": "Front-end Editor",
     "min": "4.1",
-    "max": "4.3-alpha",
+    "max": "4.3.1",
     "network": false,
     "textDomain": "wp-front-end-editor",
     "domainPath": "languages"

@@ -367,7 +367,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			var self = this;
 
 			setTimeout( function() {
-				self._visible && DOM.addClass( self.getEl(), 'mce-inline-toolbar-active' );
+				DOM.addClass( self.getEl(), 'mce-inline-toolbar-active' );
 			}, 100 );
 		} );
 
