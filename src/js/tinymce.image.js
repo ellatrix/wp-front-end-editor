@@ -432,7 +432,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 		if ( node.nodeName === 'DIV' && editor.dom.hasClass( node, 'mceTemp' ) ) {
 			wrap = node;
 		} else if ( node.nodeName === 'IMG' || node.nodeName === 'DT' || node.nodeName === 'A' ) {
-			wrap = editor.dom.getParent( node, 'a' ) || node.element;
+			wrap = editor.dom.getParent( node, 'a' ) || editor.dom.get( node );
 		}
 
 		if ( wrap ) {
