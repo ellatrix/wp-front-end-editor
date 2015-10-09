@@ -220,6 +220,7 @@ class FEE {
 			}
 
 			$tinymce_plugins = array(
+				'wordpress',
 				'feeImage',
 				'feeMarkDown',
 				'wpmore',
