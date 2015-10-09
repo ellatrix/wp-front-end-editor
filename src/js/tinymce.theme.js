@@ -364,10 +364,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		};
 
 		panel.on( 'show', function() {
-			var self = this;
-
 			setTimeout( function() {
-				self._visible && DOM.addClass( self.getEl(), 'mce-inline-toolbar-active' );
+				panel.state.data.visible && DOM.addClass( panel.getEl(), 'mce-inline-toolbar-active' );
 			}, 100 );
 		} );
 
