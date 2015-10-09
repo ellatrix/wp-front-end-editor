@@ -9,9 +9,9 @@ class FEE {
 	function __construct() {
 		$dir = dirname( __FILE__ );
 
-		if ( file_exists( $dir . '/package.json' ) ) {
+		if ( is_readable( $dir . '/package.json' ) ) {
 			$package = $dir . '/package.json';
-		} elseif ( file_exists( dirname( $dir ) . '/package.json' ) ) {
+		} elseif ( is_readable( dirname( $dir ) . '/package.json' ) ) {
 			$package = dirname( $dir ) . '/package.json';
 		}
 
@@ -596,13 +596,13 @@ class FEE {
 			<div class="fee-alert fee-leave">
 				<div class="fee-alert-body">
 					<p><?php _e( 'The changes you made will be lost if you navigate away from this page.' ); ?></p>
-					<button class="button fee-cancel">Cancel</button>
+					<button class="button fee-cancel"><?php _e( 'Cancel' ); ?></button>
 					<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
 						<button class="button fee-save-and-exit"><?php _e( 'Save and leave' ); ?></button>
 					<?php } else { ?>
 						<button class="button fee-save-and-exit"><?php _e( 'Update and leave' ); ?></button>
 					<?php } ?>
-					<button class="button button-primary fee-exit">Leave</button>
+					<button class="button button-primary fee-exit"><?php _e( 'Leave' ); ?></button>
 				</div>
 			</div>
 			<?php
