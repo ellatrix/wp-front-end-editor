@@ -19,5 +19,5 @@ if ( class_exists( 'FEE' ) ) {
 
 require_once( 'class-fee.php' );
 
-global $wordpress_front_end_editor;
-$wordpress_front_end_editor = new FEE;
+global $wp_front_end_editor;
+$wp_front_end_editor = new FEE;
