@@ -622,17 +622,17 @@
 			}
 		} );
 
-		$( '#wp-admin-bar-edit-publish > a' ).on( 'click.fee', function() {
+		$( '#wp-admin-bar-edit-publish > a' ).on( 'click.fee', function( event ) {
 			event.preventDefault();
 			publish();
 		} );
 
-		$( '#wp-admin-bar-edit-save > a' ).on( 'click.fee', function() {
+		$( '#wp-admin-bar-edit-save > a' ).on( 'click.fee', function( event ) {
 			event.preventDefault();
 			save();
 		} );
 
-		$( '#wp-admin-bar-edit > a' ).on( 'click.fee', function() {
+		$( '#wp-admin-bar-edit > a' ).on( 'click.fee', function( event ) {
 			event.preventDefault();
 			on();
 		} );
