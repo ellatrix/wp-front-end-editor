@@ -66,6 +66,7 @@ class FEE {
 		}
 
 		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
+		$_POST['sticky'] = is_sticky( $_POST['post_ID'] );
 
 		$post_id = edit_post();
 
