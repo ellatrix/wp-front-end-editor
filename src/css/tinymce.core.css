@@ -864,6 +864,7 @@ body .mce-abs-layout-item,
 	margin: 0;
 }
 
+.mce-inline-toolbar-grp .mce-btn,
 .mce-tinymce-inline .mce-btn {
 	border: 1px solid transparent;
 	position: relative;
@@ -877,6 +878,8 @@ body .mce-abs-layout-item,
 	line-height: 24px;
 }
 
+.mce-inline-toolbar-grp .mce-btn:hover,
+.mce-inline-toolbar-grp .mce-btn:focus,
 .mce-tinymce-inline .mce-btn:hover,
 .mce-tinymce-inline .mce-btn:focus {
 	color: #222;
@@ -886,6 +889,7 @@ body .mce-abs-layout-item,
 	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
 }
 
+.mce-inline-toolbar-grp .mce-btn.mce-disabled:not(:focus),
 .mce-tinymce-inline .mce-btn.mce-disabled:not(:focus) {
 	position: absolute;
 	margin: -1px;
@@ -897,6 +901,8 @@ body .mce-abs-layout-item,
 	border: 0;
 }
 
+.mce-inline-toolbar-grp .mce-btn.mce-disabled button,
+.mce-inline-toolbar-grp .mce-btn.mce-disabled:hover button,
 .mce-tinymce-inline .mce-btn.mce-disabled button,
 .mce-tinymce-inline .mce-btn.mce-disabled:hover button {
 	cursor: default;
@@ -904,6 +910,8 @@ body .mce-abs-layout-item,
 	box-shadow: none;
 }
 
+.mce-inline-toolbar-grp .mce-btn.mce-active,
+.mce-inline-toolbar-grp .mce-btn:active,
 .mce-tinymce-inline .mce-btn.mce-active,
 .mce-tinymce-inline .mce-btn:active {
 	background-color: #ebebeb;
@@ -912,10 +920,12 @@ body .mce-abs-layout-item,
 	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
 }
 
+.mce-inline-toolbar-grp .mce-btn.mce-active:hover,
 .mce-tinymce-inline .mce-btn.mce-active:hover {
 	border-color: #555;
 }
 
+.mce-inline-toolbar-grp .mce-btn button,
 .mce-tinymce-inline .mce-btn button {
 	padding: 2px 3px;
 	font-size: 14px;
@@ -932,6 +942,7 @@ body .mce-abs-layout-item,
 	box-sizing: border-box;
 }
 
+.mce-inline-toolbar-grp .mce-btn button i,
 .mce-tinymce-inline .mce-btn button i {
 	line-height: 20px;
 }

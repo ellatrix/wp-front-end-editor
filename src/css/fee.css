@@ -655,3 +655,33 @@ div.mce-inline-toolbar-grp.mce-arrow-full > div {
 	width: 100%;
 	overflow-x: auto;
 }
+
+
+div.wp-link-preview {
+	float: left;
+	margin: 5px;
+	max-width: 694px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div.wp-link-preview a {
+	color: #0073aa;
+	text-decoration: underline;
+	-webkit-transition-property: border, background, color;
+	transition-property: border, background, color;
+	-webkit-transition-duration: .05s;
+	transition-duration: .05s;
+	-webkit-transition-timing-function: ease-in-out;
+	transition-timing-function: ease-in-out;
+	cursor: pointer;
+}
+
+@media screen and ( max-width: 782px ) {
+	div.wp-link-preview {
+		margin: 8px 0 8px 5px;
+		max-width: 70%;
+		max-width: -webkit-calc(100% - 86px);
+		max-width: calc(100% - 86px);
+	}
+}
