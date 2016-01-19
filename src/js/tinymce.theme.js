@@ -302,7 +302,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			autohide: true,
 			items: [
 				toolbars.normal,
-				toolbars.img,
+				toolbars.img
 			]
 		} );
 
