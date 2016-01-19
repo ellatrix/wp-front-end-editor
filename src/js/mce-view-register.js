@@ -95,7 +95,7 @@
 			} );
 		},
 
-		bind: function( editor, node, contentNode ) {
+		bindNode: function( editor, node, contentNode ) {
 			var $node = $( contentNode );
 			var $audio = $node.find( '.wp-audio-shortcode' );
 			var $video = $node.find( '.wp-video-shortcode' );
@@ -111,7 +111,7 @@
 			}
 		},
 
-		unbind: function( editor, node, contentNode ) {
+		unbindNode: function( editor, node, contentNode ) {
 			var $player = $( contentNode ).find( '.mejs-container' );
 
 			if ( $player.length ) {

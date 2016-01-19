@@ -194,9 +194,9 @@
 				document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
 			}
 
-			getEditors( function( editor ) {
-				editor.hide();
-			} );
+			// getEditors( function( editor ) {
+			// 	editor.hide();
+			// } );
 
 			$document.trigger( 'fee-off' );
 
@@ -351,7 +351,7 @@
 			editors.push( editor );
 
 			editor.on( 'init', function() {
-				editor.hide();
+				// editor.hide();
 
 				initializedEditors++;
 
