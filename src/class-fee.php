@@ -21,10 +21,7 @@ class FEE {
 
 		$this->wp_version = str_replace( '-src', '', $wp_version );
 
-		if (
-			version_compare( $this->wp_version, $this->package['wp']['min'], '<' ) ||
-			version_compare( $this->wp_version, $this->package['wp']['max'], '>' )
-		) {
+		if ( version_compare( $this->wp_version, $this->package['wp']['min'], '<' ) ) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
 
@@ -35,7 +32,7 @@ class FEE {
 	}
 
 	function admin_notices() {
-		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> currently only works between versions %s and %s.' ), $this->package['wp']['min'], $this->package['wp']['max'] ) . '</p></div>';
+		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> requires WordPress version %s or higher.' ), $this->package['wp']['min'] ) . '</p></div>';
 	}
 
 	function init() {

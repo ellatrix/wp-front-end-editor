@@ -52,8 +52,7 @@
   },
   "wp": {
     "name": "Front-end Editor",
-    "min": "4.3-RC",
-    "max": "4.5-alpha",
+    "min": "4.4",
     "network": "false",
     "textDomain": "wp-front-end-editor",
     "domainPath": "languages"
