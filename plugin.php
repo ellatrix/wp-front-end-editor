@@ -2,8 +2,8 @@
 
 /*
  * Plugin Name: Front-end Editor
- * Plugin URI:  <%= pkg.homepage %>
- * Description: <%= pkg.description %>
+ * Plugin URI:  https://wordpress.org/plugins/wp-front-end-editor/
+ * Description: Edit your posts on the front-end of your site.
  * Version:     1.1.0
  * Author:      Ella Iseulde Van Dorpe
  * Author URI:  https://iseulde.com
