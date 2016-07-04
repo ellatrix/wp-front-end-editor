@@ -3,6 +3,7 @@
 class FEE {
 	const VERSION = '1.1.0';
 	const MIN_WP_VERSION = '4.5';
+	const TINYMCE_VERSION = '4.4';
 
 	private $fee;
 
@@ -156,20 +157,7 @@ class FEE {
 	}
 
 	function wp_enqueue_scripts() {
-
-		global $post, $wp_version, $tinymce_version, $concatenate_scripts, $compress_scripts;
-
-		if ( ! isset( $concatenate_scripts ) ) {
-			script_concat_settings();
-		}
-
-		$compressed =
-			$compress_scripts &&
-			$concatenate_scripts &&
-			isset( $_SERVER['HTTP_ACCEPT_ENCODING'] ) &&
-			false !== stripos( $_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip' );
-
-		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.gitignore' ) ? '' : '.min';
+		global $post, $wp_version;
 
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
@@ -179,31 +167,21 @@ class FEE {
 
 			wp_enqueue_script( 'wp-auth-check' );
 
-			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
+			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'blog_id' => get_current_blog_id()
 			) );
 
-			// Load tinymce.js when running from /src, else load wp-tinymce.js.gz (production) or tinymce.min.js (SCRIPT_DEBUG)
-			$mce_suffix = false !== strpos( $wp_version, '-src' ) ? '' : '.min';
+			wp_enqueue_script( 'fee-tinymce', $this->url( '/modules/tinymce/tinymce.min.js' ), array(), self::TINYMCE_VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
-			if ( $compressed ) {
-				wp_enqueue_script( 'fee-tinymce', includes_url( 'js/tinymce' ) . '/wp-tinymce.php?c=1', array(), $tinymce_version, true );
-			} else {
-				wp_enqueue_script( 'fee-tinymce', includes_url( 'js/tinymce' ) . '/tinymce' . $mce_suffix . '.js', array(), $tinymce_version, true );
-				wp_enqueue_script( 'fee-tinymce-compat3x', includes_url( 'js/tinymce' ) . '/plugins/compat3x/plugin' . $suffix . '.js', array( 'fee-tinymce' ), $tinymce_version, true );
-			}
-
-			if ( empty( $suffix ) ) {
-				wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-				wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-
-				wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			} else {
-				wp_enqueue_script( 'fee-tinymce-plugins', $this->url( '/js/tinymce.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			}
+			wp_enqueue_script( 'wp-tinymce-wordpress', includes_url( '/js/tinymce/plugins/wordpress/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'wp-tinymce-wplink', includes_url( '/js/tinymce/plugins/wplink/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'wp-tinymce-wptextpattern', includes_url( '/js/tinymce/plugins/wptextpattern/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
 			$tinymce_plugins = array(
 				'wordpress',
@@ -213,7 +191,6 @@ class FEE {
 				'wpview',
 				'paste',
 				'insert',
-				'hr',
 				'lists'
 			);
 
@@ -245,7 +222,7 @@ class FEE {
 			wp_enqueue_script( 'wp-lists' );
 			wp_localize_script( 'wp-lists', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
@@ -269,12 +246,12 @@ class FEE {
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
-			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register' . $suffix . '.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
+			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
 
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal.js' ), array( 'jquery' ), self::VERSION, true );
 			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, self::VERSION, 'screen' );
 
 			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
@@ -293,7 +270,7 @@ class FEE {
 			}
 
 			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
