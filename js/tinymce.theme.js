@@ -246,36 +246,15 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		} );
 
 		if ( settings.placeholder ) {
-			editor.on( 'blur LoadContent deactivate', function() {
+			editor.on( 'init', function() {
+				editor.getBody().setAttribute( 'data-placeholder', settings.placeholder );
+			} );
+
+			editor.on( 'blur setcontent loadcontent', function() {
 				if ( isEmpty() ) {
-					editor.setContent( settings.placeholder );
-					hasPlaceholder = true;
-					DOM.addClass( editor.getBody(), 'mce-placeholder' );
-				}
-			} );
-
-			editor.on( 'focus activate', function() {
-				if ( hasPlaceholder ) {
-					editor.setContent( '' );
-				}
-			} );
-
-			editor.on( 'SetContent', function( event ) {
-				if ( hasPlaceholder && ! event.load ) {
-					hasPlaceholder = false;
-					DOM.removeClass( editor.getBody(), 'mce-placeholder' );
-				}
-			} );
-
-			editor.on( 'PostProcess', function( event ) {
-				if ( hasPlaceholder && event.content ) {
-					event.content = '';
-				}
-			} );
-
-			editor.on( 'BeforeAddUndo', function( event ) {
-				if ( hasPlaceholder ) {
-					event.preventDefault();
+					editor.getBody().setAttribute( 'data-empty', '' );
+				} else {
+					editor.getBody().removeAttribute( 'data-empty' );
 				}
 			} );
 		}

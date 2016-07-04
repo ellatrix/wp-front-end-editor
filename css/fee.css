@@ -80,8 +80,15 @@ br.fee-title {
 	display: none;
 }
 
-.mce-placeholder {
+.mce-content-body[data-placeholder][data-empty]:before {
 	opacity: 0.5;
+	content: attr( data-placeholder );
+	display: block;
+	position: absolute;
+}
+
+.mce-content-body[data-placeholder][data-empty]:focus:before {
+	content: '';
 }
 
 .fee-alert {

@@ -213,7 +213,7 @@ class FEE {
 				'relative_urls' => false,
 				'convert_urls' => false,
 				'browser_spellcheck' => true,
-				'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write&hellip;' ) ),
+				'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write…' ) ),
 				'wpeditimage_html5_captions' => current_theme_supports( 'html5', 'caption' ),
 				'end_container_on_empty_block' => true
 			);
