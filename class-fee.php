@@ -36,10 +36,8 @@ class FEE {
 
 		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
-		add_action( 'wp_ajax_fee_slug', array( $this, 'ajax_slug' ) );
 		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
-		add_action( 'wp_ajax_fee_categories', array( $this, 'ajax_categories' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'wp', array( $this, 'wp' ) );
@@ -102,14 +100,6 @@ class FEE {
 		wp_send_json_success( $this->edit_link( $post->ID ) );
 	}
 
-	function ajax_slug() {
-		check_ajax_referer( 'slug-nonce_' . $_POST['post_ID'], '_wpnonce' );
-
-		$sample = get_sample_permalink( $_POST['post_ID'], $_POST['post_title'], $_POST['post_name'] );
-
-		wp_send_json_success( $sample[1] );
-	}
-
 	function ajax_shortcode() {
 		global $post;
 
@@ -136,24 +126,6 @@ class FEE {
 		}
 
 		die;
-	}
-
-	function ajax_categories() {
-		global $post;
-
-		check_ajax_referer( 'fee-categories_' . $_POST['post_ID'], 'nonce' );
-
-		$post = get_post( $_POST['post_ID'] );
-
-		setup_postdata( $post );
-
-		$original_categories = $this->get_post_tax_and_terms();
-		$original_categories = $original_categories['category'];
-		wp_set_post_categories( $_POST['post_ID'], isset( $_POST['post_category'] ) ? $_POST['post_category'] : array() );
-		$list = get_the_category_list( urldecode( $_POST['separator'] ), urldecode( $_POST['parents'] ) );
-		wp_set_post_categories( $_POST['post_ID'], $original_categories );
-
-		wp_send_json_success( $list );
 	}
 
 	function wp_enqueue_scripts() {
@@ -225,18 +197,13 @@ class FEE {
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
-				'permalink' => $this->get_sample_permalink( $post->ID ),
 				'nonces' => array(
-					'post' => wp_create_nonce( 'update-post_' . $post->ID ),
-					'slug' => wp_create_nonce( 'slug-nonce_' . $post->ID ),
-					'categories' => wp_create_nonce( 'fee-categories_' . $post->ID )
+					'post' => wp_create_nonce( 'update-post_' . $post->ID )
 				),
 				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
 				'notices' => array(
 					'autosave' => $this->get_autosave_notice()
-				),
-				'postTaxOnServer' => $this->get_post_tax_and_terms(),
-				'taxonomies' => $this->get_tax_and_terms()
+				)
 			) );
 			wp_localize_script( 'fee', 'feeL10n', array(
 				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
@@ -252,9 +219,6 @@ class FEE {
 
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
-
-			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal.js' ), array( 'jquery' ), self::VERSION, true );
-			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, self::VERSION, 'screen' );
 
 			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
@@ -320,7 +284,6 @@ class FEE {
 		add_filter( 'wp_link_pages', array( $this, 'wp_link_pages' ) );
 		add_filter( 'post_thumbnail_html', array( $this, 'post_thumbnail_html' ), 10, 5 );
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
-		add_filter( 'the_category', array( $this, 'the_category' ), 10, 3 );
 		add_filter( 'private_title_format', array( $this, 'private_title_format' ), 10, 2 );
 		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
 
@@ -447,18 +410,6 @@ class FEE {
 		}
 	}
 
-	function the_category( $thelist, $separator = '', $parents = '' ) {
-		if (
-			is_main_query() &&
-			in_the_loop() &&
-			$this->did_action( 'wp_head' )
-		) {
-			$thelist = '<div class="fee-categories" data-separator="' . urlencode( $separator ) . '" data-parents="' . urlencode( $parents ) . '">' . $thelist . '</div>';
-		}
-
-		return $thelist;
-	}
-
 	function private_title_format( $title, $post ) {
 		if ( $post->ID === get_queried_object_id() ) {
 			$title = '%s';
@@ -562,40 +513,6 @@ class FEE {
 					<button class="button button-primary fee-exit">Leave</button>
 				</div>
 			</div>
-			<?php
-			require( ABSPATH  . '/wp-admin/includes/meta-boxes.php' );
-
-			$taxonomies = get_object_taxonomies( $post );
-
-			if ( is_array( $taxonomies ) ) {
-				foreach ( $taxonomies as $tax_name ) {
-					$taxonomy = get_taxonomy( $tax_name );
-
-					if ( ! $taxonomy->show_ui || false === $taxonomy->meta_box_cb ) {
-						continue;
-					}
-
-					?>
-					<div class="modal fee-<?php echo $tax_name; ?>-modal" tabindex="-1" role="dialog" aria-hidden="true">
-						<div class="modal-dialog modal-sm">
-							<div class="modal-content">
-								<div class="modal-header">
-									<button data-dismiss="modal" style="float: right;"><span aria-hidden="true">&times;</span><span class="sr-only"><?php _e( 'Close' ); ?></span></button>
-									<div class="modal-title" id="myModalLabel"><?php echo $taxonomy->labels->name; ?></div>
-								</div>
-								<div class="modal-body">
-									<?php call_user_func( $taxonomy->meta_box_cb, $post, array( 'args' => array( 'taxonomy' => $tax_name ) ) ); ?>
-								</div>
-								<div class="modal-footer">
-									<button class="button button-primary" data-dismiss="modal"><?php _e( 'Close' ); ?></button>
-								</div>
-							</div>
-						</div>
-					</div>
-					<?php
-				}
-			}
-			?>
 		</div>
 		<?php
 	}
@@ -718,41 +635,6 @@ class FEE {
 		return $post_types;
 	}
 
-	function get_tax_and_terms( $post = null ) {
-		$tax_info = array();
-		$taxonomies = get_object_taxonomies( get_post( $post ) );
-
-		if ( is_array( $taxonomies ) ) {
-			foreach ( $taxonomies as $taxonomy ) {
-				$tax_info[ $taxonomy ] = array(
-					'labels' => get_taxonomy( $taxonomy )->labels,
-					'terms' => get_terms( $taxonomy )
-				);
-			}
-		}
-
-		return $tax_info;
-	}
-
-	function get_post_tax_and_terms( $post = null ) {
-		$tax_info = array();
-		$post = get_post( $post );
-
-		foreach ( get_object_taxonomies( $post ) as $taxonomy ) {
-			$tax_info[ $taxonomy ] = array();
-
-			$terms = get_the_terms( $post->ID, $taxonomy );
-
-			if ( is_array( $terms ) ) {
-				foreach ( $terms as $term ) {
-					$tax_info[ $taxonomy ][] = $term->term_id;
-				}
-			}
-		}
-
-		return $tax_info;
-	}
-
 	function did_action( $tag ) {
 		return did_action( $tag ) - (int) doing_filter( $tag );
 	}
@@ -805,14 +687,5 @@ class FEE {
 		$return = rtrim( $return, '#' );
 
 		return $return;
-	}
-
-	function get_sample_permalink( $post ) {
-		$_post = get_post( $post );
-		$_post->post_status = 'published';
-
-		$sample = get_sample_permalink( $_post );
-
-		return $sample[0];
 	}
 }
