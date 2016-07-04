@@ -1,3 +1,6 @@
 [submodule "modules/tinymce"]
 	path = modules/tinymce
 	url = https://github.com/tinymce/tinymce-dist
+[submodule "modules/wordpress"]
+	path = modules/wordpress
+	url = git://core.git.wordpress.org/
