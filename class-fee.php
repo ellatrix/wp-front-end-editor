@@ -1,27 +1,17 @@
 <?php
 
 class FEE {
-	public $package;
-	public $wp_version;
+	const VERSION = '1.1.0';
+	const MIN_WP_VERSION = '4.5';
 
 	private $fee;
 
 	function __construct() {
-		$dir = dirname( __FILE__ );
-
-		if ( file_exists( $dir . '/package.json' ) ) {
-			$package = $dir . '/package.json';
-		} elseif ( file_exists( dirname( $dir ) . '/package.json' ) ) {
-			$package = dirname( $dir ) . '/package.json';
-		}
-
-		$this->package = json_decode( file_get_contents( $package ), true );
-
 		include ABSPATH . WPINC . '/version.php';
 
-		$this->wp_version = str_replace( '-src', '', $wp_version );
+		$wp_version = str_replace( '-src', '', $wp_version );
 
-		if ( version_compare( $this->wp_version, $this->package['wp']['min'], '<' ) ) {
+		if ( version_compare( $wp_version, self::MIN_WP_VERSION, '<' ) ) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
 
@@ -32,7 +22,7 @@ class FEE {
 	}
 
 	function admin_notices() {
-		echo '<div class="error"><p>' . sprintf( __( '<strong>WordPress Front-end Editor</strong> requires WordPress version %s or higher.' ), $this->package['wp']['min'] ) . '</p></div>';
+		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> requires WordPress version ' . self::MIN_WP_VERSION . ' or higher.</p></div>';
 	}
 
 	function init() {
@@ -182,14 +172,14 @@ class FEE {
 		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) || file_exists( dirname( __FILE__ ) . '/.gitignore' ) ? '' : '.min';
 
 		if ( $this->has_fee() ) {
-			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, $this->package['version'], 'screen' );
-			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'buttons' );
 			wp_enqueue_style( 'wp-auth-check' );
 
 			wp_enqueue_script( 'wp-auth-check' );
 
-			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), $this->package['version'], true );
+			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave' . $suffix . '.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
 			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
 				'autosaveInterval' => AUTOSAVE_INTERVAL,
 				'blog_id' => get_current_blog_id()
@@ -206,15 +196,15 @@ class FEE {
 			}
 
 			if ( empty( $suffix ) ) {
-				wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
-				wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
-				wp_enqueue_script( 'fee-tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
-				wp_enqueue_script( 'fee-tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
-				wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-markdown', $this->url( '/js/tinymce.markdown.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-more', $this->url( '/js/tinymce.more.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+				wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
-				wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			} else {
-				wp_enqueue_script( 'fee-tinymce-plugins', $this->url( '/js/tinymce.min.js' ), array( 'fee-tinymce' ), $this->package['version'], true );
+				wp_enqueue_script( 'fee-tinymce-plugins', $this->url( '/js/tinymce.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			}
 
 			$tinymce_plugins = array(
@@ -265,7 +255,7 @@ class FEE {
 			wp_enqueue_script( 'wp-lists' );
 			wp_localize_script( 'wp-lists', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), $this->package['version'], true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee' . $suffix . '.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'postOnServer' => $post,
@@ -289,18 +279,18 @@ class FEE {
 
 			wp_enqueue_media( array( 'post' => $post ) );
 
-			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register' . $suffix . '.js' ), array( 'mce-view', 'fee' ), $this->package['version'], true );
+			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register' . $suffix . '.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
 
 			wp_enqueue_script( 'wplink' );
 			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
 
-			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), $this->package['version'], true );
-			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_script( 'fee-modal', $this->url( '/js/modal' . $suffix . '.js' ), array( 'jquery' ), self::VERSION, true );
+			wp_enqueue_style( 'fee-modal' , $this->url( '/css/modal.css' ), false, self::VERSION, 'screen' );
 
-			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, $this->package['version'], 'screen' );
-			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, $this->package['version'], 'screen' );
-			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, $this->package['version'], 'screen' );
-			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, $this->package['version'], 'screen' );
+			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'dashicons' );
 		}
 
@@ -312,8 +302,8 @@ class FEE {
 				$user = get_userdata( $user_id );
 			}
 
-			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, $this->package['version'], 'screen' );
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), $this->package['version'], true );
+			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
+			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar' . $suffix . '.js' ), array( 'wp-util' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
