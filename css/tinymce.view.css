@@ -261,39 +261,3 @@
 	background-color: #000;
 	color: #2ea2cc;
 }
-
-/* more and nextpage views */
-
-.wpview-type-more p {
-	text-align: center;
-	position: relative;
-	overflow: hidden;
-	opacity: 0.5;
-}
-
-.wpview-wrap[data-mce-selected] .wpview-type-more p {
-	opacity: 1;
-}
-
-.wpview-type-more span {
-	position: relative;
-}
-
-.wpview-type-more span:before,
-.wpview-type-more span:after {
-	content: '';
-	position: absolute;
-	border-bottom: 2px dashed currentColor;
-	top: 50%;
-	width: 1000px;
-}
-
-.wpview-type-more span:before {
-	right: 100%;
-	margin-right: 5px;
-}
-
-.wpview-type-more span:after {
-	left: 100%;
-	margin-left: 5px;
-}
