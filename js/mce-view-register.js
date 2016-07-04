@@ -95,8 +95,8 @@
 			} );
 		},
 
-		bindNode: function( editor, node, contentNode ) {
-			var $node = $( contentNode );
+		bindNode: function( editor, node ) {
+			var $node = $( node );
 			var $audio = $node.find( '.wp-audio-shortcode' );
 			var $video = $node.find( '.wp-video-shortcode' );
 			var $playlist = $node.find( '.wp-playlist' );
