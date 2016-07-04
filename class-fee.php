@@ -176,12 +176,11 @@ class FEE {
 			wp_enqueue_script( 'fee-tinymce', $this->url( '/modules/tinymce/tinymce.min.js' ), array(), self::TINYMCE_VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'fee-tinymce-view', $this->url( '/js/tinymce.view.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-view', $this->url( '/modules/wordpress/wp-includes/js/tinymce/plugins/wpview/plugin.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-
-			wp_enqueue_script( 'wp-tinymce-wordpress', includes_url( '/js/tinymce/plugins/wordpress/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'wp-tinymce-wplink', includes_url( '/js/tinymce/plugins/wplink/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'wp-tinymce-wptextpattern', includes_url( '/js/tinymce/plugins/wptextpattern/plugin.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-wordpress', $this->url( '/modules/wordpress/wp-includes/js/tinymce/plugins/wordpress/plugin.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-wplink', $this->url( '/modules/wordpress/wp-includes/js/tinymce/plugins/wplink/plugin.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
+			wp_enqueue_script( 'fee-tinymce-wptextpattern', $this->url( '/modules/wordpress/wp-includes/js/tinymce/plugins/wptextpattern/plugin.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
 			$tinymce_plugins = array(
 				'wordpress',
@@ -245,6 +244,9 @@ class FEE {
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
+
+			wp_deregister_script( 'mce-view' );
+			wp_enqueue_script( 'mce-view', $this->url( '/modules/wordpress/wp-includes/js/mce-view.min.js' ), array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), self::VERSION, true );
 
 			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
 

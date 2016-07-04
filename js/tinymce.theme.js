@@ -380,10 +380,9 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		} );
 
 		editor.on( 'selectionchange nodechange', function( event ) {
-			var element = event.element || editor.selection.getNode(),
-				view = editor.wp.getView( element );
+			var element = event.element || editor.selection.getNode();
 
-			if ( editor.selection.isCollapsed() || view ) {
+			if ( editor.selection.isCollapsed() || element.hasAttribute( 'contenteditable' ) ) {
 				panel.hide();
 				return;
 			}

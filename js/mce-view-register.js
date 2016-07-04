@@ -3,15 +3,15 @@
 		media, gallery, av, embed;
 
 	wp.mce.View.prototype.setContent = function( content, callback, rendered ) {
-		this.getNodes( function( editor, node, contentNode ) {
+		this.getNodes( function( editor, node ) {
 			content = content.body || content;
 
 			if ( content.indexOf( '<iframe' ) !== -1 ) {
 				content += '<div class="wpview-overlay"></div>';
 			}
 
-			contentNode.innerHTML = '';
-			contentNode.appendChild( _.isString( content ) ? editor.dom.createFragment( content ) : content );
+			node.innerHTML = '';
+			node.appendChild( _.isString( content ) ? editor.dom.createFragment( content ) : content );
 
 			callback && callback.apply( this, arguments );
 		}, rendered );
