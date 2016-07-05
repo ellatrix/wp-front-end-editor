@@ -183,9 +183,9 @@
 				document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
 			}
 
-			// getEditors( function( editor ) {
-			// 	editor.hide();
-			// } );
+			getEditors( function( editor ) {
+				editor.hide();
+			} );
 
 			$document.trigger( 'fee-off' );
 
@@ -340,7 +340,7 @@
 			editors.push( editor );
 
 			editor.on( 'init', function() {
-				// editor.hide();
+				editor.hide();
 
 				initializedEditors++;
 
@@ -396,6 +396,7 @@
 			}
 
 			if ( $title.length ) {
+				$title = $title.first();
 				$titles = $titles.not( $title );
 
 				docTitle = ( $title.text().length ? document.title.replace( $title.text(), '<!--replace-->' ) : document.title );
