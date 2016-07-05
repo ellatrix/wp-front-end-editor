@@ -130,12 +130,11 @@ class FEE {
 	}
 
 	function wp_enqueue_scripts() {
-		global $post, $wp_version;
+		global $post;
 
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'buttons' );
 			wp_enqueue_style( 'wp-auth-check' );
 
 			wp_enqueue_script( 'wp-auth-check' );
@@ -297,7 +296,6 @@ class FEE {
 		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
-		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
 
 		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
 			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
@@ -444,7 +442,7 @@ class FEE {
 			$wp_admin_bar->add_node( array(
 				'id' => 'edit',
 				'title' => $post_type_object->labels->edit_item,
-				'href' => '#'
+				'href' => '#edit'
 			) );
 
 			$wp_admin_bar->add_node( array(
@@ -479,48 +477,6 @@ class FEE {
 
 			add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 		}
-	}
-
-	function footer() {
-		global $post;
-
-		$post_type = $post->post_type;
-		$post_type_object = get_post_type_object( $post_type );
-		$can_publish = current_user_can( $post_type_object->cap->publish_posts );
-
-		?>
-		<div class="wp-core-ui">
-			<div id="fee-notice-area" class="wp-core-ui">
-				<div id="lost-connection-notice" class="error hidden">
-					<p><span class="spinner"></span> <?php _e( '<strong>Connection lost.</strong> Saving has been disabled until you&#8217;re reconnected.' ); ?>
-					<span class="hide-if-no-sessionstorage"><?php _e( 'We&#8217;re backing up this post in your browser, just in case.' ); ?></span>
-					</p>
-				</div>
-			</div>
-			<div id="local-storage-notice" class="hidden">
-				<p class="local-restore">
-					<?php _e( 'The backup of this post in your browser is different from the version below.' ); ?> <a class="restore-backup" href="#"><?php _e( 'Restore the backup.' ); ?></a>
-				</p>
-				<p class="undo-restore hidden">
-					<?php _e( 'Post restored successfully.' ); ?> <a class="undo-restore-backup" href="#"><?php _e( 'Undo.' ); ?></a>
-				</p>
-				<div class="dashicons dashicons-dismiss"></div>
-			</div>
-			<input type="hidden" id="post_ID" name="post_ID" value="<?php echo $post->ID; ?>">
-			<div class="fee-alert fee-leave">
-				<div class="fee-alert-body">
-					<p><?php _e( 'The changes you made will be lost if you navigate away from this page.' ); ?></p>
-					<button class="button fee-cancel">Cancel</button>
-					<?php if ( in_array( $post->post_status, array( 'auto-draft', 'draft', 'pending' ) ) ) { ?>
-						<button class="button fee-save-and-exit"><?php _e( 'Save and leave' ); ?></button>
-					<?php } else { ?>
-						<button class="button fee-save-and-exit"><?php _e( 'Update and leave' ); ?></button>
-					<?php } ?>
-					<button class="button button-primary fee-exit">Leave</button>
-				</div>
-			</div>
-		</div>
-		<?php
 	}
 
 	function get_autosave_notice() {
@@ -601,48 +557,6 @@ class FEE {
 			return '#fee-edit-link';
 		}
 
-		return $this->add_hash_arg( array( 'edit' => 'true' ), get_permalink( $id ) );
-	}
-
-	function add_hash_arg( $array, $uri ) {
-		if ( 0 === stripos( $uri, 'http://' ) ) {
-			$protocol = 'http://';
-			$uri = substr( $uri, 7 );
-		} elseif ( 0 === stripos( $uri, 'https://' ) ) {
-			$protocol = 'https://';
-			$uri = substr( $uri, 8 );
-		} else {
-			$protocol = '';
-		}
-
-		if ( strpos( $uri, '#' ) !== false ) {
-			list( $base, $query ) = explode( '#', $uri, 2 );
-			$base .= '#';
-		} elseif ( $protocol || strpos( $uri, '=' ) === false ) {
-			$base = $uri . '#';
-			$query = '';
-		} else {
-			$base = '';
-			$query = $uri;
-		}
-
-		wp_parse_str( $query, $qs );
-
-		$qs = urlencode_deep( $qs ); // this re-URL-encodes things that were already in the query string
-		$qs = array_merge( $qs, $array );
-
-		foreach ( $qs as $k => $v ) {
-			if ( $v === false ) {
-				unset( $qs[ $k ] );
-			}
-		}
-
-		$return = build_query( $qs );
-		$return = trim( $return, '#' );
-		$return = preg_replace( '#=(&|$)#', '$1', $return );
-		$return = $protocol . $base . $return;
-		$return = rtrim( $return, '#' );
-
-		return $return;
+		return get_permalink( $id ) . '#edit';
 	}
 }
