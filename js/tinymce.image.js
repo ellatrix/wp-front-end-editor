@@ -851,7 +851,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 	editor.addButton( 'remove', {
 		tooltip: 'Remove',
-		icon: 'dashicons-no',
+		icon: 'dashicon dashicons-no',
 		onclick: function() {
 			removeImage( editor.selection.getNode() );
 		}
@@ -859,7 +859,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 	editor.addButton( 'edit', {
 		tooltip: 'Edit',
-		icon: 'dashicons-edit',
+		icon: 'dashicon dashicons-edit',
 		onclick: function() {
 			editImage( editor.selection.getNode() );
 		}
@@ -875,7 +875,7 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 
 		editor.addButton( 'img' + name, {
 			tooltip: tooltip,
-			icon: 'dashicons-align-' + direction,
+			icon: 'dashicon dashicons-align-' + direction,
 			cmd: 'alignnone' === name ? name : 'Justify' + direction.slice( 0, 1 ).toUpperCase() + direction.slice( 1 ),
 			onPostRender: function() {
 				var self = this;
@@ -893,6 +893,25 @@ tinymce.PluginManager.add( 'feeImage', function( editor ) {
 				} );
 			}
 		} );
+	} );
+
+	editor.once( 'preinit', function() {
+		if ( editor.wp && editor.wp._createToolbar ) {
+			toolbar = editor.wp._createToolbar( [
+				'imgalignleft',
+				'imgaligncenter',
+				'imgalignright',
+				'imgalignnone',
+				'edit',
+				'remove'
+			] );
+		}
+	} );
+
+	editor.on( 'wptoolbar', function( event ) {
+		if ( event.element.nodeName === 'IMG' ) {
+			event.toolbar = toolbar;
+		}
 	} );
 
 	return {

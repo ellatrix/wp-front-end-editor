@@ -50,179 +50,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		} );
 	} );
 
-	function toolbarItems( array, block ) {
-		var items = [],
-			buttonGroup;
-
-		if ( ! array ) {
-			return;
-		}
-
-		each( array, function( item ) {
-			var itemName;
-
-			function bindSelectorChanged() {
-				var selection = editor.selection;
-
-				if ( itemName === 'bullist' ) {
-					selection.selectorChanged( 'ul > li', function( state, args ) {
-						var nodeName,
-							i = args.parents.length;
-
-						while ( i-- ) {
-							nodeName = args.parents[ i ].nodeName;
-
-							if ( nodeName === 'OL' || nodeName === 'UL' ) {
-								break;
-							}
-						}
-
-						item.active( state && nodeName === 'UL' );
-					} );
-				}
-
-				if ( itemName === 'numlist' ) {
-					selection.selectorChanged( 'ol > li', function(state, args) {
-						var nodeName,
-							i = args.parents.length;
-
-						while ( i-- ) {
-							nodeName = args.parents[ i ].nodeName;
-
-							if ( nodeName === 'OL' || nodeName === 'UL' ) {
-								break;
-							}
-						}
-
-						item.active( state && nodeName === 'OL' );
-					} );
-				}
-
-				if ( item.settings.stateSelector ) {
-					selection.selectorChanged( item.settings.stateSelector, function( state ) {
-						item.active( state );
-					}, true );
-				}
-
-				if ( item.settings.disabledStateSelector ) {
-					selection.selectorChanged( item.settings.disabledStateSelector, function( state ) {
-						item.disabled( state );
-					} );
-				}
-			}
-
-			if ( item === '|' ) {
-				buttonGroup = null;
-			} else {
-				if ( Factory.has( item ) ) {
-					item = {
-						type: item
-					};
-
-					if ( settings.toolbar_items_size ) {
-						item.size = settings.toolbar_items_size;
-					}
-
-					items.push( item );
-					buttonGroup = null;
-				} else {
-					if ( ! buttonGroup || block ) {
-						buttonGroup = {
-							type: 'buttongroup',
-							items: []
-						};
-						items.push( buttonGroup );
-					}
-
-					if ( editor.buttons[ item ] ) {
-						itemName = item;
-						item = editor.buttons[ itemName ];
-
-						if ( typeof( item ) === 'function' ) {
-							item = item();
-						}
-
-						if ( item.icon && item.icon.indexOf( 'dashicons' ) !== -1 ) {
-							item.icon = 'dashicon ' + item.icon;
-						}
-
-						if ( block ) {
-							item.text = item.tooltip;
-							item.tooltip = false;
-						}
-
-						item.type = item.type || 'button';
-
-						if ( settings.toolbar_items_size ) {
-							item.size = settings.toolbar_items_size;
-						}
-
-						if ( itemName === 'link' ) {
-							item.onPostRender = function() {
-								var self = this;
-
-								editor.on( 'NodeChange', function( event ) {
-									self.active( getParent( event.element, 'A' ) );
-								} );
-							};
-						} else if ( itemName === 'unlink' ) {
-							item.onPostRender = function() {
-								var self = this;
-
-								editor.on( 'NodeChange', function( event ) {
-									var disabled = event.element.nodeName !== 'A' && editor.selection.getContent().indexOf( '<a' ) === -1;
-									self.disabled( disabled );
-									DOM.setAttrib( self.getEl(), 'tabindex', disabled ? '0' : '-1' );
-								} );
-							};
-
-							item.onclick = function() {
-								if ( editor.selection.getContent().indexOf( '<a' ) === -1 ) {
-									editor.selection.select( editor.selection.getNode() );
-								}
-
-								editor.execCommand( 'unlink' );
-							};
-						}
-
-						item = Factory.create( item );
-						buttonGroup.items.push( item );
-
-						if ( editor.initialized ) {
-							bindSelectorChanged();
-						} else {
-							editor.on( 'init', bindSelectorChanged );
-						}
-					}
-				}
-			}
-		});
-
-		return items;
-	}
-
-	function createToolbar( items ) {
-		return Factory.create( {
-			type: 'panel',
-			layout: 'stack',
-			classes: 'toolbar-grp',
-			ariaRoot: true,
-			ariaRemember: true,
-			items: [
-				{
-					type: 'toolbar',
-					layout: 'flow',
-					items: toolbarItems( items )
-				}
-			]
-		} );
-	}
-
-	editor.toolbarItems = toolbarItems;
-
 	self.renderUI = function() {
-		var panel, toolbars = {}, hasPlaceholder,
-			upperMargin = 0;
+		var hasPlaceholder;
 
 		settings.content_editable = true;
 
@@ -240,11 +69,6 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			DOM.removeClass( editor.getBody(), 'mce-edit-focus' );
 		} );
 
-		editor.on( 'remove', function() {
-			panel && panel.remove();
-			panel = null;
-		} );
-
 		if ( settings.placeholder ) {
 			editor.on( 'init', function() {
 				editor.getBody().setAttribute( 'data-placeholder', settings.placeholder );
@@ -259,148 +83,57 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 			} );
 		}
 
-		if ( ! settings.toolbar || ! settings.toolbar.length || panel ) {
-			return {};
-		}
 
-		if ( DOM.getStyle( document.body, 'position', true ) === 'relative' ) {
-			upperMargin =
-				parseInt( DOM.getStyle( document.body, 'margin-top', true ), 10 ) +
-				parseInt( DOM.getStyle( document.documentElement, 'padding-top', true ), 10 ) +
-				parseInt( DOM.getStyle( document.documentElement, 'margin-top', true ), 10 );
-		}
+		editor.on( 'preinit', function() {
+			if ( editor.wp && editor.wp._createToolbar ) {
+				var toolbar = editor.wp._createToolbar( settings.toolbar );
 
-		toolbars.normal = createToolbar( settings.toolbar );
-		toolbars.img = createToolbar( [ 'imgalignleft', 'imgaligncenter', 'imgalignright', 'imgalignnone', 'edit', 'remove' ] );
+				editor.on( 'wptoolbar', function( event ) {
+					var element = event.element;
+					var range = editor.selection.getRng();
+					var content = editor.selection.getContent();
 
-		panel = self.panel = Factory.create( {
-			type: 'floatpanel',
-			role: 'application',
-			classes: 'tinymce tinymce-inline',
-			layout: 'stack',
-			autohide: true,
-			items: [
-				toolbars.normal,
-				toolbars.img
-			]
-		} );
-
-		panel.reposition = function( name ) {
-			var toolbarEl = this.getEl(),
-				selection = editor.selection.getRng(),
-				boundary = selection.getBoundingClientRect(),
-				boundaryMiddle = ( boundary.left + boundary.right ) / 2,
-				windowWidth = window.innerWidth,
-				toolbarWidth, toolbarHalf,
-				margin = parseInt( DOM.getStyle( toolbarEl, 'margin-bottom', true ), 10 ) + upperMargin,
-				top, left, className;
-
-			toolbarEl.className = ( ' ' + toolbarEl.className + ' ' ).replace( /\smce-arrow-\S+\s/g, ' ' ).slice( 1, -1 );
-
-			name = name || 'normal';
-
-			if ( ! toolbars[ name ]._visible ) {
-				each( toolbars, function( toolbar ) {
-					toolbar.hide();
-				} );
-
-				toolbars[ name ].show();
-			}
-
-			toolbarWidth = toolbarEl.offsetWidth;
-			toolbarHalf = toolbarWidth / 2;
-
-			if ( boundary.top < toolbarEl.offsetHeight + adminBarHeight ) {
-				className = ' mce-arrow-up';
-				top = boundary.bottom + margin;
-			} else {
-				className = ' mce-arrow-down';
-				top = boundary.top - toolbarEl.offsetHeight - margin;
-			}
-
-			left = boundaryMiddle - toolbarHalf;
-
-			if ( toolbarWidth >= windowWidth ) {
-				className += ' mce-arrow-full';
-				left = 0;
-			} else if ( ( left < 0 && boundary.left + toolbarWidth > windowWidth ) || ( left + toolbarWidth > windowWidth && boundary.right - toolbarWidth < 0 ) ) {
-				left = ( windowWidth - toolbarWidth ) / 2;
-			} else if ( left < 0 ) {
-				className += ' mce-arrow-left';
-				left = boundary.left;
-			} else if ( left + toolbarWidth > windowWidth ) {
-				className += ' mce-arrow-right';
-				left = boundary.right - toolbarWidth;
-			}
-
-			toolbarEl.className += className;
-
-			DOM.setStyles( toolbarEl, { 'left': left, 'top': top + window.pageYOffset } );
-
-			return this;
-		};
-
-		panel.on( 'show', function() {
-			setTimeout( function() {
-				panel.state.data.visible && DOM.addClass( panel.getEl(), 'mce-inline-toolbar-active' );
-			}, 100 );
-		} );
-
-		panel.on( 'hide', function() {
-			DOM.removeClass( this.getEl(), 'mce-inline-toolbar-active' );
-		} );
-
-		panel.on( 'cancel', function() {
-			editor.focus();
-		} );
-
-		DOM.bind( window, 'resize', function() {
-			panel.hide();
-		} );
-
-		editor.on( 'selectionchange nodechange', function( event ) {
-			var element = event.element || editor.selection.getNode();
-
-			if ( editor.selection.isCollapsed() || element.hasAttribute( 'contenteditable' ) ) {
-				panel.hide();
-				return;
-			}
-
-			setTimeout( function() {
-				var content, name;
-
-				if ( ! focus ) {
-					return;
-				}
-
-				if ( ! editor.selection.isCollapsed() &&
-					( content = editor.selection.getContent() ) &&
-					( content.replace( /<[^>]+>/g, '' ).trim() || content.indexOf( '<' ) === 0 ) &&
-					element.nodeName !== 'HR'
-				) {
-					if ( element.nodeName === 'IMG' ) {
-						name = 'img';
-					} else {
-						name = 'normal';
+					// No collapsed selection.
+					if ( range.collapsed ) {
+						return;
 					}
 
-					panel.show().reposition( name );
-				} else {
-					panel.hide();
-				}
-			}, 100 );
-		} );
+					// No non editable elements.
+					if (
+						element.getAttribute( 'contenteditable' ) === 'false' ||
+						element.getAttribute( 'data-mce-bogus' ) === 'all'
+					) {
+						return;
+					}
 
-		editor.shortcuts.add( 'Alt+F10', '', function() {
-			var item = panel.find( 'toolbar' )[0];
+					// No images.
+					if ( element.nodeName === 'IMG' ) {
+						return;
+					}
 
-			item && item.focus( true );
-		} );
+					// No horizontal rules.
+					if ( element.nodeName === 'HR' ) {
+						return;
+					}
 
-		panel.renderTo( document.body ).reflow().hide();
+					// No empty selection.
+					if ( ! content.replace( /<[^>]+>/g, '' ).replace( /(?:\s|&nbsp;)/g, '' ) ) {
+						return;
+					}
 
-		each( toolbars, function( toolbar ) {
-			toolbar.hide();
+					// Selection needs to be contained in one element.
+					if ( range.startContainer === range.endContainer || (
+						range.startContainer.nodeType === 3 &&
+						range.startContainer.parentNode === range.endContainer
+					) || (
+						range.endContainer.nodeType === 3 &&
+						range.endContainer.parentNode === range.startContainer
+					) ) {
+						event.toolbar = toolbar;
+						event.selection = range;
+					}
+				} );
+			}
 		} );
 
 		return {};

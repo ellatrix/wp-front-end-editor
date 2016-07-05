@@ -135,8 +135,8 @@ class FEE {
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'wp-auth-check' );
 
+			wp_enqueue_style( 'wp-auth-check' );
 			wp_enqueue_script( 'wp-auth-check' );
 
 			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
@@ -169,11 +169,7 @@ class FEE {
 				'bold',
 				'italic',
 				'strikethrough',
-				'link',
-				'unlink',
-				'blockquote',
-				'h2',
-				'h3'
+				'link'
 			);
 
 			$tinymce = array(

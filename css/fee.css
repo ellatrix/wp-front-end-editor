@@ -262,6 +262,10 @@ br.fee-title {
 	box-sizing: content-box;
 }
 
+#wp-auth-check-wrap .wp-auth-check-close {
+	display: none;
+}
+
 /* Reset */
 
 .wp-core-ui td,

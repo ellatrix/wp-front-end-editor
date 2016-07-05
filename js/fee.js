@@ -199,6 +199,7 @@
 
 			post
 			.save( {
+				id: data.post.id,
 				content: post_content(),
 				title: post_title(),
 			} )
