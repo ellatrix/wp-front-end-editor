@@ -1,12 +1,5 @@
-( function( $ ) {
-	'use strict';
-
-	window.wp = window.wp || {};
-	wp.fee = {};
-
-	wp.heartbeat.interval( 15 );
-
-	_.extend( wp.fee, window.fee );
+( function( data, $, api, heartbeat ) {
+	heartbeat.interval( 15 );
 
 	$( function() {
 		var tinymce = window.tinymce,
@@ -28,16 +21,13 @@
 			$content = $( '.fee-content' ),
 			$contentOriginal = $( '.fee-content-original' ),
 			$leave = $( '.fee-leave' ),
-			$noticeArea = $( '#fee-notice-area' ),
-			$autoSaveNotice, $saveNotice,
 			$contentParents = $content.parents(),
 			$titleTags, $titles, $title, docTitle,
 			titleEditor, contentEditor,
 			editors = [],
 			initializedEditors = 0,
 			releaseLock = true,
-			checkNonces, timeoutNonces,
-			initialPost;
+			checkNonces, timeoutNonces;
 
 		var count = 0;
 		var loader = {
@@ -59,21 +49,11 @@
 			}
 		};
 
-		// This object's methods can be used to get the edited post data.
-		// It falls back tot the post data on the server.
-		wp.fee.post = {};
+		var post = new wp.api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]();
 
-		_.each( wp.fee.postOnServer, function( value, key ) {
-			wp.fee.post[ key ] = function() {
-				return wp.fee.postOnServer[ key ];
-			};
-		} );
+		post.set( post.parse( data.post ) );
 
-		wp.fee.post.post_ID = function() {
-			return wp.fee.postOnServer.ID || 0;
-		};
-
-		wp.fee.post.post_title = function( content, notself ) {
+		function post_title( content, notself ) {
 			if ( content ) {
 				if ( docTitle ) {
 					document.title = docTitle.replace( '<!--replace-->', content );
@@ -87,24 +67,24 @@
 					$title.get( 0 ).innerHTML = content;
 				}
 
-				return this.post_title();
+				return post_title();
 			}
 
 			if ( titleEditor ) {
 				return titleEditor.getContent() || '';
 			} else {
-				return wp.fee.postOnServer.post_title;
+				return post.get( 'title' ).raw;
 			}
-		};
+		}
 
-		wp.fee.post.post_content = function( content ) {
+		function post_content( content ) {
 			var returnContent;
 
 			if ( content && content !== 'raw' && content !== 'html' ) {
 				contentEditor.undoManager.add();
 				contentEditor.setContent( content );
 
-				return this.post_content();
+				return post_content();
 			}
 
 			returnContent = contentEditor.getContent( {
@@ -117,7 +97,7 @@
 			}
 
 			return returnContent;
-		};
+		}
 
 		function scheduleNoncesRefresh() {
 			checkNonces = false;
@@ -142,8 +122,6 @@
 				editor.show();
 			} );
 
-			initialPost = getPost();
-
 			if ( wp.autosave ) {
 				wp.autosave.local.resume();
 				wp.autosave.server.resume();
@@ -155,7 +133,7 @@
 		}
 
 		function off( location ) {
-			if ( hidden || wp.fee.post.post_status() === 'auto-draft' ) {
+			if ( hidden || post.get( 'status' ) === 'auto-draft' ) {
 				return;
 			}
 
@@ -176,16 +154,14 @@
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
 
-			$title.html( wp.fee.postOnServer.post_title );
-			$titles.html( wp.fee.postOnServer.post_title );
+			titleEditor.hide();
+
+			$title.html( post.get( 'title' ).raw );
+			$titles.html( post.get( 'title' ).raw );
 
 			if ( docTitle ) {
-				document.title = docTitle.replace( '<!--replace-->', wp.fee.postOnServer.post_title );
+				document.title = docTitle.replace( '<!--replace-->', post.get( 'title' ).rendered );
 			}
-
-			getEditors( function( editor ) {
-				editor.hide();
-			} );
 
 			$document.trigger( 'fee-off' );
 
@@ -208,57 +184,43 @@
 			return hidden;
 		}
 
-		function getPost() {
-			var postData = {};
-
-			_.each( wp.fee.post, function( fn, key ) {
-				postData[ key ] = fn();
-			} );
-
-			return postData;
-		}
-
 		function save( callback, _publish ) {
-			var postData;
-
 			$document.trigger( 'fee-before-save' );
-
-			postData = getPost();
-
-			postData.publish = _publish ? true : undefined;
-			postData.save = _publish ? undefined : true;
-			postData._wpnonce = wp.fee.nonces.post;
 
 			$buttons.prop( 'disabled', true );
 			loader.start();
 
-			wp.ajax.post( 'fee_post', postData )
+			var post = new wp.api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]();
+
+			if ( _publish ) {
+				post.set( { status: 'publish' } );
+			}
+
+			post
+			.save( {
+				content: post_content(),
+				title: post_title(),
+			} )
 			.always( function() {
 				$buttons.prop( 'disabled', false );
 				loader.stop();
 			} )
 			.done( function( data ) {
-				// Copy the new post object form the server.
-				wp.fee.postOnServer = data.post;
 				// Update the post content.
 				$contentOriginal.html( data.processedPostContent );
 				// Invalidate the browser backup.
-				window.wpCookies.set( 'wp-saving-post-' + wp.fee.postOnServer.ID, 'saved' );
-				// Add a message. :)
-				$autoSaveNotice && $autoSaveNotice.remove();
-				$saveNotice && $saveNotice.remove();
-				data.message && ( $saveNotice = addNotice( data.message, 'updated', true ) );
+				window.wpCookies.set( 'wp-saving-post-' + post.get( 'id' ), 'saved' );
 				// Add an undo level for all editors.
 				addUndoLevel();
 				// The editors are no longer dirty.
-				initialPost = getPost();
+				// initialPost = getPost();
 
 				$document.trigger( 'fee-after-save' );
 
 				callback && callback();
 			} )
 			.fail( function( data ) {
-				data.message && addNotice( data.message, 'error' );
+				console.log( data );
 			} );
 		}
 
@@ -273,13 +235,15 @@
 				return;
 			}
 
-			return _.some( arguments.length ? arguments : [ 'post_title', 'post_content' ], function( key ) {
-				if ( initialPost[ key ] && wp.fee.post[ key ] ) {
-					return wp.fee.post[ key ]() !== initialPost[ key ];
-				}
+			return true;
 
-				return;
-			} );
+			// return _.some( arguments.length ? arguments : [ 'title', 'content' ], function( key ) {
+			// 	if ( initialPost[ key ] && wp.fee.post[ key ] ) {
+			// 		return wp.fee.post[ key ]() !== initialPost[ key ];
+			// 	}
+
+			// 	return;
+			// } );
 		}
 
 		function addUndoLevel() {
@@ -307,31 +271,6 @@
 			} );
 		}
 
-		function addNotice( html, type, remove ) {
-			var $notice = $( '<div>' ).addClass( type );
-
-			$notice.append(
-				'<p>' + html + '</p>' +
-				( remove === true ? '' : '<div class="dashicons dashicons-dismiss"></div>' )
-			);
-
-			$noticeArea.prepend( $notice );
-
-			$notice.find( '.dashicons-dismiss' ).on( 'click.fee', function() {
-				$notice.remove();
-
-				if ( remove !== true ) {
-					remove();
-				}
-			} );
-
-			remove === true && $notice.delay( 5000 ).fadeOut( 'slow', function() {
-				$notice.remove();
-			} );
-
-			return $notice;
-		}
-
 		function getEditors( callback ) {
 			_.each( editors, callback );
 		}
@@ -340,7 +279,7 @@
 			editors.push( editor );
 
 			editor.on( 'init', function() {
-				editor.hide();
+				// editor.hide();
 
 				initializedEditors++;
 
@@ -350,7 +289,7 @@
 			} );
 		}
 
-		tinymce.init( _.extend( wp.fee.tinymce, {
+		tinymce.init( _.extend( data.tinymce, {
 			setup: function( editor ) {
 				contentEditor = editor;
 				window.wpActiveEditor = editor.id;
@@ -416,8 +355,12 @@
 
 						registerEditor( editor );
 
+						editor.on( 'init', function() {
+							editor.hide();
+						} );
+
 						editor.on( 'setcontent keyup', function() {
-							wp.fee.post.post_title( wp.fee.post.post_title(), true );
+							post_title( post_title(), true );
 						} );
 
 						editor.on( 'keydown', function( event ) {
@@ -450,9 +393,9 @@
 			}
 
 			wp.ajax.post( 'wp-remove-post-lock', {
-				_wpnonce: wp.fee.nonces.post,
-				post_ID: wp.fee.post.ID(),
-				active_post_lock: wp.fee.lock
+				_wpnonce: data.nonces.post,
+				post_ID: post.get( 'id' ),
+				active_post_lock: data.lock
 			} );
 		} );
 
@@ -467,15 +410,9 @@
 			}
 
 			$document.on( 'autosave-restore-post', function( event, postData ) {
-				wp.fee.post.post_title( postData.post_title );
-				wp.fee.post.post_content( postData.content );
+				post_title( postData.post_title );
+				post_content( postData.content );
 			} );
-
-			initialPost = getPost();
-
-			if ( wp.fee.postOnServer.post_content !== wp.fee.post.post_content() ) {
-				window.console.log( 'The content on the server and the content in the editor is different. This may be due to errors.' );
-			}
 		} )
 		.on( 'autosave-enable-buttons.fee', function() {
 			$buttons.prop( 'disabled', false );
@@ -497,8 +434,8 @@
 		} )
 		.on( 'heartbeat-send.fee-refresh-lock', function( event, data ) {
 			data['wp-refresh-post-lock'] = {
-				post_id: wp.fee.post.ID(),
-				lock: wp.fee.lock
+				post_id: post.get( 'id' ),
+				lock: data.lock
 			};
 		} )
 		.on( 'heartbeat-tick.fee-refresh-lock', function( event, data ) {
@@ -530,15 +467,15 @@
 						wrap.find( '.wp-tab-first' ).focus();
 					}
 				} else if ( received.new_lock ) {
-					wp.fee.lock = received.new_lock;
+					data.lock = received.new_lock;
 				}
 			}
 		} )
-		.on( 'heartbeat-send.fee-refresh-nonces', function( event, data ) {
+		.on( 'heartbeat-send.fee-refresh-nonces', function( event ) {
 			if ( checkNonces ) {
 				data['wp-refresh-post-nonces'] = {
-					post_id: wp.fee.post.ID(),
-					post_nonce: wp.fee.nonces.post
+					post_id: post.get( 'id' ),
+					post_nonce: data.nonces.post
 				};
 			}
 		} )
@@ -559,11 +496,6 @@
 					window.heartbeatSettings.nonce = nonces.heartbeatNonce;
 				}
 			}
-		} )
-		.on( 'after-autosave', function() {
-			$autoSaveNotice && $autoSaveNotice.fadeOut( 'slow', function() {
-				$autoSaveNotice.remove();
-			} );
 		} );
 
 		$( 'a' ).not( 'a[href^="#"]' ).on( 'click.fee', function( event ) {
@@ -599,13 +531,9 @@
 		} );
 
 		// Temporary.
-		if ( $.inArray( wp.fee.post.post_status(), [ 'publish', 'future', 'private' ] ) !== -1 ) {
+		if ( $.inArray( post.get( 'status' ), [ 'publish', 'future', 'private' ] ) !== -1 ) {
 			$( '#wp-admin-bar-edit-publish' ).hide();
 			$( '#wp-admin-bar-edit-save > a' ).text( 'Update' );
-		}
-
-		if ( wp.fee.notices.autosave ) {
-			$autoSaveNotice = addNotice( wp.fee.notices.autosave, 'error' );
 		}
 
 		_.extend( wp.media.featuredImage, {
@@ -658,17 +586,7 @@
 			} );
 		} );
 
-		_.extend( wp.fee, {
-			on: on,
-			off: off,
-			toggle: toggle,
-			isOn: isOn,
-			isOff: isOff,
-			isDirty: isDirty,
-			save: save,
-			publish: publish,
-			addNotice: addNotice,
-			getPost: getPost
-		} );
+		window.fee.post_title = post_title;
+		window.fee.post_content = post_content;
 	} );
-} )( jQuery );
+} )( window.fee, window.jQuery, window.wp.api, window.wp.heartbeat );

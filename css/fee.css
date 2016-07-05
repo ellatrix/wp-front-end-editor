@@ -232,55 +232,6 @@ br.fee-title {
 	vertical-align: top;
 }
 
-#fee-notice-area {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	width: 300px;
-	z-index: 10000;
-}
-
-.fee-right #fee-notice-area {
-	right: 0;
-	left: auto;
-}
-
-@media only screen and (max-width: 300px) {
-	#fee-notice-area {
-		width: 100%;
-		left: 0;
-		padding: 0 10px;
-		margin: 0;
-	}
-}
-
-.wp-core-ui div.updated p,
-.wp-core-ui div.error p {
-	margin: 0.5em 0;
-	padding: 2px;
-	padding-right: 20px;
-}
-
-.wp-core-ui div.updated,
-.wp-core-ui div.error {
-	position: relative;
-	margin: 0 10px 10px;
-	border: none;
-	padding: 1px 12px;
-	-webkit-box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
-	box-shadow: 0px 1px 1px 0px rgba(0,0,0,0.1);
-}
-
-.wp-core-ui div.updated {
-	border-left: 4px solid #7ad03a;
-	background-color: #def4d2;
-}
-
-.wp-core-ui div.error {
-	border-left: 4px solid #dd3d36;
-	background-color: #f6cecd;
-}
-
 .mce-content-body hr[data-mce-selected] {
 	outline: none;
 }

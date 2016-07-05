@@ -78,7 +78,6 @@ class FEE {
 
 		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 
-		add_action( 'wp_ajax_fee_post', array( $this, 'ajax_post' ) );
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
@@ -89,48 +88,6 @@ class FEE {
 
 	function get_edit_post_link( $link, $id, $context ) {
 		return $this->supports_fee( $id ) && ! is_admin() ? $this->edit_link( $id ) : $link;
-	}
-
-	function ajax_post() {
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'update-post_' . $_POST['post_ID'] ) ) {
-			wp_send_json_error( array( 'message' => __( 'You are not allowed to edit this item.' ) ) );
-		}
-
-		$_POST['post_title'] = strip_tags( $_POST['post_title'] );
-		$_POST['sticky'] = is_sticky( $_POST['post_ID'] );
-
-		$post_id = edit_post();
-
-		if ( isset( $_POST['save'] ) || isset( $_POST['publish'] ) ) {
-			$status = get_post_status( $post_id );
-
-			if ( isset( $_POST['publish'] ) ) {
-				switch ( $status ) {
-					case 'pending':
-						$message = 8;
-						break;
-					case 'future':
-						$message = 9;
-						break;
-					default:
-						$message = 6;
-				}
-			} else {
-				$message = 'draft' == $status ? 10 : 1 ;
-			}
-		} else {
-			$message = 4;
-		}
-
-		$post = get_post( $post_id );
-
-		wp_send_json_success( array(
-			'message' => $this->get_message( $post, $message ),
-			'post' => $post,
-			'processedPostContent' => apply_filters( 'the_content', $post->post_content )
-		) );
 	}
 
 	function ajax_new() {
@@ -189,7 +146,7 @@ class FEE {
 				'blog_id' => get_current_blog_id()
 			) );
 
-			wp_enqueue_script( 'fee-tinymce', $this->url( '/modules/tinymce/tinymce.min.js' ), array(), self::TINYMCE_VERSION, true );
+			wp_enqueue_script( 'fee-tinymce', $this->url( '/modules/tinymce/tinymce.js' ), array(), self::TINYMCE_VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-view', $this->url( '/modules/wordpress/wp-includes/js/tinymce/plugins/wpview/plugin.min.js' ), array( 'fee-tinymce' ), self::VERSION, true );
@@ -234,13 +191,19 @@ class FEE {
 				'end_container_on_empty_block' => true
 			);
 
-			wp_enqueue_script( 'wp-lists' );
-			wp_localize_script( 'wp-lists', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
+			$server = rest_get_server();
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-lists' ), self::VERSION, true );
+			$request = new WP_REST_Request( 'GET', '/wp/v2/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID );
+			$request->set_query_params( array(
+				'context' => 'edit'
+			) );
+
+			$result = $server->dispatch( $request );
+
+			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'fee', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
-				'postOnServer' => $post,
+				'post' => $result->get_data(),
 				'nonces' => array(
 					'post' => wp_create_nonce( 'update-post_' . $post->ID )
 				),
@@ -249,6 +212,7 @@ class FEE {
 					'autosave' => $this->get_autosave_notice()
 				)
 			) );
+
 			wp_localize_script( 'fee', 'feeL10n', array(
 				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
 				'title' => apply_filters( 'fee_title_placeholder', __( 'Title' ) )
@@ -260,6 +224,9 @@ class FEE {
 			wp_enqueue_script( 'mce-view', $this->url( '/modules/wordpress/wp-includes/js/mce-view.min.js' ), array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), self::VERSION, true );
 
 			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
+			wp_localize_script( 'mce-view-register', 'mce_view_register', array(
+				'post_id' => $post->ID
+			) );
 
 			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, self::VERSION, 'screen' );
@@ -276,8 +243,8 @@ class FEE {
 			}
 
 			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util' ), self::VERSION, true );
-			wp_localize_script( 'fee-adminbar', 'fee', array(
+			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util', 'wp-api' ), self::VERSION, true );
+			wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
 				'supportedPostTypes' => $this->get_supported_post_types(),
 				'postNew' => admin_url( 'post-new.php' ),
@@ -554,47 +521,6 @@ class FEE {
 			</div>
 		</div>
 		<?php
-	}
-
-	function get_message( $post, $message_id, $revision_id = null ) {
-		$messages = array();
-
-		$messages['post'] = array(
-			 0 => '', // Unused. Messages start at index 1.
-			 1 => __( 'Post updated.' ),
-			 2 => __( 'Custom field updated.' ),
-			 3 => __( 'Custom field deleted.' ),
-			 4 => __( 'Post updated.' ),
-			/* translators: %s: date and time of the revision */
-			 5 => isset( $revision_id ) ? sprintf( __( 'Post restored to revision from %s' ), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __( 'Post published.' ),
-			 7 => __( 'Post saved.' ),
-			 8 => __( 'Post submitted.' ),
-			 9 => sprintf( __( 'Post scheduled for: <strong>%1$s</strong>.' ),
-				// translators: Publish box date format, see http://php.net/date
-				date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __( 'Post draft updated.' )
-		);
-
-		$messages['page'] = array(
-			 0 => '', // Unused. Messages start at index 1.
-			 1 => __( 'Page updated.' ),
-			 2 => __( 'Custom field updated.' ),
-			 3 => __( 'Custom field deleted.' ),
-			 4 => __( 'Page updated.' ),
-			 5 => isset( $revision_id ) ? sprintf( __( 'Page restored to revision from %s' ), wp_post_revision_title( (int) $revision_id, false ) ) : false,
-			 6 => __( 'Page published.' ),
-			 7 => __( 'Page saved.' ),
-			 8 => __( 'Page submitted.' ),
-			 9 => sprintf( __( 'Page scheduled for: <strong>%1$s</strong>.' ), date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ) ),
-			10 => __( 'Page draft updated.' )
-		);
-
-		$messages['attachment'] = array_fill( 1, 10, __( 'Media attachment updated.' ) ); // Hack, for now.
-
-		$messages = apply_filters( 'post_updated_messages', $messages );
-
-		return $messages[ $post->post_type ] ? $messages[ $post->post_type ][ $message_id ] : $messages[ 'post' ][ $message_id ];
 	}
 
 	function get_autosave_notice() {

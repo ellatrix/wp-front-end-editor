@@ -19,12 +19,12 @@ window.autosave = function(){};
 				cats = [];
 
 			data = {
-				post_id: wp.fee.post.post_ID(),
-				post_type: wp.fee.post.post_type(),
-				post_author: wp.fee.post.post_author(),
-				post_title: wp.fee.post.post_title(),
-				content: type === 'local' ? wp.fee.post.post_content( 'raw' ) : wp.fee.post.post_content(),
-				excerpt: wp.fee.post.post_excerpt()
+				post_id: window.fee.post.id,
+				// post_type: wp.fee.post.post_type(),
+				// post_author: wp.fee.post.post_author(),
+				post_title: window.fee.post_title(),
+				content: type === 'local' ? window.fee.post_content( 'raw' ) : window.fee.post_content(),
+				// excerpt: wp.fee.post.post_excerpt()
 			};
 
 			if ( type === 'local' ) {
@@ -36,11 +36,11 @@ window.autosave = function(){};
 			});
 			data.catslist = cats.join(',');
 
-			data.post_name = wp.fee.post.post_name();
-			data.parent_id = wp.fee.post.post_parent();
-			data.comment_status = wp.fee.post.comment_status();
-			data.ping_status = wp.fee.post.ping_status();
-			data.auto_draft = ( wp.fee.post.post_status() === 'auto-draft' );
+			// data.post_name = wp.fee.post.post_name();
+			// data.parent_id = wp.fee.post.post_parent();
+			// data.comment_status = wp.fee.post.comment_status();
+			// data.ping_status = wp.fee.post.ping_status();
+			data.auto_draft = ( window.fee.post.status === 'auto-draft' );
 
 			return data;
 		}
@@ -214,7 +214,7 @@ window.autosave = function(){};
 				}
 
 				postData.save_time = ( new Date() ).getTime();
-				postData.status = wp.fee.post.post_status();
+				// postData.status = wp.fee.post.post_status();
 				result = setData( postData );
 
 				if ( result ) {
@@ -226,7 +226,7 @@ window.autosave = function(){};
 
 			// Run on DOM ready
 			function run() {
-				post_id = wp.fee.post.ID();
+				post_id = window.fee.post.id;
 
 				// Check if the local post data is different than the loaded post data.
 				// If TinyMCE loads first, check the post 1.5 sec. after it is ready.
@@ -242,12 +242,12 @@ window.autosave = function(){};
 				intervalTimer = window.setInterval( save, 15000 );
 
 				$document.on( 'fee-before-save.autosave-local', function() {
-					var post_id = wp.fee.post.ID();
+					var post_id = window.fee.post.id;
 
 					save( {
-						post_title: wp.fee.post.post_title(),
-						content: wp.fee.post.post_content( 'raw' ),
-						excerpt: wp.fee.post.post_excerpt()
+						post_title: window.fee.post_title(),
+						content: window.fee.post_content( 'raw' ),
+						// excerpt: wp.fee.post.post_excerpt()
 					} );
 
 					wpCookies.set( 'wp-saving-post-' + post_id, 'check' );
@@ -290,17 +290,19 @@ window.autosave = function(){};
 				}
 
 				// There is a newer autosave. Don't show two "restore" notices at the same time.
-				if ( wp.fee.notices.autosave ) {
+				if ( window.fee.notices.autosave ) {
 					return;
 				}
 
-				content = wp.fee.post.post_content( 'raw' );
-				post_title = wp.fee.post.post_title();
-				excerpt = wp.fee.post.post_excerpt();
+				content = window.fee.post_content( 'raw' );
+				post_title = window.fee.post_title();
+				// excerpt = wp.fee.post.post_excerpt();
 
 				// cookie === 'check' means the post was not saved properly, always show #local-storage-notice
 				if ( cookie !== 'check' && compare( content, postData.content ) &&
-					compare( post_title, postData.post_title ) && compare( excerpt, postData.excerpt ) ) {
+					compare( post_title, postData.post_title )
+					// && compare( excerpt, postData.excerpt )
+				) {
 
 					return;
 				}
@@ -461,7 +463,7 @@ window.autosave = function(){};
 				$document.trigger( 'wpcountwords', [ postData.content ] )
 					.trigger( 'before-autosave', [ postData ] );
 
-				postData._wpnonce = wp.fee.nonces.post;
+				postData._wpnonce = window.fee.nonces.post;
 
 				return postData;
 			}

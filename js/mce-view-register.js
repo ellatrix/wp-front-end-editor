@@ -1,6 +1,5 @@
-( function( window, views, $ ) {
-	var postID = wp.fee.postOnServer.ID || 0,
-		media, gallery, av, embed;
+( function( window, views, $, data ) {
+	var media, gallery, av, embed;
 
 	wp.mce.View.prototype.setContent = function( content, callback, rendered ) {
 		this.getNodes( function( editor, node ) {
@@ -54,7 +53,7 @@
 			var self = this;
 
 			wp.ajax.post( 'fee_shortcode', {
-				post_ID: postID,
+				post_ID: data.post_id,
 				shortcode: this.text
 			} )
 			.done( function( content ) {
@@ -78,7 +77,7 @@
 			}
 
 			wp.ajax.post( this.action, {
-				post_ID: postID,
+				post_ID: data.post_id,
 				type: this.shortcode.tag,
 				shortcode: this.shortcode.string()
 			} )
@@ -185,4 +184,4 @@
 			}
 		}
 	} ) );
-} )( window, window.wp.mce.views, window.jQuery );
+} )( window, window.wp.mce.views, window.jQuery, window.mce_view_register );
