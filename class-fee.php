@@ -2,32 +2,76 @@
 
 class FEE {
 	const VERSION = '1.1.0';
-	const MIN_WP_VERSION = '4.5';
+	const WORDPRESS_MIN_VERSION = '4.5';
 	const TINYMCE_VERSION = '4.4';
+	const REST_API_PLUGIN_SLUG = 'rest-api';
+	const REST_API_PLUGIN_URI = 'https://github.com/WP-API/WP-API';
+	const REST_API_MIN_VERSION = '2.0-beta12';
+
+	public $errors = array();
 
 	private $fee;
 
 	function __construct() {
+		add_action( 'init', array( $this, 'init' ) );
+	}
+
+	function error( $message ) {
+		$this->errors[] = $message;
+	}
+
+	function admin_notices() {
+		foreach ( $this->errors as $error ) {
+			echo '<div class="error"><p>' . $error . '</p></div>';
+		}
+	}
+
+	function check_wordpress_version() {
 		include ABSPATH . WPINC . '/version.php';
 
 		$wp_version = str_replace( '-src', '', $wp_version );
 
-		if ( version_compare( $wp_version, self::MIN_WP_VERSION, '<' ) ) {
+		if ( version_compare( $wp_version, self::WORDPRESS_MIN_VERSION, '<' ) ) {
+			$this->error( '<strong>Front-end Editor</strong> requires WordPress version ' . self::WORDPRESS_MIN_VERSION . ' or higher.' );
+		}
+	}
+
+	function check_rest_api_plugin() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$plugins = get_plugins();
+		$uris = wp_list_pluck( $plugins, 'PluginURI' );
+		$file = array_search( self::REST_API_PLUGIN_URI, $uris );
+		$installed = ! empty( $file );
+
+		if ( $installed ) {
+			$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $file );
+
+			if ( version_compare( $data['Version'], self::REST_API_MIN_VERSION, '<' ) ) {
+				$link = wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . $file ), 'upgrade-plugin_' . $file );
+				$this->error( '<strong>Front-end Editor</strong> requires the REST API version ' . self::REST_API_MIN_VERSION . '. <a href="' . $link . '">Update</a>.' );
+			} else if ( ! is_plugin_active( $file ) ) {
+				$link = wp_nonce_url( self_admin_url( 'plugins.php?action=activate&plugin=' . $file ), 'activate-plugin_' . $file );
+				$this->error( '<strong>Front-end Editor</strong> requires the REST API to be active. <a href="' . $link . '">Activate</a>.' );
+			}
+		} else {
+			$link = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . self::REST_API_PLUGIN_SLUG ), 'install-plugin_' . self::REST_API_PLUGIN_SLUG );
+			$this->error( '<strong>Front-end Editor</strong> requires the REST API. <a href="' . $link . '">Install</a>.' );
+		}
+	}
+
+	function init() {
+		global $wp_post_statuses;
+
+		$this->check_wordpress_version();
+		$this->check_rest_api_plugin();
+
+		if ( $this->errors ) {
 			return add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		}
 
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
-
-		add_action( 'init', array( $this, 'init' ) );
-	}
-
-	function admin_notices() {
-		echo '<div class="error"><p><strong>WordPress Front-end Editor</strong> requires WordPress version ' . self::MIN_WP_VERSION . ' or higher.</p></div>';
-	}
-
-	function init() {
-		global $wp_post_statuses;
 
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;

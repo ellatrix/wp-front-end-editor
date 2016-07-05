@@ -13,11 +13,7 @@
  * License:     GPL-2.0+
  */
 
-if ( class_exists( 'FEE' ) ) {
-	return;
+if ( ! class_exists( 'FEE' ) ) {
+	require_once 'class-fee.php';
+	$GLOBALS['wp_front_end_editor'] = new FEE;
 }
-
-require_once( 'class-fee.php' );
-
-global $wp_front_end_editor;
-$wp_front_end_editor = new FEE;
