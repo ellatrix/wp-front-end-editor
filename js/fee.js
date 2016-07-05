@@ -10,7 +10,7 @@
 			$document = $( document ),
 			$body = $( document.body ),
 			$postClass = $( '.fee-post' ),
-			$editLinks = $( 'a[href="#fee-edit-link"]' ),
+			$editLinks = $( 'a[href="#edit"]' ),
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),

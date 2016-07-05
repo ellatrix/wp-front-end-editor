@@ -3,10 +3,8 @@
 tinymce.ThemeManager.add( 'fee', function( editor ) {
 	var self = this,
 		settings = editor.settings,
-		Factory = tinymce.ui.Factory,
 		each = tinymce.each,
 		DOM = tinymce.DOM,
-		adminBarHeight = 32,
 		focus;
 
 	function getParent( node, nodeName ) {
@@ -113,6 +111,11 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 
 					// No horizontal rules.
 					if ( element.nodeName === 'HR' ) {
+						return;
+					}
+
+					// No links.
+					if ( element.nodeName === 'A' ) {
 						return;
 					}
 

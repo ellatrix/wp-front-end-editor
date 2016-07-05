@@ -550,7 +550,7 @@ class FEE {
 
 	function edit_link( $id ) {
 		if ( get_queried_object_id() === $id ) {
-			return '#fee-edit-link';
+			return '#edit';
 		}
 
 		return get_permalink( $id ) . '#edit';
