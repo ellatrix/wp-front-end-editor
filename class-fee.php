@@ -261,10 +261,6 @@ class FEE {
 
 			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
 
-			wp_enqueue_script( 'wplink' );
-			wp_localize_script( 'wplink', 'ajaxurl', admin_url( 'admin-ajax.php' ) );
-
-			wp_enqueue_style( 'fee-link-modal' , $this->url( '/css/link-modal.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, self::VERSION, 'screen' );
@@ -335,7 +331,6 @@ class FEE {
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 		add_action( 'wp_print_footer_scripts', array( $this, 'footer' ) );
-		add_action( 'wp_print_footer_scripts', array( $this, 'link_modal' ) );
 
 		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
 			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
@@ -559,14 +554,6 @@ class FEE {
 			</div>
 		</div>
 		<?php
-	}
-
-	function link_modal() {
-		if ( ! class_exists( '_WP_Editors' ) ) {
-			require( ABSPATH . WPINC . '/class-wp-editor.php' );
-		}
-
-		_WP_Editors::wp_link_dialog();
 	}
 
 	function get_message( $post, $message_id, $revision_id = null ) {
