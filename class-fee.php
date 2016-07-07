@@ -1,7 +1,7 @@
 <?php
 
 class FEE {
-	const VERSION = '1.1.0';
+	const VERSION = '2.0.0-alpha';
 	const WORDPRESS_MIN_VERSION = '4.5';
 	const TINYMCE_VERSION = '4.4';
 	const REST_API_PLUGIN_SLUG = 'rest-api';
