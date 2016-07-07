@@ -155,7 +155,9 @@
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
 
-			titleEditor.hide();
+			getEditors( function( editor ) {
+				editor.hide();
+			} );
 
 			$title.html( post.get( 'title' ).raw );
 			$titles.html( post.get( 'title' ).raw );
@@ -171,10 +173,6 @@
 			if ( location ) {
 				document.location.href = location;
 			}
-		}
-
-		function toggle() {
-			hidden ? on() : off();
 		}
 
 		function isOn() {
@@ -226,8 +224,6 @@
 
 		function publish( callback ) {
 			save( callback, true );
-			$( '#wp-admin-bar-edit-publish' ).hide();
-			$( '#wp-admin-bar-edit-save > a' ).text( 'Update' );
 		}
 
 		function isDirty() {
@@ -256,7 +252,6 @@
 			} );
 		}
 
-
 		function getEditors( callback ) {
 			_.each( editors, callback );
 		}
@@ -265,8 +260,6 @@
 			editors.push( editor );
 
 			editor.on( 'init', function() {
-				// editor.hide();
-
 				initializedEditors++;
 
 				if ( initializedEditors === editors.length ) {
@@ -279,6 +272,10 @@
 			setup: function( editor ) {
 				contentEditor = editor;
 				window.wpActiveEditor = editor.id;
+
+				editor.on( 'init', function() {
+					editor.hide();
+				} );
 
 				registerEditor( editor );
 
@@ -484,20 +481,6 @@
 			}
 		} );
 
-		$( '#wp-admin-bar-edit-publish > a' ).on( 'click.fee', function( event ) {
-			event.preventDefault();
-			publish();
-		} );
-
-		$( '#wp-admin-bar-edit-save > a' ).on( 'click.fee', function( event ) {
-			event.preventDefault();
-			save();
-		} );
-
-		$( '#wp-admin-bar-edit > a' ).on( 'click.fee', function( event ) {
-			on();
-		} );
-
 		$editLinks.on( 'click.fee', function( event ) {
 			if ( isOn() ) {
 				off();
@@ -506,12 +489,6 @@
 				on();
 			}
 		} );
-
-		// Temporary.
-		if ( $.inArray( post.get( 'status' ), [ 'publish', 'future', 'private' ] ) !== -1 ) {
-			$( '#wp-admin-bar-edit-publish' ).hide();
-			$( '#wp-admin-bar-edit-save > a' ).text( 'Update' );
-		}
 
 		_.extend( wp.media.featuredImage, {
 			set: function( id ) {
@@ -565,5 +542,6 @@
 
 		window.fee.post_title = post_title;
 		window.fee.post_content = post_content;
+		window.fee.save = save;
 	} );
 } )( window.fee, window.jQuery, window.wp.api, window.wp.heartbeat );

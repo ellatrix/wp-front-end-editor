@@ -147,7 +147,6 @@ class FEE {
 
 			wp_enqueue_script( 'fee-tinymce', $this->url( '/vendor/tinymce.js' ), array(), self::TINYMCE_VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'fee-tinymce-insert', $this->url( '/js/tinymce.insert.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 
 			foreach ( array( 'lists', 'paste', 'wordpress', 'wplink', 'wptextpattern', 'wpview' ) as $plugin ) {
@@ -161,7 +160,6 @@ class FEE {
 				'wplink',
 				'wpview',
 				'paste',
-				'insert',
 				'lists'
 			);
 
@@ -237,7 +235,6 @@ class FEE {
 				$user = get_userdata( $user_id );
 			}
 
-			wp_enqueue_style( 'fee-adminbar', $this->url( '/css/fee-adminbar.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util', 'wp-api' ), self::VERSION, true );
 			wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
 				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
@@ -288,8 +285,6 @@ class FEE {
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
 		add_filter( 'private_title_format', array( $this, 'private_title_format' ), 10, 2 );
 		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
-
-		add_action( 'wp_before_admin_bar_render', array( $this, 'wp_before_admin_bar_render' ) );
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 
@@ -416,63 +411,6 @@ class FEE {
 		}
 
 		return $title;
-	}
-
-	function wp_before_admin_bar_render() {
-		global $wp_admin_bar, $wp_the_query;
-
-		$current_object = $wp_the_query->get_queried_object();
-
-		if ( empty( $current_object ) )
-			return;
-
-		if (
-			! empty( $current_object->post_type ) &&
-			( $post_type_object = get_post_type_object( $current_object->post_type ) ) &&
-			current_user_can( 'edit_post', $current_object->ID ) &&
-			$post_type_object->show_ui &&
-			$post_type_object->show_in_admin_bar
-		) {
-			$wp_admin_bar->remove_node( 'edit' );
-
-			$wp_admin_bar->add_node( array(
-				'id' => 'edit',
-				'title' => $post_type_object->labels->edit_item,
-				'href' => '#edit'
-			) );
-
-			$wp_admin_bar->add_node( array(
-				'parent' => 'edit',
-				'id' => 'edit-save',
-				'title' => __( 'Save Draft' ),
-				'href' => '#'
-			) );
-
-			$wp_admin_bar->add_node( array(
-				'parent' => 'edit',
-				'id' => 'edit-publish',
-				'title' => __( 'Publish' ),
-				'href' => '#'
-			) );
-
-			$wp_admin_bar->add_node( array(
-				'parent' => 'edit',
-				'id' => 'edit-cancel',
-				'title' => __( 'Cancel' ),
-				'href' => get_edit_post_link( $current_object->ID )
-			) );
-
-			remove_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
-
-			$wp_admin_bar->add_node( array(
-				'parent' => 'edit',
-				'id' => 'edit-in-admin',
-				'title' => __( 'Edit in admin' ),
-				'href' => get_edit_post_link( $current_object->ID )
-			) );
-
-			add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
-		}
 	}
 
 	function get_autosave_notice() {

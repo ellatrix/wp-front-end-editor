@@ -7,15 +7,10 @@ body.progress * {
 .fee-on .fee-link-pages,
 .fee-off .fee-content-body,
 .fee-off .wp-core-ui,
-.fee-url,
 .fee-alert,
 .wp-hidden-children .wp-hidden-child,
 .fee-insert-thumbnail {
 	display: none;
-}
-
-.fee-on #wpadminbar #wp-admin-bar-edit > .ab-item:before {
-	content: '\f140';
 }
 
 #wpadminbar .ab-top-menu > li.active > .ab-item {
@@ -23,60 +18,15 @@ body.progress * {
 	color: #2ea2cc;
 }
 
-#wp-admin-bar-edit li {
-	display: none;
-}
-
-#wp-admin-bar-edit #wp-admin-bar-edit-in-admin,
-.fee-on #wp-admin-bar-edit li {
-	display: block;
-}
-
-#wpadminbar #wp-admin-bar-edit-save > .ab-item:before {
-	content: '\f464';
-	padding: 3px 0 0;
-}
-
-#wpadminbar #wp-admin-bar-edit-publish > .ab-item:before {
-	content: '\f319';
-	padding: 3px 0 0;
-}
-
-#wpadminbar #wp-admin-bar-edit-in-admin > .ab-item:before {
-	content: '\f108';
-	padding: 3px 0 0;
-}
-
-#wpadminbar #wp-admin-bar-edit-cancel > .ab-item:before {
-	content: '\f158';
-	padding: 3px 0 0;
-}
-
 .fee-on .fee-thumbnail {
 	min-height: 70px;
 }
 
-.fee-on .fee-url,
 .fee-on .fee-empty .fee-insert-thumbnail {
 	display: block;
 }
 
 br.fee-title {
-	display: none;
-}
-
-.fee-slug {
-	display: inline-block;
-	min-width: 1px;
-}
-
-.fee-slug:before,
-.fee-slug:after {
-	clear: none;
-	display: inline;
-}
-
-.fee-slug br {
 	display: none;
 }
 
@@ -112,18 +62,6 @@ br.fee-title {
 	z-index: 1000000;
 }
 
-.fee-categories {
-	display: inline-block;
-}
-
-.wp-core-ui ul.categorychecklist li {
-	margin-top: 6px;
-}
-
-.wp-core-ui ul.categorychecklist ul {
-	margin-left: 18px;
-}
-
 .dashicons,
 .dashicons-before:before {
 	display: inline-block;
@@ -148,19 +86,6 @@ br.fee-title {
 .button-large .dashicons-before:before {
 	height: 26px;
 	line-height: 26px;
-}
-
-.fee-publish-options.active .dashicons:before {
-	content: "\f142";
-}
-
-.error .dashicons-dismiss,
-.updated .dashicons-dismiss {
-	position: absolute;
-	top: 6px;
-	right: 6px;
-	cursor: pointer;
-	color: #666;
 }
 
 /* Content */
@@ -293,7 +218,6 @@ br.fee-title {
 	font-size: 14px;
 }
 
-div.mce-insert,
 .fee-insert-thumbnail {
 	background: transparent;
 	position: absolute;
@@ -319,19 +243,16 @@ div.mce-insert,
 	top: 25px;
 }
 
-div.mce-insert:hover,
 .fee-insert-thumbnail:hover {
 	opacity: 1;
 }
 
-div.mce-insert .dashicons,
 .fee-insert-thumbnail .dashicons {
 	font-family: 'dashicons';
 	font-size: 20px;
 	line-height: 20px;
 }
 
-div.mce-insert .dashicons,
 .fee-insert-thumbnail {
 	margin-top: -1px;
 	-webkit-transition: all 0.2s;

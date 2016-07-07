@@ -760,18 +760,6 @@ body .mce-abs-layout-item,
 	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
 }
 
-.mce-inline-toolbar-grp .mce-btn.mce-disabled:not(:focus),
-.mce-tinymce-inline .mce-btn.mce-disabled:not(:focus) {
-	position: absolute;
-	margin: -1px;
-	padding: 0;
-	height: 1px;
-	width: 1px;
-	overflow: hidden;
-	clip: rect(0 0 0 0);
-	border: 0;
-}
-
 .mce-inline-toolbar-grp .mce-btn.mce-disabled button,
 .mce-inline-toolbar-grp .mce-btn.mce-disabled:hover button,
 .mce-tinymce-inline .mce-btn.mce-disabled button,
@@ -1950,4 +1938,23 @@ i.mce-i-backcolor {
 
 .mce-i-wp_code:before {
 	content: '\f475';
+}
+
+.mce-btn select {
+	/*background: transparent;*/
+	width: 26px;
+	padding: 0;
+	border: 0;
+	height: 24px;
+	opacity: 0;
+	-webkit-appearance: none;
+	position: absolute;
+	top: 0;
+}
+
+.mce-btn .mce-txt {
+	min-width: 20px;
+	line-height: 20px;
+	display: block;
+	height: 20px;
 }
