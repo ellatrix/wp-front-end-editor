@@ -1,55 +1,11 @@
 /* global tinymce */
 
 tinymce.ThemeManager.add( 'fee', function( editor ) {
-	var self = this,
-		settings = editor.settings,
-		each = tinymce.each,
-		DOM = tinymce.DOM,
-		focus;
-
-	function getParent( node, nodeName ) {
-		while ( node ) {
-			if ( node.nodeName === nodeName ) {
-				return node;
-			}
-
-			node = node.parentNode;
-		}
-
-		return false;
-	}
-
-	each( {
-		H1: 'Heading 1',
-		H2: 'Heading 2',
-		H3: 'Heading 3',
-		H4: 'Heading 4',
-		H5: 'Heading 5',
-		H6: 'Heading 6',
-		Pre: 'Preformatted'
-	}, function( text, name ) {
-		var nameLower = name.toLowerCase();
-
-		editor.addButton( nameLower, {
-			tooltip: text,
-			text: name,
-			onclick: function() {
-				editor.formatter.toggle( nameLower );
-			},
-			onPostRender: function() {
-				var self = this;
-
-				editor.on( 'nodeChange', function( event ) {
-					each( event.parents, function( node ) {
-						self.active( !! editor.formatter.matchNode( node, nameLower ) );
-					} );
-				} );
-			}
-		} );
-	} );
-
-	self.renderUI = function() {
-		var hasPlaceholder;
+	this.renderUI = function() {
+		var settings = editor.settings;
+		var each = tinymce.each;
+		var DOM = tinymce.DOM;
+		var focus;
 
 		settings.content_editable = true;
 
@@ -80,7 +36,6 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 				}
 			} );
 		}
-
 
 		editor.on( 'preinit', function() {
 			if ( editor.wp && editor.wp._createToolbar ) {

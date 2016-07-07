@@ -16,6 +16,6 @@
 * Plugin Version:
 * Theme name/URL:
 
-# Error messages
+## Error messages
 
 <!-- https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors -->
