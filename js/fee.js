@@ -59,22 +59,23 @@ var fee = ( function(
 	// Set heartbeat to run every minute.
 	heartbeat.interval( 60 );
 
+	var $window = $( window );
+	var $document = $( document );
+	var $body = $( document.body );
+	var $post = $( '.fee-post' );
+	var $content = $( '.fee-content' );
+	var $titles = findTitles();
+	var $title = findTitle( $titles, $content );
+
 	$( function() {
 		var VK = tinymce.util.VK,
-			$window = $( window ),
-			$document = $( document ),
-			$body = $( document.body ),
-			$postClass = $( '.fee-post' ),
 			$editLinks = $( 'a[href="#edit"]' ),
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
 			$thumbnailEdit = $( '.fee-edit-thumbnail' ).add( '.fee-insert-thumbnail' ),
 			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
-			$content = $( '.fee-content' ),
 			$contentOriginal = $( '.fee-content-original' ),
-			$contentParents = $content.parents(),
-			$titleTags, $titles, $title,
 			editors = [],
 			initializedEditors = 0,
 			releaseLock = true;
@@ -92,22 +93,12 @@ var fee = ( function(
 				editor.show();
 			} );
 
-			if ( wp.autosave ) {
-				wp.autosave.local.resume();
-				wp.autosave.server.resume();
-			}
-
 			hidden = false;
 		}
 
 		function off() {
 			if ( hidden || post.get( 'status' ) === 'auto-draft' ) {
 				return;
-			}
-
-			if ( wp.autosave ) {
-				wp.autosave.local.suspend();
-				wp.autosave.server.suspend();
 			}
 
 			$( '#wp-admin-bar-edit' ).removeClass( 'active' );
@@ -184,78 +175,39 @@ var fee = ( function(
 			}
 		} ) );
 
-		function titleInit() {
-			var i,
-				indexes = {};
+		tinymce.init( {
+			selector: '.fee-title',
+			theme: 'fee',
+			paste_as_text: true,
+			plugins: 'paste',
+			inline: true,
+			placeholder: data.titlePlacholder,
+			entity_encoding: 'raw',
+			setup: function( editor ) {
+				titleEditor = editor;
 
-			$titleTags = $( '.fee-title' );
-			$titles = $titleTags.parent();
-			$titleTags.remove();
+				editor.on( 'init', function() {
+					editor.hide();
+				} );
 
-			// Try: $postClass.find( '.entry-title' )?
-			$title = [];
+				registerEditor( editor );
 
-			! $title.length && $titles.each( function( i, title ) {
-				$( title ).parents().each( function( i, titleParent ) {
-					var index = $.inArray( titleParent, $contentParents );
-
-					if ( index > -1 ) {
-						indexes[ index ] = indexes[ index ] || [];
-						indexes[ index ].push( title );
-						return false;
+				editor.on( 'keydown', function( event ) {
+					if ( event.keyCode === 13 ) {
+						event.preventDefault();
 					}
 				} );
-			} );
 
-			for ( i in indexes ) {
-				$title = $( indexes[ i ] );
+				post.on( 'beforesync', function() {
+					post.set( 'title', {
+						raw: editor.getContent()
+					} );
 
-				break;
-			}
-
-			if ( $title.length ) {
-				$title = $title.first();
-				$titles = $titles.not( $title );
-
-				$title.addClass( 'fee-title' );
-
-				tinymce.init( {
-					selector: '.fee-title',
-					theme: 'fee',
-					paste_as_text: true,
-					plugins: 'paste',
-					inline: true,
-					placeholder: data.titlePlacholder,
-					entity_encoding: 'raw',
-					setup: function( editor ) {
-						titleEditor = editor;
-
-						editor.on( 'init', function() {
-							editor.hide();
-						} );
-
-						registerEditor( editor );
-
-						editor.on( 'keydown', function( event ) {
-							if ( event.keyCode === 13 ) {
-								event.preventDefault();
-							}
-						} );
-
-						post.on( 'beforesync', function() {
-							post.set( 'title', {
-								raw: editor.getContent()
-							} );
-
-							editor.undoManager.add();
-							editor.isNotDirty = true;
-						} );
-					}
+					editor.undoManager.add();
+					editor.isNotDirty = true;
 				} );
 			}
-		}
-
-		titleInit();
+		} );
 
 		$document.on( 'fee-editor-init.fee', function() {
 			if ( $body.hasClass( 'fee-on' ) || document.location.hash === '#edit' ) {
@@ -402,6 +354,34 @@ var fee = ( function(
 			} );
 		} );
 	} );
+
+	function findTitles() {
+		var $br = $( 'br.fee-title' );
+		var $titles = $br.parent();
+
+		$br.remove();
+
+		return $titles;
+	}
+
+	function findTitle( $titles, $content ) {
+		var title = false;
+		var $parents = $content.parents();
+		var index;
+
+		$titles.each( function() {
+			var self = this;
+
+			$( this ).parents().each( function() {
+				if ( index < ( index = $.inArray( this, $parents ) ) ) {
+					title = self;
+					return false;
+				}
+			} );
+		} );
+
+		return $( title ).addClass( 'fee-title' );
+	}
 
 	return {
 		post: post
