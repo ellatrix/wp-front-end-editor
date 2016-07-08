@@ -67,6 +67,7 @@ var fee = ( function(
 	var $content = $( '.fee-content' );
 	var $titles = findTitles();
 	var $title = findTitle( $titles, $content );
+	var documentTitle = document.title.replace( $title.text(), '<!--replace-->' );
 
 	$( function() {
 		var $links = $( 'a[href="' + data.editURL + '"]' ),
@@ -109,8 +110,9 @@ var fee = ( function(
 				editor.hide();
 			} );
 
-			$title.html( post.get( 'title' ).rendered );
-			$titles.html( post.get( 'title' ).rendered );
+			document.title = documentTitle.replace( '<!--replace-->', post.get( 'title' ).rendered );
+			$titles.add( $title ).html( post.get( 'title' ).rendered );
+
 			$contentOriginal.html( post.get( 'content' ).rendered );
 
 			hidden = true;
@@ -189,7 +191,10 @@ var fee = ( function(
 				} );
 
 				editor.on( 'setcontent keyup', function() {
-					$titles.text( editor.getContent() );
+					var text = $title.text();
+
+					$titles.text( text );
+					document.title = documentTitle.replace( '<!--replace-->', text );
 				} );
 
 				post.on( 'beforesync', function() {
