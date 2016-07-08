@@ -87,6 +87,7 @@ var fee = ( function(
 			$( '#wp-admin-bar-edit' ).addClass( 'active' );
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
+			$postClass.parents().addClass('fee-post-parent');
 
 			getEditors( function( editor ) {
 				editor.show();

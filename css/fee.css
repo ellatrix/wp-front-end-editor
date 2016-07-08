@@ -1,3 +1,21 @@
+.fee-off * {
+	transition: opacity 500ms;
+}
+
+.fee-on * {
+	opacity: 0;
+	transition: opacity 500ms;
+}
+
+.fee-on #wpadminbar, .fee-on #wpadminbar *,
+.fee-on [id*="__wp-uploader-id"], .fee-on [id*="__wp-uploader-id"] *,
+.fee-on [id*="mceu_"], .fee-on [id*="mceu_"] *,
+.fee-on .fee-post-parent,
+.fee-on .fee-post, .fee-on .fee-post *,
+.fee-on .wp-core-ui, .fee-on .wp-core-ui * {
+	opacity: 1;
+}
+
 .fee-on .fee-content-original,
 .fee-on .fee-link-pages,
 .fee-off .fee-content-body,
