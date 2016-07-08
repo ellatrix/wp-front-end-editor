@@ -135,6 +135,8 @@ class FEE {
 	function wp_enqueue_scripts() {
 		global $post;
 
+		$rest_server = rest_get_server();
+
 		if ( $this->has_fee() ) {
 			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
 			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
@@ -181,14 +183,11 @@ class FEE {
 				'end_container_on_empty_block' => true
 			);
 
-			$server = rest_get_server();
-
 			$request = new WP_REST_Request( 'GET', '/wp/v2/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID );
 			$request->set_query_params( array(
 				'context' => 'edit'
 			) );
-
-			$result = $server->dispatch( $request );
+			$result = $rest_server->dispatch( $request );
 
 			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'feeData', array(
@@ -196,6 +195,17 @@ class FEE {
 				'post' => $result->get_data(),
 				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
 				'titlePlacholder' => apply_filters( 'fee_title_placeholder', __( 'Title' ) )
+			) );
+
+			$request  = new WP_REST_Request( 'GET', '/wp/v2' );
+			$result = $rest_server->dispatch( $request );
+
+			wp_localize_script( 'wp-api', 'wpApiSettings', array(
+				'root' => esc_url_raw( get_rest_url() ),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+				'versionString' => 'wp/v2/',
+				'schema' => $result->get_data(),
+				'cacheSchema' => true
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
