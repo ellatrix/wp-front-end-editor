@@ -188,7 +188,7 @@ class FEE {
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'post' => $result->get_data(),
 				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
-				'titlePlacholder' => apply_filters( 'fee_title_placeholder', __( 'Title' ) ),
+				'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
 				'editURL' => get_edit_post_link()
 			) );
 

@@ -171,7 +171,7 @@ var fee = ( function(
 			paste_as_text: true,
 			plugins: 'paste',
 			inline: true,
-			placeholder: data.titlePlacholder,
+			placeholder: data.titlePlaceholder,
 			entity_encoding: 'raw',
 			setup: function( editor ) {
 				titleEditor = editor;
