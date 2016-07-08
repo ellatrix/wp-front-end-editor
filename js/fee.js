@@ -188,6 +188,10 @@ var fee = ( function(
 					}
 				} );
 
+				editor.on( 'setcontent keyup', function() {
+					$titles.text( editor.getContent() );
+				} );
+
 				post.on( 'beforesync', function() {
 					post.set( 'title', {
 						raw: editor.getContent()
@@ -345,12 +349,12 @@ var fee = ( function(
 		return $titles;
 	}
 
-	function findTitle( $titles, $content ) {
+	function findTitle( $all, $content ) {
 		var title = false;
 		var $parents = $content.parents();
 		var index;
 
-		$titles.each( function() {
+		$all.each( function() {
 			var self = this;
 
 			$( this ).parents().each( function() {
@@ -360,6 +364,8 @@ var fee = ( function(
 				}
 			} );
 		} );
+
+		$titles = $all.not( title );
 
 		return $( title ).addClass( 'fee-title' );
 	}
