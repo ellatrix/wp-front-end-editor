@@ -137,7 +137,7 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 		editor.addButton( 'save', {
 			text: 'Save',
 			onclick: function() {
-				window.fee.save();
+				window.fee.post.save();
 
 				editor.windowManager.open( {
 					padding: 20,
@@ -159,9 +159,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 							onclick: function() {
 								var win = this.parent().parent();
 
-								window.fee.save( function() {
-									win.close();
-								}, true );
+								window.fee.post.save( { status: 'publish' } );
+								win.close();
 							}
 						}
 					]

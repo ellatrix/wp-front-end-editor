@@ -84,6 +84,8 @@ class FEE {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_action( 'wp', array( $this, 'wp' ) );
+
+		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
 	}
 
 	function get_edit_post_link( $link, $id, $context ) {
@@ -139,12 +141,6 @@ class FEE {
 			wp_enqueue_style( 'wp-auth-check' );
 			wp_enqueue_script( 'wp-auth-check' );
 
-			wp_enqueue_script( 'autosave-custom', $this->url( '/js/autosave.js' ), array( 'schedule', 'wp-ajax-response', 'fee' ), self::VERSION, true );
-			wp_localize_script( 'autosave-custom', 'autosaveL10n', array(
-				'autosaveInterval' => AUTOSAVE_INTERVAL,
-				'blog_id' => get_current_blog_id()
-			) );
-
 			wp_enqueue_script( 'fee-tinymce', $this->url( '/vendor/tinymce.js' ), array(), self::TINYMCE_VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
 			wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
@@ -194,21 +190,11 @@ class FEE {
 			$result = $server->dispatch( $request );
 
 			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api' ), self::VERSION, true );
-			wp_localize_script( 'fee', 'fee', array(
+			wp_localize_script( 'fee', 'feeData', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'post' => $result->get_data(),
-				'nonces' => array(
-					'post' => wp_create_nonce( 'update-post_' . $post->ID )
-				),
 				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
-				'notices' => array(
-					'autosave' => $this->get_autosave_notice()
-				)
-			) );
-
-			wp_localize_script( 'fee', 'feeL10n', array(
-				'saveAlert' => __( 'The changes you made will be lost if you navigate away from this page.' ),
-				'title' => apply_filters( 'fee_title_placeholder', __( 'Title' ) )
+				'titlePlacholder' => apply_filters( 'fee_title_placeholder', __( 'Title' ) )
 			) );
 
 			wp_enqueue_media( array( 'post' => $post ) );
@@ -492,5 +478,14 @@ class FEE {
 		}
 
 		return get_permalink( $id ) . '#edit';
+	}
+
+	function heartbeat_send( $response ) {
+		$response['fee_nonces'] = array(
+			'api' => wp_create_nonce( 'wp_rest' ),
+			'heartbeat' => wp_create_nonce( 'heartbeat-nonce' )
+		);
+
+		return $response;
 	}
 }

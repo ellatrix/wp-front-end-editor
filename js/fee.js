@@ -1,11 +1,33 @@
-( function( data, $, api, heartbeat ) {
-	heartbeat.interval( 15 );
+var fee = ( function(
+	data,
+	$,
+	api,
+	heartbeat,
+	tinymce
+) {
+	var hidden = true;
+
+	var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ];
+	var Model = BaseModel.extend( {
+		// Overwrite `sync` to send event before syncing.
+		sync: function() {
+			this.trigger( 'beforesync' );
+			return BaseModel.prototype.sync.apply( this, arguments );
+		}
+	} );
+
+	// Post model to manipulate.
+	// Needs to represent the state on the server.
+	var post = new Model();
+
+	// Parse the data we got from the server and fill the model.
+	post.set( post.parse( data.post ) );
+
+	// Set heartbeat to run every minute.
+	heartbeat.interval( 60 );
 
 	$( function() {
-		var tinymce = window.tinymce,
-			VK = tinymce.util.VK,
-			feeL10n = window.feeL10n,
-			hidden = true,
+		var VK = tinymce.util.VK,
 			$window = $( window ),
 			$document = $( document ),
 			$body = $( document.body ),
@@ -16,97 +38,13 @@
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
 			$thumbnailEdit = $( '.fee-edit-thumbnail' ).add( '.fee-insert-thumbnail' ),
 			$thumbnailRemove = $( '.fee-remove-thumbnail' ),
-			$toolbar = $( '.fee-toolbar' ),
-			$buttons = $toolbar.find( '.button' ).add( $( '.fee-save-and-exit' ) ),
 			$content = $( '.fee-content' ),
 			$contentOriginal = $( '.fee-content-original' ),
 			$contentParents = $content.parents(),
-			$titleTags, $titles, $title, docTitle,
-			titleEditor, contentEditor,
+			$titleTags, $titles, $title,
 			editors = [],
 			initializedEditors = 0,
-			releaseLock = true,
-			checkNonces, timeoutNonces;
-
-		var count = 0;
-		var loader = {
-			start: function() {
-				if ( ! count ) {
-					$body.addClass( 'progress' );
-				}
-
-				count++;
-			},
-			stop: function() {
-				if ( count ) {
-					count--;
-				}
-
-				if ( ! count ) {
-					$body.removeClass( 'progress' );
-				}
-			}
-		};
-
-		var post = new wp.api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]();
-
-		post.set( post.parse( data.post ) );
-
-		function post_title( content, notself ) {
-			if ( content ) {
-				if ( docTitle ) {
-					document.title = docTitle.replace( '<!--replace-->', content );
-				}
-
-				$titles.each( function( i, title ) {
-					title.innerHTML = content;
-				} );
-
-				if ( ! notself ) {
-					$title.get( 0 ).innerHTML = content;
-				}
-
-				return post_title();
-			}
-
-			if ( titleEditor ) {
-				return titleEditor.getContent() || '';
-			} else {
-				return post.get( 'title' ).raw;
-			}
-		}
-
-		function post_content( content ) {
-			var returnContent;
-
-			if ( content && content !== 'raw' && content !== 'html' ) {
-				contentEditor.undoManager.add();
-				contentEditor.setContent( content );
-
-				return post_content();
-			}
-
-			returnContent = contentEditor.getContent( {
-				format: content || 'html'
-			} ) || '';
-
-			if ( content !== 'raw' ) {
-				returnContent = returnContent.replace( /<p>(?:<br ?\/?>|\u00a0|\uFEFF| )*<\/p>/g, '<p>&nbsp;</p>' );
-				returnContent = window.switchEditors.pre_wpautop( returnContent );
-			}
-
-			return returnContent;
-		}
-
-		function scheduleNoncesRefresh() {
-			checkNonces = false;
-			clearTimeout( timeoutNonces );
-			timeoutNonces = setTimeout( function() {
-				checkNonces = true;
-			}, 300000 );
-		}
-
-		scheduleNoncesRefresh();
+			releaseLock = true;
 
 		function on() {
 			if ( ! hidden ) {
@@ -129,21 +67,11 @@
 			hidden = false;
 		}
 
-		function off( location ) {
+		function off() {
 			if ( hidden || post.get( 'status' ) === 'auto-draft' ) {
 				return;
 			}
 
-			if ( isDirty() ) {
-				if ( window.confirm( feeL10n.saveAlert ) ) {
-					_off( location );
-				}
-			} else {
-				_off( location );
-			}
-		}
-
-		function _off( location ) {
 			if ( wp.autosave ) {
 				wp.autosave.local.suspend();
 				wp.autosave.server.suspend();
@@ -159,97 +87,13 @@
 				editor.hide();
 			} );
 
-			$title.html( post.get( 'title' ).raw );
-			$titles.html( post.get( 'title' ).raw );
-
-			if ( docTitle ) {
-				document.title = docTitle.replace( '<!--replace-->', post.get( 'title' ).rendered );
-			}
+			$title.html( post.get( 'title' ).rendered );
+			$titles.html( post.get( 'title' ).rendered );
+			$contentOriginal.html( post.get( 'content' ).rendered );
 
 			hidden = true;
 
 			document.location.hash = '';
-
-			if ( location ) {
-				document.location.href = location;
-			}
-		}
-
-		function isOn() {
-			return ! hidden;
-		}
-
-		function isOff() {
-			return hidden;
-		}
-
-		function save( callback, _publish ) {
-			$document.trigger( 'fee-before-save' );
-
-			$buttons.prop( 'disabled', true );
-			loader.start();
-
-			var post = new wp.api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]();
-
-			if ( _publish ) {
-				post.set( { status: 'publish' } );
-			}
-
-			post
-			.save( {
-				id: data.post.id,
-				content: post_content(),
-				title: post_title(),
-			} )
-			.always( function() {
-				$buttons.prop( 'disabled', false );
-				loader.stop();
-			} )
-			.done( function( data ) {
-				// Update the post content.
-				$contentOriginal.html( data.processedPostContent );
-				// Invalidate the browser backup.
-				window.wpCookies.set( 'wp-saving-post-' + post.get( 'id' ), 'saved' );
-				// Add an undo level for all editors.
-				addUndoLevel();
-				// The editors are no longer dirty.
-				// initialPost = getPost();
-
-				callback && callback();
-			} )
-			.fail( function( data ) {
-				console.log( data );
-			} );
-		}
-
-		function publish( callback ) {
-			save( callback, true );
-		}
-
-		function isDirty() {
-			if ( hidden ) {
-				return;
-			}
-
-			return true;
-
-			// return _.some( arguments.length ? arguments : [ 'title', 'content' ], function( key ) {
-			// 	if ( initialPost[ key ] && wp.fee.post[ key ] ) {
-			// 		return wp.fee.post[ key ]() !== initialPost[ key ];
-			// 	}
-
-			// 	return;
-			// } );
-		}
-
-		function addUndoLevel() {
-			if ( hidden ) {
-				return;
-			}
-
-			getEditors( function( editor ) {
-				editor.undoManager.add();
-			} );
 		}
 
 		function getEditors( callback ) {
@@ -268,9 +112,19 @@
 			} );
 		}
 
+		function isDirty() {
+			var dirty;
+
+			getEditors( function( editor ) {
+				dirty = dirty || editor.isDirty();
+			} );
+
+			return dirty;
+		}
+
 		tinymce.init( _.extend( data.tinymce, {
 			setup: function( editor ) {
-				contentEditor = editor;
+				// Used by the media library,
 				window.wpActiveEditor = editor.id;
 
 				editor.on( 'init', function() {
@@ -284,6 +138,15 @@
 					if ( event.content ) {
 						event.content = event.content.replace( /<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>' );
 					}
+				} );
+
+				post.on( 'beforesync', function() {
+					post.set( 'content', {
+						raw: editor.getContent()
+					} );
+
+					editor.undoManager.add();
+					editor.isNotDirty = true;
 				} );
 			}
 		} ) );
@@ -321,8 +184,6 @@
 				$title = $title.first();
 				$titles = $titles.not( $title );
 
-				docTitle = ( $title.text().length ? document.title.replace( $title.text(), '<!--replace-->' ) : document.title );
-
 				$title.addClass( 'fee-title' );
 
 				tinymce.init( {
@@ -331,7 +192,7 @@
 					paste_as_text: true,
 					plugins: 'paste',
 					inline: true,
-					placeholder: feeL10n.title,
+					placeholder: data.titlePlacholder,
 					entity_encoding: 'raw',
 					setup: function( editor ) {
 						titleEditor = editor;
@@ -342,15 +203,19 @@
 
 						registerEditor( editor );
 
-						editor.on( 'setcontent keyup', function() {
-							post_title( post_title(), true );
-						} );
-
 						editor.on( 'keydown', function( event ) {
 							if ( event.keyCode === 13 ) {
-								contentEditor.focus();
 								event.preventDefault();
 							}
+						} );
+
+						post.on( 'beforesync', function() {
+							post.set( 'title', {
+								raw: editor.getContent()
+							} );
+
+							editor.undoManager.add();
+							editor.isNotDirty = true;
 						} );
 					}
 				} );
@@ -359,31 +224,7 @@
 
 		titleInit();
 
-		$window
-		.on( 'beforeunload.fee', function() {
-			if ( ! hidden && isDirty() ) {
-				( event || window.event ).returnValue = feeL10n.saveAlert;
-				return feeL10n.saveAlert;
-			}
-		} )
-		.on( 'unload.fee-remove-lock', function( event ) {
-			if ( ! releaseLock ) {
-				return;
-			}
-
-			if ( event.target && event.target.nodeName !== '#document' ) {
-				return;
-			}
-
-			wp.ajax.post( 'wp-remove-post-lock', {
-				_wpnonce: data.nonces.post,
-				post_ID: post.get( 'id' ),
-				active_post_lock: data.lock
-			} );
-		} );
-
-		$document
-		.on( 'fee-editor-init.fee', function() {
+		$document.on( 'fee-editor-init.fee', function() {
 			if ( $body.hasClass( 'fee-on' ) || document.location.hash === '#edit' ) {
 				on();
 			}
@@ -391,102 +232,90 @@
 			if ( $body.hasClass( 'fee-off' ) && ! $thumbnail.find( 'img' ).length ) {
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
+		} );
 
-			$document.on( 'autosave-restore-post', function( event, postData ) {
-				post_title( postData.post_title );
-				post_content( postData.content );
-			} );
-		} )
-		.on( 'autosave-enable-buttons.fee', function() {
-			$buttons.prop( 'disabled', false );
-		} )
-		.on( 'autosave-disable-buttons.fee', function() {
-			if ( ! wp.heartbeat || ! wp.heartbeat.hasConnectionError() ) {
-				$buttons.prop( 'disabled', true );
-			}
-		} )
-		.on( 'keydown.fee', function( event ) {
+		$document.on( 'keydown.fee', function( event ) {
 			if ( event.keyCode === 83 && VK.metaKeyPressed( event ) ) {
 				event.preventDefault();
-				save();
+				post.save();
 			}
-			if ( event.keyCode === 27 ) {
-				event.preventDefault();
-				off();
+		} );
+
+		// $window.on( 'unload.fee-remove-lock', function( event ) {
+		// 	if ( ! releaseLock ) {
+		// 		return;
+		// 	}
+
+		// 	if ( event.target && event.target.nodeName !== '#document' ) {
+		// 		return;
+		// 	}
+
+		// 	wp.ajax.post( 'wp-remove-post-lock', {
+		// 		_wpnonce: data.nonces.post,
+		// 		post_ID: post.get( 'id' ),
+		// 		active_post_lock: data.lock
+		// 	} );
+		// } );
+
+		// $document.on( 'heartbeat-send.fee-refresh-lock', function( event, data ) {
+		// 	data['wp-refresh-post-lock'] = {
+		// 		post_id: post.get( 'id' ),
+		// 		lock: data.lock
+		// 	};
+		// } );
+
+		// $document.on( 'heartbeat-tick.fee-refresh-lock', function( event, data ) {
+		// 	var received = data['wp-refresh-post-lock'],
+		// 		wrap, avatar;
+
+		// 	if ( received ) {
+		// 		if ( received.lock_error ) {
+		// 			wrap = $( '#post-lock-dialog' );
+
+		// 			if ( wrap.length && ! wrap.is( ':visible' ) ) {
+		// 				if ( wp.autosave ) {
+		// 					$document.one( 'heartbeat-tick', function() {
+		// 						wp.autosave.server.suspend();
+		// 						wrap.removeClass( 'saving' ).addClass( 'saved' );
+		// 					} );
+
+		// 					wrap.addClass( 'saving' );
+		// 					wp.autosave.server.triggerSave();
+		// 				}
+
+		// 				if ( received.lock_error.avatar_src ) {
+		// 					avatar = $( '<img class="avatar avatar-64 photo" width="64" height="64" />' ).attr( 'src', received.lock_error.avatar_src.replace( /&amp;/g, '&' ) );
+		// 					wrap.find( 'div.post-locked-avatar' ).empty().append( avatar );
+		// 				}
+
+		// 				wrap.show().find( '.currently-editing' ).text( received.lock_error.text );
+		// 				wrap.find( '.wp-tab-first' ).focus();
+		// 			}
+		// 		} else if ( received.new_lock ) {
+		// 			data.lock = received.new_lock;
+		// 		}
+		// 	}
+		// } );
+
+		$document.on( 'heartbeat-send.fee-refresh-nonces', function() {
+			if ( ! hidden && isDirty() ) {
+				post.save();
 			}
-		} )
-		.on( 'heartbeat-send.fee-refresh-lock', function( event, data ) {
-			data['wp-refresh-post-lock'] = {
-				post_id: post.get( 'id' ),
-				lock: data.lock
-			};
-		} )
-		.on( 'heartbeat-tick.fee-refresh-lock', function( event, data ) {
-			var received = data['wp-refresh-post-lock'],
-				wrap, avatar;
+		} );
 
-			if ( received ) {
-				if ( received.lock_error ) {
-					wrap = $( '#post-lock-dialog' );
-
-					if ( wrap.length && ! wrap.is( ':visible' ) ) {
-						if ( wp.autosave ) {
-							$document.one( 'heartbeat-tick', function() {
-								wp.autosave.server.suspend();
-								wrap.removeClass( 'saving' ).addClass( 'saved' );
-								$window.off( 'beforeunload.edit-post' );
-							} );
-
-							wrap.addClass( 'saving' );
-							wp.autosave.server.triggerSave();
-						}
-
-						if ( received.lock_error.avatar_src ) {
-							avatar = $( '<img class="avatar avatar-64 photo" width="64" height="64" />' ).attr( 'src', received.lock_error.avatar_src.replace( /&amp;/g, '&' ) );
-							wrap.find( 'div.post-locked-avatar' ).empty().append( avatar );
-						}
-
-						wrap.show().find( '.currently-editing' ).text( received.lock_error.text );
-						wrap.find( '.wp-tab-first' ).focus();
-					}
-				} else if ( received.new_lock ) {
-					data.lock = received.new_lock;
-				}
-			}
-		} )
-		.on( 'heartbeat-send.fee-refresh-nonces', function( event ) {
-			if ( checkNonces ) {
-				data['wp-refresh-post-nonces'] = {
-					post_id: post.get( 'id' ),
-					post_nonce: data.nonces.post
-				};
-			}
-		} )
-		.on( 'heartbeat-tick.fee-refresh-nonces', function( event, data ) {
-			var nonces = data['wp-refresh-post-nonces'];
-
-			if ( nonces ) {
-				scheduleNoncesRefresh();
-
-				// TODO
-				/* if ( nonces.replace ) {
-					$.each( nonces.replace, function( selector, value ) {
-						$( '#' + selector ).val( value );
-					});
-				} */
-
-				if ( nonces.heartbeatNonce ) {
-					window.heartbeatSettings.nonce = nonces.heartbeatNonce;
-				}
+		$document.on( 'heartbeat-tick.fee-refresh-nonces', function( event, data ) {
+			if ( data.fee_nonces ) {
+				window.wpApiSettings.nonce = data.fee_nonces.api;
+				window.heartbeatSettings.nonce = data.fee_nonces.heartbeat;
 			}
 		} );
 
 		$editLinks.on( 'click.fee', function( event ) {
-			if ( isOn() ) {
+			if ( hidden ) {
+				on();
+			} else {
 				off();
 				event.preventDefault();
-			} else {
-				on();
 			}
 		} );
 
@@ -539,9 +368,15 @@
 				$document.off( 'click.fee-thumbnail-active' );
 			} );
 		} );
-
-		window.fee.post_title = post_title;
-		window.fee.post_content = post_content;
-		window.fee.save = save;
 	} );
-} )( window.fee, window.jQuery, window.wp.api, window.wp.heartbeat );
+
+	return {
+		post: post
+	};
+} )(
+	window.feeData,
+	window.jQuery,
+	window.wp.api,
+	window.wp.heartbeat,
+	window.tinymce
+);
