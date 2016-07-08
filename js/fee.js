@@ -8,11 +8,44 @@ var fee = ( function(
 	var hidden = true;
 
 	var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ];
+
+	var AutosaveModel = BaseModel.extend( {
+		isNew: function() {
+			return true;
+		},
+		url: function() {
+			return BaseModel.prototype.url.apply( this, arguments ) + '/autosave';
+		}
+	} );
+
 	var Model = BaseModel.extend( {
 		// Overwrite `sync` to send event before syncing.
 		sync: function() {
 			this.trigger( 'beforesync' );
 			return BaseModel.prototype.sync.apply( this, arguments );
+		},
+		autosave: function() {
+			if ( this.get( 'status' ) === 'draft' ) {
+				this.save();
+			} else {
+				this.trigger( 'beforesync' );
+				new AutosaveModel( _.clone( this.attributes ) ).save();
+			}
+		},
+		toJSON: function() {
+			var attributes = _.clone( this.attributes );
+
+			// TODO: investigate why these can't be saved as they are.
+
+			if ( ! attributes.slug ) {
+				delete attributes.slug;
+			}
+
+			if ( ! attributes.date_gmt ) {
+				delete attributes.date_gmt;
+			}
+
+			return attributes;
 		}
 	} );
 
@@ -299,7 +332,7 @@ var fee = ( function(
 
 		$document.on( 'heartbeat-send.fee-refresh-nonces', function() {
 			if ( ! hidden && isDirty() ) {
-				post.save();
+				post.autosave();
 			}
 		} );
 

@@ -86,6 +86,7 @@ class FEE {
 		add_action( 'wp', array( $this, 'wp' ) );
 
 		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
+		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 	}
 
 	function get_edit_post_link( $link, $id, $context ) {
@@ -487,5 +488,12 @@ class FEE {
 		);
 
 		return $response;
+	}
+
+	function rest_api_init() {
+		foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
+			$autosave_controller = new WP_REST_Post_Autosave_Controller( $post_type->name );
+			$autosave_controller->register_routes();
+		}
 	}
 }
