@@ -371,6 +371,8 @@ tinymce.ThemeManager.add( 'fee', function( editor ) {
 				editor.on( 'show', function() {
 					toolbar.show();
 				} );
+
+				toolbar.show();
 			}
 		} );
 

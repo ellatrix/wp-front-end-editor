@@ -7,9 +7,13 @@
 	display: none;
 }
 
-#wpadminbar .ab-top-menu > li.active > .ab-item {
-	background: #333;
-	color: #2ea2cc;
+.fee-on #wp-admin-bar-edit a {
+	background: #32373c;
+    color: #00b9eb;
+}
+
+.fee-on #wp-admin-bar-edit a:before {
+	color: #00b9eb;
 }
 
 .fee-on .fee-thumbnail {

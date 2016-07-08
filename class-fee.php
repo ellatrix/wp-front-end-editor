@@ -76,8 +76,6 @@ class FEE {
 		// Lets auto-drafts pass as drafts by WP_Query.
 		$wp_post_statuses['auto-draft']->protected = true;
 
-		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
-
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
@@ -89,10 +87,6 @@ class FEE {
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 	}
 
-	function get_edit_post_link( $link, $id, $context ) {
-		return $this->supports_fee( $id ) && ! is_admin() ? $this->edit_link( $id ) : $link;
-	}
-
 	function ajax_new() {
 		check_ajax_referer( 'fee-new', 'nonce' );
 
@@ -101,7 +95,7 @@ class FEE {
 		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
 		wp_set_post_categories( $post->ID, array( get_option( 'default_category' ) ) );
 
-		wp_send_json_success( $this->edit_link( $post->ID ) );
+		wp_send_json_success( get_permalink( $post->ID ) );
 	}
 
 	function ajax_shortcode() {
@@ -194,7 +188,8 @@ class FEE {
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'post' => $result->get_data(),
 				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
-				'titlePlacholder' => apply_filters( 'fee_title_placeholder', __( 'Title' ) )
+				'titlePlacholder' => apply_filters( 'fee_title_placeholder', __( 'Title' ) ),
+				'editURL' => get_edit_post_link()
 			) );
 
 			$request  = new WP_REST_Request( 'GET', '/wp/v2' );
@@ -250,7 +245,7 @@ class FEE {
 
 			wp_set_post_lock( $post->ID );
 
-			wp_redirect( $this->edit_link( $post->ID ) );
+			wp_redirect( get_permalink( $post->ID ) );
 
 			die;
 		}
@@ -260,7 +255,7 @@ class FEE {
 		}
 
 		if ( force_ssl_admin() && ! is_ssl() ) {
-			wp_redirect( set_url_scheme( $this->edit_link( $post->ID ), 'https' ) );
+			wp_redirect( set_url_scheme( get_permalink( $post->ID ), 'https' ) );
 
 			die;
 		}
@@ -481,14 +476,6 @@ class FEE {
 
 	function did_action( $tag ) {
 		return did_action( $tag ) - (int) doing_filter( $tag );
-	}
-
-	function edit_link( $id ) {
-		if ( get_queried_object_id() === $id ) {
-			return '#edit';
-		}
-
-		return get_permalink( $id ) . '#edit';
 	}
 
 	function heartbeat_send( $response ) {

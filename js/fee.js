@@ -3,9 +3,10 @@ var fee = ( function(
 	$,
 	api,
 	heartbeat,
-	tinymce
+	tinymce,
+	_
 ) {
-	var hidden = true;
+	var hidden = data.post.status !== 'auto-draft';
 
 	var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ];
 
@@ -68,8 +69,7 @@ var fee = ( function(
 	var $title = findTitle( $titles, $content );
 
 	$( function() {
-		var VK = tinymce.util.VK,
-			$editLinks = $( 'a[href="#edit"]' ),
+		var $links = $( 'a[href="' + data.editURL + '"]' ),
 			$hasPostThumbnail = $( '.has-post-thumbnail' ),
 			$thumbnail = $( '.fee-thumbnail' ),
 			$thumbnailWrap = $( '.fee-thumbnail-wrap' ),
@@ -85,11 +85,10 @@ var fee = ( function(
 				return;
 			}
 
-			$( '#wp-admin-bar-edit' ).addClass( 'active' );
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
 
-			getEditors( function( editor ) {
+			_.each( editors, function( editor ) {
 				editor.show();
 			} );
 
@@ -101,13 +100,12 @@ var fee = ( function(
 				return;
 			}
 
-			$( '#wp-admin-bar-edit' ).removeClass( 'active' );
 			$body.removeClass( 'fee-on' ).addClass( 'fee-off' );
 			if ( ! $thumbnail.find( 'img' ).length ) {
 				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 			}
 
-			getEditors( function( editor ) {
+			_.each( editors, function( editor ) {
 				editor.hide();
 			} );
 
@@ -116,34 +114,22 @@ var fee = ( function(
 			$contentOriginal.html( post.get( 'content' ).rendered );
 
 			hidden = true;
-
-			document.location.hash = '';
-		}
-
-		function getEditors( callback ) {
-			_.each( editors, callback );
-		}
-
-		function registerEditor( editor ) {
-			editors.push( editor );
-
-			editor.on( 'init', function() {
-				initializedEditors++;
-
-				if ( initializedEditors === editors.length ) {
-					$document.trigger( 'fee-editor-init' );
-				}
-			} );
 		}
 
 		function isDirty() {
 			var dirty;
 
-			getEditors( function( editor ) {
+			_.each( editors, function( editor ) {
 				dirty = dirty || editor.isDirty();
 			} );
 
 			return dirty;
+		}
+
+		if ( ! hidden ) {
+			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
+		} else if ( ! $thumbnail.find( 'img' ).length ) {
+			$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 		}
 
 		tinymce.init( _.extend( data.tinymce, {
@@ -152,10 +138,12 @@ var fee = ( function(
 				window.wpActiveEditor = editor.id;
 
 				editor.on( 'init', function() {
-					editor.hide();
+					if ( hidden ) {
+						editor.hide();
+					}
 				} );
 
-				registerEditor( editor );
+				editors.push( editor );
 
 				// Remove spaces from empty paragraphs.
 				editor.on( 'BeforeSetContent', function( event ) {
@@ -187,10 +175,12 @@ var fee = ( function(
 				titleEditor = editor;
 
 				editor.on( 'init', function() {
-					editor.hide();
+					if ( hidden ) {
+						editor.hide();
+					}
 				} );
 
-				registerEditor( editor );
+				editors.push( editor );
 
 				editor.on( 'keydown', function( event ) {
 					if ( event.keyCode === 13 ) {
@@ -209,18 +199,8 @@ var fee = ( function(
 			}
 		} );
 
-		$document.on( 'fee-editor-init.fee', function() {
-			if ( $body.hasClass( 'fee-on' ) || document.location.hash === '#edit' ) {
-				on();
-			}
-
-			if ( $body.hasClass( 'fee-off' ) && ! $thumbnail.find( 'img' ).length ) {
-				$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
-			}
-		} );
-
 		$document.on( 'keydown.fee', function( event ) {
-			if ( event.keyCode === 83 && VK.metaKeyPressed( event ) ) {
+			if ( event.keyCode === 83 && tinymce.util.VK.metaKeyPressed( event ) ) {
 				event.preventDefault();
 				post.save();
 			}
@@ -295,12 +275,13 @@ var fee = ( function(
 			}
 		} );
 
-		$editLinks.on( 'click.fee', function( event ) {
+		$links.on( 'click.fee-link', function( event ) {
+			event.preventDefault();
+
 			if ( hidden ) {
 				on();
 			} else {
 				off();
-				event.preventDefault();
 			}
 		} );
 
@@ -391,5 +372,6 @@ var fee = ( function(
 	window.jQuery,
 	window.wp.api,
 	window.wp.heartbeat,
-	window.tinymce
+	window.tinymce,
+	window._
 );
