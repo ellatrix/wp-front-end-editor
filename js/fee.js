@@ -89,8 +89,82 @@ var fee = ( function(
 			$body.removeClass( 'fee-off' ).addClass( 'fee-on' );
 			$hasPostThumbnail.addClass( 'has-post-thumbnail' );
 
-			_.each( editors, function( editor ) {
-				editor.show();
+			tinymce.init( _.extend( data.tinymce, {
+				setup: function( editor ) {
+					// Used by the media library,
+					window.wpActiveEditor = editor.id;
+
+					editor.load = function( args ) {
+						var elm = this.getElement();
+
+						args = args || {};
+						args.load = true;
+						args.element = elm;
+
+						html = this.setContent( post.get( 'content' ).raw, args );
+
+						if ( ! args.no_events ) {
+							this.fire( 'LoadContent', args );
+						}
+
+						args.element = elm = null;
+
+						return html;
+					};
+
+					editors.push( editor );
+
+					// Remove spaces from empty paragraphs.
+					editor.on( 'BeforeSetContent', function( event ) {
+						if ( event.content ) {
+							event.content = event.content.replace( /<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>' );
+						}
+					} );
+
+					post.on( 'beforesync', function() {
+						post.set( 'content', {
+							raw: editor.getContent()
+						} );
+
+						editor.undoManager.add();
+						editor.isNotDirty = true;
+					} );
+				}
+			} ) );
+
+			tinymce.init( {
+				selector: '.fee-title',
+				theme: 'fee',
+				paste_as_text: true,
+				plugins: 'paste',
+				inline: true,
+				placeholder: data.titlePlaceholder,
+				entity_encoding: 'raw',
+				setup: function( editor ) {
+					editors.push( editor );
+
+					editor.on( 'keydown', function( event ) {
+						if ( event.keyCode === 13 ) {
+							event.preventDefault();
+						}
+					} );
+
+					editor.on( 'setcontent keyup', function() {
+						var text = $title.text();
+
+						$titles.text( text );
+						document.title = documentTitle.replace( '<!--replace-->', text );
+					} );
+
+					post.on( 'beforesync', function() {
+						post.set( 'title', {
+							raw: editor.getContent()
+						} );
+
+						editor.undoManager.add();
+						editor.isNotDirty = true;
+					} );
+				}
 			} );
 
 			hidden = false;
@@ -107,13 +181,13 @@ var fee = ( function(
 			}
 
 			_.each( editors, function( editor ) {
-				editor.hide();
+				editor.remove();
 			} );
 
 			document.title = documentTitle.replace( '<!--replace-->', post.get( 'title' ).rendered );
 			$titles.add( $title ).html( post.get( 'title' ).rendered );
 
-			$contentOriginal.html( post.get( 'content' ).rendered );
+			$content.html( post.get( 'content' ).rendered );
 
 			hidden = true;
 		}
@@ -133,80 +207,6 @@ var fee = ( function(
 		} else if ( ! $thumbnail.find( 'img' ).length ) {
 			$hasPostThumbnail.removeClass( 'has-post-thumbnail' );
 		}
-
-		tinymce.init( _.extend( data.tinymce, {
-			setup: function( editor ) {
-				// Used by the media library,
-				window.wpActiveEditor = editor.id;
-
-				editor.on( 'init', function() {
-					if ( hidden ) {
-						editor.hide();
-					}
-				} );
-
-				editors.push( editor );
-
-				// Remove spaces from empty paragraphs.
-				editor.on( 'BeforeSetContent', function( event ) {
-					if ( event.content ) {
-						event.content = event.content.replace( /<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>' );
-					}
-				} );
-
-				post.on( 'beforesync', function() {
-					post.set( 'content', {
-						raw: editor.getContent()
-					} );
-
-					editor.undoManager.add();
-					editor.isNotDirty = true;
-				} );
-			}
-		} ) );
-
-		tinymce.init( {
-			selector: '.fee-title',
-			theme: 'fee',
-			paste_as_text: true,
-			plugins: 'paste',
-			inline: true,
-			placeholder: data.titlePlaceholder,
-			entity_encoding: 'raw',
-			setup: function( editor ) {
-				titleEditor = editor;
-
-				editor.on( 'init', function() {
-					if ( hidden ) {
-						editor.hide();
-					}
-				} );
-
-				editors.push( editor );
-
-				editor.on( 'keydown', function( event ) {
-					if ( event.keyCode === 13 ) {
-						event.preventDefault();
-					}
-				} );
-
-				editor.on( 'setcontent keyup', function() {
-					var text = $title.text();
-
-					$titles.text( text );
-					document.title = documentTitle.replace( '<!--replace-->', text );
-				} );
-
-				post.on( 'beforesync', function() {
-					post.set( 'title', {
-						raw: editor.getContent()
-					} );
-
-					editor.undoManager.add();
-					editor.isNotDirty = true;
-				} );
-			}
-		} );
 
 		$document.on( 'keydown.fee', function( event ) {
 			if ( event.keyCode === 83 && tinymce.util.VK.metaKeyPressed( event ) ) {

@@ -164,7 +164,7 @@ class FEE {
 			);
 
 			$tinymce = array(
-				'selector' => '#fee-mce-' . $post->ID,
+				'selector' => '.fee-content',
 				'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', $tinymce_plugins ) ) ),
 				'toolbar' => apply_filters( 'fee_tinymce_toolbar', $tinymce_toolbar ),
 				'theme' => 'fee',
@@ -322,22 +322,13 @@ class FEE {
 	}
 
 	function the_content( $content ) {
-		global $post;
-
 		if (
 			is_main_query() &&
 			in_the_loop() &&
 			$this->did_action( 'wp_head' )
 		) {
 			return (
-				'<div id="fee-content-' . $post->ID . '" class="fee-content">' .
-					'<div class="fee-content-original">' .
-						$content .
-					'</div>' .
-					'<div id="fee-mce-' . $post->ID . '" class="fee-content-body">' .
-						apply_filters( 'fee_content', $post->post_content ) .
-					'</div>' .
-				'</div>'
+				'<div class="fee-content">' . $content . '</div>'
 			);
 		}
 
