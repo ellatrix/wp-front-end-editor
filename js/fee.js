@@ -7,7 +7,7 @@ window.fee = (function (
   tinymce,
   _
 ) {
-  var hidden = data.post.status !== 'auto-draft'
+  var hidden = true
 
   var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]
 
@@ -199,8 +199,8 @@ window.fee = (function (
       return dirty
     }
 
-    if (!hidden) {
-      $body.removeClass('fee-off').addClass('fee-on')
+    if (data.post.status === 'auto-draft') {
+      on()
     } else if (!$thumbnail.find('img').length) {
       $hasPostThumbnail.removeClass('has-post-thumbnail')
     }
