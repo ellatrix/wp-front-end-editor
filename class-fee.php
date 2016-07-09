@@ -283,10 +283,6 @@ class FEE {
 		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
 			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
 		}
-
-		add_filter( 'fee_content', 'wptexturize' );
-		add_filter( 'fee_content', 'convert_chars' );
-		add_filter( 'fee_content', 'wpautop' );
 	}
 
 	function body_class( $classes ) {
