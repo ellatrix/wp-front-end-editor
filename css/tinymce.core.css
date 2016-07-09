@@ -1915,13 +1915,6 @@ i.mce-i-backcolor {
 	background: #bbb;
 }
 
-/* Content */
-
-.mce-content-body:focus,
-.mce-edit-focus {
-	outline: none !important; /* TinyMCE adds inline styles for this. */
-}
-
 /* Plugins */
 
 .mce-i-wp_more:before {

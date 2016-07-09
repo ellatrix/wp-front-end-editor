@@ -22,6 +22,14 @@
 	display: block;
 }
 
+.mce-content-body {
+	outline: 1px dotted currentColor;
+}
+
+.fee-edit-focus .mce-content-body {
+	outline: none;
+}
+
 br.fee-title {
 	display: none;
 }

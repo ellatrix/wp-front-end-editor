@@ -10,12 +10,12 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
       return editor.getContent({ format: 'raw' }).replace(/(?:<p[^>]*>)?(?:<br[^>]*>)?(?:<\/p>)?/, '') === ''
     }
 
-    editor.on('activate focus', function () {
-      DOM.addClass(editor.getBody(), 'mce-edit-focus')
+    editor.on('focus', function () {
+      DOM.addClass(document.body, 'fee-edit-focus')
     })
 
-    editor.on('deactivate blur hide', function () {
-      DOM.removeClass(editor.getBody(), 'mce-edit-focus')
+    editor.on('blur', function () {
+      DOM.removeClass(document.body, 'fee-edit-focus')
     })
 
     if (settings.placeholder) {

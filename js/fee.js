@@ -302,10 +302,17 @@ window.fee = (function (
 
     $all.each(function () {
       var self = this
+      var i = 0
 
       $(this).parents().each(function () {
-        if (index < (index = $.inArray(this, $parents))) {
-          title = self
+        i++
+
+        if ($.inArray(this, $parents) !== -1) {
+          if (!index || i < index) {
+            index = i
+            title = self
+          }
+
           return false
         }
       })
