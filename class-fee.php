@@ -183,7 +183,7 @@ class FEE {
 			) );
 			$result = $rest_server->dispatch( $request );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api' ), self::VERSION, true );
+			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api', 'media-views' ), self::VERSION, true );
 			wp_localize_script( 'fee', 'feeData', array(
 				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 				'post' => $result->get_data(),
