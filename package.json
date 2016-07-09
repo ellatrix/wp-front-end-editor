@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "standard": "*"
+  },
+  "scripts": {
+  	"test": "standard js/*"
+  }
+}
