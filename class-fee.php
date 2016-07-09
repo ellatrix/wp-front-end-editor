@@ -479,9 +479,13 @@ class FEE {
 	}
 
 	function rest_api_init() {
-		foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
-			$autosave_controller = new WP_REST_Post_Autosave_Controller( $post_type->name );
-			$autosave_controller->register_routes();
+		if ( ! class_exists( 'WP_REST_Post_Autosave_Controller' ) ) {
+			require_once 'class-wp-rest-post-autosave-controller.php';
+
+			foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
+				$autosave_controller = new WP_REST_Post_Autosave_Controller( $post_type->name );
+				$autosave_controller->register_routes();
+			}
 		}
 	}
 }

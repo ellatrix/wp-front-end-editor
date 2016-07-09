@@ -13,10 +13,6 @@
  * License:     GPL-2.0+
  */
 
-if ( ! class_exists( 'WP_REST_Post_Autosave_Controller' ) ) {
-	require_once 'class-wp-rest-post-autosave-controller.php';
-}
-
 if ( ! class_exists( 'FEE' ) ) {
 	require_once 'class-fee.php';
 	$GLOBALS['wp_front_end_editor'] = new FEE;
