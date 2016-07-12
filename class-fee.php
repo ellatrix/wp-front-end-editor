@@ -80,7 +80,8 @@ class FEE {
 		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp', array( $this, 'wp' ) );
 
 		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
@@ -126,27 +127,44 @@ class FEE {
 		die;
 	}
 
-	function wp_enqueue_scripts() {
+	function api_request( $method = 'GET', $path = '', $query = array() ) {
+		$server = rest_get_server();
+		$request = new WP_REST_Request( $method, '/wp/v2' . $path );
+		$request->set_query_params( $query );
+		$response = $server->dispatch( $request );
+		$data = $response->get_data();
+
+		return $data;
+	}
+
+	function register_scripts() {
 		global $post;
 
-		$rest_server = rest_get_server();
+		wp_register_script( 'fee-tinymce', plugins_url( 'vendor/tinymce.js', __FILE__ ), array(), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-lists', plugins_url( 'vendor/lists.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-paste', plugins_url( 'vendor/paste.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-wordpress', plugins_url( 'vendor/wordpress.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-wplink', plugins_url( 'vendor/wplink.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-wptextpattern', plugins_url( 'vendor/wptextpattern.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-wpview', plugins_url( 'vendor/wpview.js', __FILE__ ), array( 'fee-tinymce', 'fee-mce-view-register' ), self::VERSION, true );
+		wp_register_script( 'fee-mce-view', plugins_url( 'vendor/mce-view.js', __FILE__ ), array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), self::VERSION, true );
+		wp_register_script( 'fee-mce-view-register', plugins_url( 'js/mce-view-register.js', __FILE__ ), array( 'fee-mce-view' ), self::VERSION, true );
+		wp_localize_script( 'fee-mce-view-register', 'mce_view_register', array( 'post_id' => $post->ID ) );
+		wp_register_script( 'fee-tinymce-image', plugins_url( 'js/tinymce.image.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
 
-		if ( $this->has_fee() ) {
-			wp_enqueue_style( 'wp-core-ui' , $this->url( '/css/wp-core-ui.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'wp-core-ui-colors' , $this->url( '/css/wp-core-ui-colors.css' ), false, self::VERSION, 'screen' );
+		// overwrite for now
+		wp_localize_script( 'wp-api', 'wpApiSettings', array(
+			'root' => esc_url_raw( get_rest_url() ),
+			'nonce' => wp_create_nonce( 'wp_rest' ),
+			'versionString' => 'wp/v2/',
+			'schema' => $this->api_request(),
+			'cacheSchema' => true
+		) );
 
-			wp_enqueue_style( 'wp-auth-check' );
-			wp_enqueue_script( 'wp-auth-check' );
-
-			wp_enqueue_script( 'fee-tinymce', $this->url( '/vendor/tinymce.js' ), array(), self::TINYMCE_VERSION, true );
-			wp_enqueue_script( 'fee-tinymce-image', $this->url( '/js/tinymce.image.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			wp_enqueue_script( 'fee-tinymce-theme', $this->url( '/js/tinymce.theme.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-
-			foreach ( array( 'lists', 'paste', 'wordpress', 'wplink', 'wptextpattern', 'wpview' ) as $plugin ) {
-				wp_enqueue_script( 'fee-' . $plugin, $this->url( '/vendor/' . $plugin . '.js' ), array( 'fee-tinymce' ), self::VERSION, true );
-			}
-
-			$tinymce_plugins = array(
+		$tinymce = array(
+			'selector' => '.fee-content',
+			'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', array(
 				'wordpress',
 				'feeImage',
 				'wptextpattern',
@@ -154,86 +172,72 @@ class FEE {
 				'wpview',
 				'paste',
 				'lists'
-			);
-
-			$tinymce_toolbar = array(
+			) ) ) ),
+			'toolbar' => apply_filters( 'fee_tinymce_toolbar', array(
 				'bold',
 				'italic',
 				'strikethrough',
 				'link'
-			);
+			) ),
+			'theme' => 'fee',
+			'inline' => true,
+			'relative_urls' => false,
+			'convert_urls' => false,
+			'browser_spellcheck' => true,
+			'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write…' ) ),
+			'wpeditimage_html5_captions' => current_theme_supports( 'html5', 'caption' ),
+			'end_container_on_empty_block' => true
+		);
 
-			$tinymce = array(
-				'selector' => '.fee-content',
-				'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', $tinymce_plugins ) ) ),
-				'toolbar' => apply_filters( 'fee_tinymce_toolbar', $tinymce_toolbar ),
-				'theme' => 'fee',
-				'inline' => true,
-				'relative_urls' => false,
-				'convert_urls' => false,
-				'browser_spellcheck' => true,
-				'placeholder' => apply_filters( 'fee_content_placeholder', __( 'Just write…' ) ),
-				'wpeditimage_html5_captions' => current_theme_supports( 'html5', 'caption' ),
-				'end_container_on_empty_block' => true
-			);
+		wp_register_script( 'fee', plugins_url( '/js/fee.js', __FILE__ ), array(
+			'fee-tinymce',
+			'fee-tinymce-lists',
+			'fee-tinymce-paste',
+			'fee-tinymce-wordpress',
+			'fee-tinymce-wplink',
+			'fee-tinymce-wptextpattern',
+			'fee-tinymce-wpview',
+			'fee-tinymce-image',
+			'fee-tinymce-theme',
+			'heartbeat',
+			'wp-api',
+			'media-views',
+			'jquery',
+			'underscore'
+		), self::VERSION, true );
+		wp_localize_script( 'fee', 'feeData', array(
+			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
+			'post' => $this->api_request( 'GET', '/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID, array( 'context' => 'edit' ) ),
+			'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
+			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
+			'editURL' => get_edit_post_link()
+		) );
 
-			$request = new WP_REST_Request( 'GET', '/wp/v2/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID );
-			$request->set_query_params( array(
-				'context' => 'edit'
-			) );
-			$result = $rest_server->dispatch( $request );
+		wp_register_script( 'fee-adminbar', plugins_url( '/js/fee-adminbar.js', __FILE__ ), array( 'wp-util' ), self::VERSION, true );
+		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
+			'supportedPostTypes' => $this->get_supported_post_types(),
+			'postNew' => admin_url( 'post-new.php' ),
+			'nonce' => wp_create_nonce( 'fee-new' )
+		) );
 
-			wp_enqueue_script( 'fee', $this->url( '/js/fee.js' ), array( 'fee-tinymce', 'wp-util', 'heartbeat', 'editor', 'wp-api', 'media-views' ), self::VERSION, true );
-			wp_localize_script( 'fee', 'feeData', array(
-				'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
-				'post' => $result->get_data(),
-				'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
-				'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
-				'editURL' => get_edit_post_link()
-			) );
+		wp_register_style( 'fee-tinymce-core' , plugins_url( 'css/tinymce.core.css', __FILE__ ), array(), self::VERSION, 'screen' );
+		wp_register_style( 'fee-tinymce-view' , plugins_url( 'css/tinymce.view.css', __FILE__ ), array(), self::VERSION, 'screen' );
+		wp_register_style( 'fee' , plugins_url( 'css/fee.css', __FILE__ ), array( 'fee-tinymce-core', 'fee-tinymce-view', 'dashicons' ), self::VERSION, 'screen' );
+	}
 
-			$request  = new WP_REST_Request( 'GET', '/wp/v2' );
-			$result = $rest_server->dispatch( $request );
+	function enqueue_scripts() {
+		global $post;
 
-			wp_localize_script( 'wp-api', 'wpApiSettings', array(
-				'root' => esc_url_raw( get_rest_url() ),
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-				'versionString' => 'wp/v2/',
-				'schema' => $result->get_data(),
-				'cacheSchema' => true
-			) );
-
+		if ( $this->has_fee() ) {
+			wp_enqueue_style( 'wp-auth-check' );
+			wp_enqueue_script( 'wp-auth-check' );
+			wp_enqueue_style( 'fee' );
+			wp_enqueue_script( 'fee' );
 			wp_enqueue_media( array( 'post' => $post ) );
-
-			wp_deregister_script( 'mce-view' );
-			wp_enqueue_script( 'mce-view', $this->url( '/vendor/mce-view.js' ), array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), self::VERSION, true );
-
-			wp_enqueue_script( 'mce-view-register', $this->url( '/js/mce-view-register.js' ), array( 'mce-view', 'fee' ), self::VERSION, true );
-			wp_localize_script( 'mce-view-register', 'mce_view_register', array(
-				'post_id' => $post->ID
-			) );
-
-			wp_enqueue_style( 'tinymce-core' , $this->url( '/css/tinymce.core.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'tinymce-view' , $this->url( '/css/tinymce.view.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'fee' , $this->url( '/css/fee.css' ), false, self::VERSION, 'screen' );
-			wp_enqueue_style( 'dashicons' );
 		}
 
 		if ( current_user_can( 'edit_posts' ) ) {
-			if ( is_singular() ) {
-				require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-				$user_id = wp_check_post_lock( $post->ID );
-				$user = get_userdata( $user_id );
-			}
-
-			wp_enqueue_script( 'fee-adminbar', $this->url( '/js/fee-adminbar.js' ), array( 'wp-util', 'wp-api' ), self::VERSION, true );
-			wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
-				'lock' => ( is_singular() && $user_id ) ? $user->display_name : false,
-				'supportedPostTypes' => $this->get_supported_post_types(),
-				'postNew' => admin_url( 'post-new.php' ),
-				'nonce' => wp_create_nonce( 'fee-new' )
-			) );
+			wp_enqueue_script( 'fee-adminbar' );
 		}
 	}
 
@@ -414,16 +418,6 @@ class FEE {
 		}
 
 		return false;
-	}
-
-	function url( $path ) {
-		$url = plugin_dir_url( __FILE__ );
-
-		if ( is_string( $path ) ) {
-			$url .= ltrim( $path, '/' );
-		}
-
-		return $url;
 	}
 
 	function supports_fee( $id = null ) {
