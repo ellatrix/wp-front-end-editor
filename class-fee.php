@@ -3,7 +3,6 @@
 class FEE {
 	const VERSION = '2.0.0-alpha';
 	const WORDPRESS_MIN_VERSION = '4.5';
-	const TINYMCE_VERSION = '4.4';
 	const REST_API_PLUGIN_SLUG = 'rest-api';
 	const REST_API_PLUGIN_URI = 'https://github.com/WP-API/WP-API';
 	const REST_API_MIN_VERSION = '2.0-beta12';
