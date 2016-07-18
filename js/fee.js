@@ -89,9 +89,6 @@ window.fee = (function (
 
       tinymce.init(_.extend(data.tinymce, {
         setup: function (editor) {
-          // Used by the media library,
-          window.wpActiveEditor = editor.id
-
           editor.load = function (args) {
             var elm = this.getElement()
             var html
