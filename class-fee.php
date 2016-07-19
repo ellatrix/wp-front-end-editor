@@ -221,6 +221,8 @@ class FEE {
 		wp_register_style( 'fee-tinymce-core' , plugins_url( 'css/tinymce.core.css', __FILE__ ), array(), self::VERSION, 'screen' );
 		wp_register_style( 'fee-tinymce-view' , plugins_url( 'css/tinymce.view.css', __FILE__ ), array(), self::VERSION, 'screen' );
 		wp_register_style( 'fee' , plugins_url( 'css/fee.css', __FILE__ ), array( 'fee-tinymce-core', 'fee-tinymce-view', 'dashicons' ), self::VERSION, 'screen' );
+
+		wp_add_inline_style( 'fee', '@media print{.fee-no-print{display:none}}' );
 	}
 
 	function enqueue_scripts() {

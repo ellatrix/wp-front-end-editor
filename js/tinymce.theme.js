@@ -36,6 +36,8 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
       if (editor.wp && editor.wp._createToolbar) {
         var toolbar = editor.wp._createToolbar(settings.toolbar)
 
+        tinymce.$(toolbar.getEl()).addClass( 'fee-no-print' )
+
         editor.on('wptoolbar', function (event) {
           var element = event.element
 
@@ -326,6 +328,8 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
     editor.on('preinit', function () {
       if (editor.wp && editor.wp._createToolbar) {
         var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'publish' ])
+
+        tinymce.$(toolbar.getEl()).addClass( 'fee-no-print' )
 
         toolbar.reposition = function () {
           var element = window.tinymce.$('.fee-post')[0]
