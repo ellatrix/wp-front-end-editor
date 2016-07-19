@@ -209,7 +209,6 @@ class FEE {
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 			'post' => $this->api_request( 'GET', '/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID, array( 'context' => 'edit' ) ),
-			'lock' => ! wp_check_post_lock( $post->ID ) ? implode( ':', wp_set_post_lock( $post->ID ) ) : false,
 			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
 			'editURL' => get_edit_post_link()
 		) );
@@ -245,16 +244,6 @@ class FEE {
 	function wp() {
 		global $post;
 
-		if ( ! empty( $_GET['get-post-lock'] ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-			wp_set_post_lock( $post->ID );
-
-			wp_redirect( get_permalink( $post->ID ) );
-
-			die;
-		}
-
 		if ( ! $this->has_fee() ) {
 			return;
 		}
@@ -284,22 +273,10 @@ class FEE {
 		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
-
-		if ( count( get_users( array( 'fields' => 'ID', 'number' => 2 ) ) ) > 1 ) {
-			add_action( 'wp_print_footer_scripts', '_admin_notice_post_locked' );
-		}
 	}
 
 	function body_class( $classes ) {
-		global $post;
-
 		$classes[] = 'fee fee-off';
-
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		if ( wp_check_post_lock( $post->ID ) ) {
-			$classes[] = 'fee-locked';
-		}
 
 		return $classes;
 	}
