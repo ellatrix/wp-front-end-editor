@@ -151,7 +151,6 @@ class FEE {
 		wp_localize_script( 'fee-mce-view-register', 'mce_view_register', array( 'post_id' => $post->ID ) );
 		wp_register_script( 'fee-tinymce-image', plugins_url( 'js/tinymce.image.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
 		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
-		wp_register_script( 'fee-modal', plugins_url( 'vendor/modal.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
 
 		// overwrite for now
 		wp_localize_script( 'wp-api', 'wpApiSettings', array(
@@ -203,8 +202,7 @@ class FEE {
 			'wp-api',
 			'media-views',
 			'jquery',
-			'underscore',
-			'fee-modal'
+			'underscore'
 		), self::VERSION, true );
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),

@@ -68,8 +68,6 @@ window.fee = (function (
   var $title = findTitle($titles, $content)
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
 
-  $.fn.feeModal = $.fn.modal.noConflict()
-
   var $hasPostThumbnail = $('.has-post-thumbnail')
   var $thumbnail = $('.fee-thumbnail')
   var $thumbnailWrap = $('.fee-thumbnail-wrap')
