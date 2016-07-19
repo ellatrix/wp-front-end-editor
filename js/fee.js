@@ -67,12 +67,7 @@ window.fee = (function (
   var $titles = findTitles()
   var $title = findTitle($titles, $content)
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
-
-  var $hasPostThumbnail = $('.has-post-thumbnail')
   var $thumbnail = $('.fee-thumbnail')
-  var $thumbnailWrap = $('.fee-thumbnail-wrap')
-  var $thumbnailEdit = $('.fee-edit-thumbnail').add('.fee-insert-thumbnail')
-  var $thumbnailRemove = $('.fee-remove-thumbnail')
   var editors = []
 
   function on () {
@@ -81,7 +76,6 @@ window.fee = (function (
     }
 
     $body.removeClass('fee-off').addClass('fee-on')
-    $hasPostThumbnail.addClass('has-post-thumbnail')
 
     tinymce.init(_.extend(data.tinymce, {
       setup: function (editor) {
@@ -159,6 +153,10 @@ window.fee = (function (
       }
     })
 
+    $thumbnail.on('click.fee-edit-thumbnail', function () {
+      media.featuredImage.frame().open()
+    })
+
     hidden = false
   }
 
@@ -168,9 +166,6 @@ window.fee = (function (
     }
 
     $body.removeClass('fee-on').addClass('fee-off')
-    if (!$thumbnail.find('img').length) {
-      $hasPostThumbnail.removeClass('has-post-thumbnail')
-    }
 
     _.each(editors, function (editor) {
       editor.remove()
@@ -180,6 +175,8 @@ window.fee = (function (
     $titles.add($title).html(post.get('title').rendered)
 
     $content.html(post.get('content').rendered)
+
+    $thumbnail.off('click.fee-edit-thumbnail')
 
     hidden = true
   }
@@ -196,8 +193,6 @@ window.fee = (function (
 
   if (data.post.status === 'auto-draft') {
     on()
-  } else if (!$thumbnail.find('img').length) {
-    $hasPostThumbnail.removeClass('has-post-thumbnail')
   }
 
   $document.on('keydown.fee', function (event) {
@@ -230,45 +225,16 @@ window.fee = (function (
         post_ID: settings.post.id,
         thumbnail_ID: settings.post.featuredImageId,
         _wpnonce: settings.post.nonce,
-        size: $thumbnail.data('size')
+        size: $thumbnail.data('fee-size')
       }).done(function (html) {
-        $thumbnailWrap.html(html)
-        $thumbnail.removeClass('fee-thumbnail-active')
-
-        if (html === '') {
-          $thumbnail.addClass('fee-empty')
-        } else {
-          $thumbnail.removeClass('fee-empty')
-        }
+        $thumbnail.html(html)
       })
     }
   })
 
-  $thumbnailEdit.on('click.fee-edit-thumbnail', function () {
-    media.featuredImage.frame().open()
-  })
-
-  $thumbnailRemove.on('click.fee-remove-thumbnail', function () {
-    media.featuredImage.set(-1)
-  })
-
-  $thumbnail.on('click.fee-thumbnail-active', function () {
-    if (hidden || $thumbnail.hasClass('fee-empty')) {
-      return
-    }
-
-    $thumbnail.addClass('fee-thumbnail-active')
-
-    $document.on('click.fee-thumbnail-active', function (event) {
-      if ($thumbnail.get(0) === event.target || $thumbnail.has(event.target).length) {
-        return
-      }
-
-      $thumbnail.removeClass('fee-thumbnail-active')
-
-      $document.off('click.fee-thumbnail-active')
-    })
-  })
+  // $thumbnailRemove.on('click.fee-remove-thumbnail', function () {
+  //   media.featuredImage.set(-1)
+  // })
 
   // Wait for admin bar to load.
   $(function () {

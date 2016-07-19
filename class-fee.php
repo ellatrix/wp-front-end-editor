@@ -303,9 +303,7 @@ class FEE {
 			in_the_loop() &&
 			$this->did_action( 'wp_head' )
 		) {
-			return (
-				'<div class="fee-content">' . $content . '</div>'
-			);
+			$content = '<div class="fee-content">' . $content . '</div>';
 		}
 
 		return $content;
@@ -322,18 +320,7 @@ class FEE {
 			get_queried_object_id() === $post_id &&
 			$this->did_action( 'wp_head' )
 		) {
-			return (
-				'<div class="fee-thumbnail' . ( empty( $html ) ? ' fee-empty' : '' ) . '" data-size="' . esc_attr( $size ) . '">' .
-					'<div class="fee-thumbnail-wrap">' .
-						$html .
-					'</div>' .
-					'<div class="fee-thumbnail-toolbar wp-core-ui">' .
-						'<div class="fee-edit-thumbnail dashicons dashicons-edit"></div>' .
-						'<div class="fee-remove-thumbnail dashicons dashicons-no-alt"></div>' .
-					'</div>' .
-					'<div class="fee-insert-thumbnail wp-core-ui"><span class="dashicons dashicons-plus-alt"></span> ' . __( 'Add a featured image' ) . '</div>' .
-				'</div>'
-			);
+			$html = '<div class="fee-thumbnail" data-fee-size="' . esc_attr( $size ) . '">' . $html . '</div>';
 		}
 
 		return $html;

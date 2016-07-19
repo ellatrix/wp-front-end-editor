@@ -1,13 +1,10 @@
 .wpview,
-.fee-thumbnail,
 .mce-content-body hr {
 	position: relative;
 }
 
 .mce-edit-focus .wpview[data-mce-selected]:before,
 .wpview:hover:before,
-.fee-on .fee-thumbnail:hover:before,
-.fee-on .fee-thumbnail.fee-thumbnail-active:before,
 .mce-content-body hr[data-mce-selected]:before,
 .mce-content-body hr:hover:before,
 .mce-content-body img:hover:before {
@@ -24,18 +21,13 @@
 	width: auto;
 }
 
-.fee-on .fee-thumbnail.fee-empty:hover:before {
-	opacity: 0;
-}
-
 .mce-content-body img:hover {
 	outline: 3px solid #ffe767;
 	outline-offset: 2px;
 }
 
 .mce-edit-focus .wpview[data-mce-selected]:before,
-.mce-content-body hr[data-mce-selected]:before,
-.fee-on .fee-thumbnail.fee-thumbnail-active:before {
+.mce-content-body hr[data-mce-selected]:before {
 	border-color: rgb(88, 144, 255);
 }
 
@@ -49,18 +41,6 @@
 	background: rgb(88, 144, 255) !important;
 	width: 7px !important;
 	height: 7px !important;
-}
-
-.fee-thumbnail .fee-thumbnail-toolbar {
-	position: absolute;
-	top: 0;
-	left: 0;
-	display: none;
-	z-index: 100;
-}
-
-.fee-thumbnail.fee-thumbnail-active .fee-thumbnail-toolbar {
-	display: block;
 }
 
 .wpview {
@@ -127,27 +107,7 @@
 	}
 }
 
-#wp-image-toolbar {
-	position: absolute;
-	margin: 0;
-}
-
-.fee-thumbnail .fee-thumbnail-toolbar div,
-#wp-image-toolbar i {
-	margin-top: 7px;
-	margin-left: 7px;
-	padding: 2px;
-	width: 30px;
-	height: 30px;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-	background-color: #000;
-	background-color: rgba(0,0,0,0.9);
-	cursor: pointer;
-	color: white;
-	font-size: 30px;
-}
-
-.wpview .wpview-content > iframe {
+.wpview > iframe {
 	max-width: 100%;
 	background: transparent;
 }
@@ -176,10 +136,4 @@
 	margin: 0;
 	text-align: center;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-}
-
-#wp-image-toolbar i:hover {
-	box-shadow: 0 1px 3px rgba(0,0,0,0.8);
-	background-color: #000;
-	color: #2ea2cc;
 }

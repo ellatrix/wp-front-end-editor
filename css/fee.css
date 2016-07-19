@@ -1,5 +1,5 @@
-.fee-on .fee-link-pages,
-.fee-insert-thumbnail {
+br.fee-title
+.fee-on .fee-link-pages {
 	display: none;
 }
 
@@ -16,20 +16,14 @@
 	min-height: 70px;
 }
 
-.fee-on .fee-empty .fee-insert-thumbnail {
-	display: block;
-}
-
-.mce-content-body {
+.fee-on .fee-thumbnail,
+.fee-on .mce-content-body {
 	outline: 1px dotted currentColor;
 }
 
+.fee-edit-focus .fee-thumbnail,
 .fee-edit-focus .mce-content-body {
 	outline: none;
-}
-
-br.fee-title {
-	display: none;
 }
 
 .mce-content-body[data-placeholder][data-empty]:before {
@@ -43,30 +37,6 @@ br.fee-title {
 	content: '';
 }
 
-.dashicons,
-.dashicons-before:before {
-	display: inline-block;
-	width: 20px;
-	height: 20px;
-	font-size: 20px;
-	line-height: 1;
-	font-family: "dashicons";
-	text-decoration: inherit;
-	font-weight: normal;
-	font-style: normal;
-	vertical-align: top;
-	text-align: center;
-	color: inherit;
-	-webkit-transition: color .1s ease-in 0;
-	transition: color .1s ease-in 0;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.fee-content-holder {
-	position: relative;
-}
-
 /* Auth Check */
 
 *[id^=wp-auth-check] {
@@ -77,47 +47,6 @@ br.fee-title {
 
 #wp-auth-check-wrap .wp-auth-check-close {
 	display: none;
-}
-
-.fee-insert-thumbnail {
-	background: transparent;
-	position: absolute;
-	z-index: 9998;
-	top: 0;
-	left: 0;
-	font-size: 16px;
-	line-height: 20px;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	padding-left: 5px;
-	opacity: 0.5;
-	cursor: pointer;
-	-webkit-transition: opacity 0.1s ease-in 0;
-	-moz-transition: opacity 0.1s ease-in 0;
-	transition: opacity 0.1s ease-in 0;
-	outline: none;
-}
-
-.fee-insert-thumbnail {
-	top: 25px;
-}
-
-.fee-insert-thumbnail:hover {
-	opacity: 1;
-}
-
-.fee-insert-thumbnail .dashicons {
-	font-family: 'dashicons';
-	font-size: 20px;
-	line-height: 20px;
-}
-
-.fee-insert-thumbnail {
-	margin-top: -1px;
-	-webkit-transition: all 0.2s;
-	transition: all 0.2s;
 }
 
 div.mce-tinymce-inline {
@@ -324,7 +253,6 @@ div.mce-inline-toolbar-grp.mce-arrow-full > div {
 	width: 100%;
 	overflow-x: auto;
 }
-
 
 div.wp-link-preview {
 	float: left;
