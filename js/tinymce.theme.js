@@ -129,37 +129,10 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
       }
     })
 
-    editor.addButton('save', {
-      text: 'Save',
+    editor.addButton('publish', {
+      text: 'Publish',
       onclick: function () {
-        window.fee.post.save()
-
-        editor.windowManager.open({
-          padding: 20,
-          minWidth: 300,
-          minHeight: 100,
-          layout: 'flex',
-          items: {
-            type: 'label',
-            multiline: true,
-            maxWidth: 500,
-            maxHeight: 200,
-            text: 'All your work is saved automatically! (NB: TODO) Would you like to publish?'
-          },
-          buttons: [
-            { text: 'No', onclick: 'close' },
-            {
-              text: 'Publish',
-              subtype: 'primary',
-              onclick: function () {
-                var win = this.parent().parent()
-
-                window.fee.post.save({ status: 'publish' })
-                win.close()
-              }
-            }
-          ]
-        })
+        window.fee.post.save({status: 'publish'})
       }
     })
 
@@ -352,7 +325,7 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
 
     editor.on('preinit', function () {
       if (editor.wp && editor.wp._createToolbar) {
-        var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'save' ])
+        var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'publish' ])
 
         toolbar.reposition = function () {
           var element = window.tinymce.$('.fee-post')[0]
