@@ -1,13 +1,11 @@
 .fee-on .fee-link-pages,
-.fee-off .wp-core-ui,
-.wp-hidden-children .wp-hidden-child,
 .fee-insert-thumbnail {
 	display: none;
 }
 
 .fee-on #wp-admin-bar-edit a {
 	background: #32373c;
-    color: #00b9eb;
+	color: #00b9eb;
 }
 
 .fee-on #wp-admin-bar-edit a:before {
@@ -65,72 +63,8 @@ br.fee-title {
 	-moz-osx-font-smoothing: grayscale;
 }
 
-/* Content */
-
-#post-lock-dialog .post-locked-message,
-#post-lock-dialog .post-taken-over {
-	margin: 25px;
-}
-
-#post-lock-dialog .post-locked-message a.button {
-	margin-right: 10px;
-}
-
-#post-lock-dialog .post-locked-avatar {
-	float: left;
-	margin: 0 20px 20px 0;
-}
-
-#post-lock-dialog .wp-tab-first {
-	outline: 0;
-}
-
-#post-lock-dialog .locked-saving img {
-	float: left;
-	margin-right: 3px;
-}
-
-#post-lock-dialog.saving .locked-saving,
-#post-lock-dialog.saved .locked-saved {
-	display: inline;
-}
-
-.hidden {
-	display: none;
-}
-
-.wp-core-ui div.updated,
-.wp-core-ui div.error {
-	padding: 0 20px 0 0.6em;
-	margin: 5px 15px 2px;
-}
-
-.wp-core-ui .button,
-.wp-core-ui .button.button-large,
-.wp-core-ui .button.button-small {
-	vertical-align: top;
-}
-
-.mce-content-body hr[data-mce-selected] {
-	outline: none;
-}
-
-.fee-content p:empty {
-	height: 1.5em;
-}
-
 .fee-content-holder {
 	position: relative;
-}
-
-#fee-publish {
-	float: right;
-}
-
-/* Aligns left by the .wp-core-ui reset. */
-
-.media-frame .uploader-inline * {
-	text-align: center;
 }
 
 /* Auth Check */
@@ -143,33 +77,6 @@ br.fee-title {
 
 #wp-auth-check-wrap .wp-auth-check-close {
 	display: none;
-}
-
-/* Reset */
-
-.wp-core-ui td,
-.wp-core-ui th {
-	vertical-align: inherit;
-	float: none;
-}
-
-.wp-core-ui label {
-	cursor: pointer;
-}
-
-.wp-core-ui p {
-	font-size: 14px;
-}
-
-.media-frame input[type="text"],
-.media-frame input[type="password"],
-.media-frame input[type="number"],
-.media-frame input[type="search"],
-.media-frame input[type="email"],
-.media-frame input[type="url"],
-.media-frame textarea,
-.media-frame select {
-	font-size: 14px;
 }
 
 .fee-insert-thumbnail {

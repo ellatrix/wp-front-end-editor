@@ -1,7 +1,7 @@
 .wpview,
 .fee-thumbnail,
 .mce-content-body hr {
-    position: relative;
+	position: relative;
 }
 
 .mce-edit-focus .wpview[data-mce-selected]:before,
