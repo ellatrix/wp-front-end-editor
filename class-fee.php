@@ -164,7 +164,6 @@ class FEE {
 		) );
 
 		$tinymce = array(
-			'selector' => '.fee-content',
 			'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', array(
 				'wordpress',
 				'feeImage',
@@ -264,8 +263,6 @@ class FEE {
 
 		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 
-		add_filter( 'body_class', array( $this, 'body_class' ) );
-		add_filter( 'post_class', array( $this, 'post_class' ) );
 		add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
 		add_filter( 'wp_link_pages', array( $this, 'wp_link_pages' ) );
@@ -275,18 +272,6 @@ class FEE {
 		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
 
 		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
-	}
-
-	function body_class( $classes ) {
-		$classes[] = 'fee fee-off';
-
-		return $classes;
-	}
-
-	function post_class( $classes ) {
-		$classes[] = 'fee-post';
-
-		return $classes;
 	}
 
 	function the_title( $title, $id ) {
@@ -361,30 +346,6 @@ class FEE {
 		}
 
 		return $title;
-	}
-
-	function get_autosave_notice() {
-		global $post;
-
-		if ( 'auto-draft' == $post->post_status ) {
-			$autosave = false;
-		} else {
-			$autosave = wp_get_post_autosave( $post->ID );
-		}
-
-		// Detect if there exists an autosave newer than the post and if that autosave is different than the post
-		if ( $autosave && mysql2date( 'U', $autosave->post_modified_gmt, false ) > mysql2date( 'U', $post->post_modified_gmt, false ) ) {
-			foreach ( _wp_post_revision_fields() as $autosave_field => $_autosave_field ) {
-				if ( normalize_whitespace( $autosave->$autosave_field ) !== normalize_whitespace( $post->$autosave_field ) ) {
-					return sprintf( __( 'There is an autosave of this post that is more recent than the version below. <a href="%s">View the autosave</a>' ), get_edit_post_link( $autosave->ID ) );
-				}
-			}
-
-			// If this autosave isn't different from the current post, begone.
-			wp_delete_post_revision( $autosave->ID );
-		}
-
-		return false;
 	}
 
 	function supports_fee( $id = null ) {

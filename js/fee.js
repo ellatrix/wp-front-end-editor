@@ -64,11 +64,14 @@ window.fee = (function (
   var $document = $(document)
   var $body = $(document.body)
   var $content = $('.fee-content')
-  var $titles = findTitles()
-  var $title = findTitle($titles, $content)
+  var $titles = $findTitles()
+  var $title = $findTitle($titles, $content)
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
   var $thumbnail = $('.fee-thumbnail')
   var editors = []
+
+  $body.addClass('fee fee-off')
+  $content.removeClass('fee-content')
 
   function on () {
     if (!hidden) {
@@ -78,6 +81,7 @@ window.fee = (function (
     $body.removeClass('fee-off').addClass('fee-on')
 
     tinymce.init(_.extend(data.tinymce, {
+      target: $content.get(0),
       setup: function (editor) {
         editor.load = function (args) {
           var elm = this.getElement()
@@ -119,7 +123,7 @@ window.fee = (function (
     }))
 
     tinymce.init({
-      selector: '.fee-title',
+      target: $title.get(0),
       theme: 'fee',
       paste_as_text: true,
       plugins: 'paste',
@@ -244,7 +248,7 @@ window.fee = (function (
     })
   })
 
-  function findTitles () {
+  function $findTitles () {
     var $br = $('br.fee-title')
     var $titles = $br.parent()
 
@@ -253,7 +257,7 @@ window.fee = (function (
     return $titles
   }
 
-  function findTitle ($all, $content) {
+  function $findTitle ($all, $content) {
     var title = false
     var $parents = $content.parents()
     var index
@@ -278,7 +282,7 @@ window.fee = (function (
 
     $titles = $all.not(title)
 
-    return $(title).addClass('fee-title')
+    return $(title)
   }
 
   return {

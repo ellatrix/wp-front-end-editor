@@ -332,7 +332,7 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
         tinymce.$(toolbar.getEl()).addClass( 'fee-no-print' )
 
         toolbar.reposition = function () {
-          var element = window.tinymce.$('.fee-post')[0]
+          var element = editor.getBody()
           var toolbar = this.getEl()
           var elementRect = element.getBoundingClientRect()
           var toolbarRect = toolbar.getBoundingClientRect()
