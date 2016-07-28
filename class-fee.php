@@ -85,8 +85,6 @@ class FEE {
 
 		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
-
-		add_filter( 'rest_post_dispatch', array( $this, 'filter_rest_response' ) );
 	}
 
 	function ajax_new() {
@@ -134,6 +132,11 @@ class FEE {
 		$request->set_query_params( $query );
 		$response = $server->dispatch( $request );
 		$data = $response->get_data();
+
+		// We need HTML.
+		if ( isset( $data['content'] ) && isset( $data['content']['raw'] ) ) {
+			$data['content']['raw'] = wpautop( $data['content']['raw'] );
+		}
 
 		return $data;
 	}
@@ -405,13 +408,5 @@ class FEE {
 				$autosave_controller->register_routes();
 			}
 		}
-	}
-
-	function filter_rest_response( $result ) {
-		if ( isset( $result['content'] ) && isset( $result['content']['raw'] ) ) {
-			$result['content']['raw'] = wpautop( $result['content']['raw'] );
-		}
-
-		return $result;
 	}
 }
