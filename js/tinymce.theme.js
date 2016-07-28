@@ -11,11 +11,11 @@ window.tinymce.ThemeManager.add('fee', function (editor) {
     }
 
     editor.on('focus', function () {
-      DOM.addClass(document.body, 'fee-edit-focus')
+      editor.dom.addClass(editor.getBody(), 'fee-edit-focus')
     })
 
     editor.on('blur', function () {
-      DOM.removeClass(document.body, 'fee-edit-focus')
+      editor.dom.removeClass(editor.getBody(), 'fee-edit-focus')
     })
 
     if (settings.placeholder) {

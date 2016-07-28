@@ -18,19 +18,32 @@ br.fee-title
 
 .fee-on .fee-thumbnail,
 .fee-on .mce-content-body {
-	outline: 1px dotted currentColor;
-}
-
-.fee-edit-focus .fee-thumbnail,
-.fee-edit-focus .mce-content-body {
+	position: relative;
 	outline: none;
 }
 
-.mce-content-body[data-placeholder][data-empty]:before {
+.fee-on .fee-thumbnail:before,
+.fee-on .mce-content-body:before {
+	content: '';
+	display: block;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	box-shadow: inset 0 0 0 2px rgb(88, 144, 255);
+}
+
+.mce-content-body.fee-edit-focus:before {
+	display: none;
+}
+
+.mce-content-body[data-placeholder][data-empty]:after {
 	opacity: 0.5;
 	content: attr( data-placeholder );
 	display: block;
 	position: absolute;
+	top: 0;
 }
 
 .mce-content-body[data-placeholder][data-empty]:focus:before {
