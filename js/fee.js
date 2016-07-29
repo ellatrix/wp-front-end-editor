@@ -285,6 +285,19 @@ window.fee = (function (
     return $(title)
   }
 
+  // Save post data before unloading the page as a last resort.
+  // This does not work in Opera.
+  $(window).on('unload', function () {
+    post.trigger('beforesync')
+
+    var url = post.url() + '?_method=put&_wpnonce=' + window.wpApiSettings.nonce
+    var data = JSON.stringify(post.attributes)
+
+    if (!navigator.sendBeacon || !navigator.sendBeacon(url, data)) {
+      $.post({async: false, data: data, url: url});
+    }
+  })
+
   return {
     post: post
   }
