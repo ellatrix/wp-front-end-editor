@@ -84,7 +84,7 @@ class FEE {
 		add_action( 'wp', array( $this, 'wp' ) );
 
 		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
-		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
+
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
 		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
 	}
@@ -398,17 +398,6 @@ class FEE {
 		);
 
 		return $response;
-	}
-
-	function rest_api_init() {
-		if ( ! class_exists( 'WP_REST_Post_Autosave_Controller' ) ) {
-			require_once 'class-wp-rest-post-autosave-controller.php';
-
-			foreach ( get_post_types( array( 'show_in_rest' => true ), 'objects' ) as $post_type ) {
-				$autosave_controller = new WP_REST_Post_Autosave_Controller( $post_type->name );
-				$autosave_controller->register_routes();
-			}
-		}
 	}
 
 	function rest_reset_content_type( $result, $server, $request ) {
