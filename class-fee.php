@@ -85,8 +85,8 @@ class FEE {
 
 		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
-
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
+		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
 	}
 
 	function ajax_new() {
@@ -417,5 +417,21 @@ class FEE {
 		if ( ! empty( $content_type ) && 'text/plain' === $content_type['value'] ) {
 			$request->set_header( 'content-type', 'application/json' );
 		}
+	}
+
+	function rest_revision( $result, $request ) {
+		if ( empty( $request['id'] ) || empty( $request['_fee_session'] ) ) {
+			return;
+		}
+
+		$session = (int) get_post_meta( $request['id'], '_fee_session', true );
+
+		if ( $session !== $request['_fee_session'] ) {
+			wp_save_post_revision( $request['id'] );
+		}
+
+		remove_action( 'post_updated', 'wp_save_post_revision', 10 );
+
+		update_post_meta( $request['id'], '_fee_session', $request['_fee_session'] );
 	}
 }

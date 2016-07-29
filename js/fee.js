@@ -58,6 +58,8 @@ window.fee = (function (
   // Parse the data we got from the server and fill the model.
   post.set(post.parse(data.post))
 
+  post.set('_fee_session', new Date().getTime())
+
   // Set heartbeat to run every minute.
   heartbeat.interval(60)
 
@@ -208,7 +210,7 @@ window.fee = (function (
 
   $document.on('heartbeat-send.fee-refresh-nonces', function () {
     if (!hidden && isDirty()) {
-      post.autosave()
+      post.save()
     }
   })
 
@@ -294,7 +296,7 @@ window.fee = (function (
     var data = JSON.stringify(post.attributes)
 
     if (!navigator.sendBeacon || !navigator.sendBeacon(url, data)) {
-      $.post({async: false, data: data, url: url});
+      $.post({async: false, data: data, url: url})
     }
   })
 
