@@ -12,10 +12,18 @@ window.fee = (function (
   var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]
 
   var Model = BaseModel.extend({
-    // Overwrite `sync` to send event before syncing.
-    sync: function () {
-      this.trigger('beforesync')
-      return BaseModel.prototype.sync.apply(this, arguments)
+    save: function () {
+      this.trigger('beforesave')
+
+      if (_.some(this.attributes, function (v, k) {
+        if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
+        if (v.raw == null) return !_.isEqual(v, this._fee_last_save[k])
+        return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
+      }, this)) {
+        BaseModel.prototype.save.apply(this, arguments)
+      }
+
+      this._fee_last_save = _.clone(this.attributes)
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
@@ -42,6 +50,8 @@ window.fee = (function (
   post.set(post.parse(data.post))
 
   post.set('_fee_session', new Date().getTime())
+
+  post._fee_last_save = _.clone(post.attributes)
 
   // Set heartbeat to run every minute.
   heartbeat.interval(60)
@@ -96,9 +106,10 @@ window.fee = (function (
           }
         })
 
-        post.on('beforesync', function () {
+        post.on('beforesave', function () {
           post.set('content', {
-            raw: editor.getContent()
+            raw: editor.getContent(),
+            rendered: post.get('content').rendered
           })
 
           editor.undoManager.add()
@@ -131,9 +142,10 @@ window.fee = (function (
           document.title = documentTitle.replace('<!--replace-->', text)
         })
 
-        post.on('beforesync', function () {
+        post.on('beforesave', function () {
           post.set('title', {
-            raw: editor.getContent()
+            raw: editor.getContent(),
+            rendered: post.get('title').rendered
           })
 
           editor.undoManager.add()
@@ -144,6 +156,17 @@ window.fee = (function (
 
     $thumbnail.on('click.fee-edit-thumbnail', function () {
       media.featuredImage.frame().open()
+    })
+
+    $document.on('keydown.fee-save', function (event) {
+      if (event.keyCode === 83 && tinymce.util.VK.metaKeyPressed(event)) {
+        event.preventDefault()
+        post.save()
+      }
+    })
+
+    $document.on('heartbeat-send.fee-save', function () {
+      post.save()
     })
 
     hidden = false
@@ -166,36 +189,15 @@ window.fee = (function (
     $content.html(post.get('content').rendered)
 
     $thumbnail.off('click.fee-edit-thumbnail')
+    $document.off('keydown.fee-save')
+    $document.off('heartbeat-send.fee-save')
 
     hidden = true
-  }
-
-  function isDirty () {
-    var dirty
-
-    _.each(editors, function (editor) {
-      dirty = dirty || editor.isDirty()
-    })
-
-    return dirty
   }
 
   if (data.post.status === 'auto-draft') {
     on()
   }
-
-  $document.on('keydown.fee', function (event) {
-    if (event.keyCode === 83 && tinymce.util.VK.metaKeyPressed(event)) {
-      event.preventDefault()
-      post.save()
-    }
-  })
-
-  $document.on('heartbeat-send.fee-refresh-nonces', function () {
-    if (!hidden && isDirty()) {
-      post.save()
-    }
-  })
 
   $document.on('heartbeat-tick.fee-refresh-nonces', function (event, data) {
     if (data.fee_nonces) {
@@ -273,7 +275,7 @@ window.fee = (function (
   // Save post data before unloading the page as a last resort.
   // This does not work in Opera.
   $(window).on('unload', function () {
-    post.trigger('beforesync')
+    post.trigger('beforesave')
 
     var url = post.url() + '?_method=put&_wpnonce=' + window.wpApiSettings.nonce
     var data = JSON.stringify(post.attributes)
