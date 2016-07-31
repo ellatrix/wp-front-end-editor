@@ -175,13 +175,6 @@ window.fee = (function (
       media.featuredImage.frame().open()
     })
 
-    $document.on('keydown.fee-save', function (event) {
-      if (event.keyCode === 83 && tinymce.util.VK.metaKeyPressed(event)) {
-        event.preventDefault()
-        post.save()
-      }
-    })
-
     $document.on('keyup.fee-writing', _.debounce(function () {
       post.save()
     }, 1000))
@@ -206,7 +199,6 @@ window.fee = (function (
     $content.html(post.get('content').rendered)
 
     $thumbnail.off('click.fee-edit-thumbnail')
-    $document.off('keydown.fee-save')
     $document.off('keyup.fee-writing')
 
     hidden = true
