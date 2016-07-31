@@ -165,9 +165,9 @@ window.fee = (function (
       }
     })
 
-    $document.on('heartbeat-send.fee-save', function () {
+    $document.on('keyup.fee-writing', _.debounce(function () {
       post.save()
-    })
+    }, 1000))
 
     hidden = false
   }
@@ -190,7 +190,7 @@ window.fee = (function (
 
     $thumbnail.off('click.fee-edit-thumbnail')
     $document.off('keydown.fee-save')
-    $document.off('heartbeat-send.fee-save')
+    $document.off('keyup.fee-writing')
 
     hidden = true
   }
