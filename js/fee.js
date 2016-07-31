@@ -11,6 +11,15 @@ window.fee = (function (
 
   var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]
 
+  var AutosaveModel = BaseModel.extend({
+    isNew: function () {
+      return true
+    },
+    url: function () {
+      return BaseModel.prototype.url.apply(this, arguments) + '/autosave'
+    }
+  })
+
   var Model = BaseModel.extend({
     save: function () {
       this.trigger('beforesave')
@@ -24,6 +33,14 @@ window.fee = (function (
       }
 
       this._fee_last_save = _.clone(this.attributes)
+    },
+    autosave: function () {
+      if (this.get('status') === 'draft') {
+        this.save()
+      } else {
+        this.trigger('beforesync')
+        new AutosaveModel(_.clone(this.attributes)).save()
+      }
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
