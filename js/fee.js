@@ -88,6 +88,10 @@ window.fee = (function (
   $body.addClass('fee fee-off')
   $content.removeClass('fee-content')
 
+  var debouncedSave = _.debounce(function () {
+    post.save()
+  }, 1000)
+
   function on () {
     if (!hidden) {
       return
@@ -126,6 +130,8 @@ window.fee = (function (
           }
         })
 
+        editor.on('setcontent', debouncedSave)
+
         post.on('beforesave', function () {
           post.set('content', {
             raw: editor.getContent(),
@@ -162,6 +168,8 @@ window.fee = (function (
           document.title = documentTitle.replace('<!--replace-->', text)
         })
 
+        editor.on('setcontent', debouncedSave)
+
         post.on('beforesave', function () {
           post.set('title', {
             raw: editor.getContent(),
@@ -178,9 +186,7 @@ window.fee = (function (
       media.featuredImage.frame().open()
     })
 
-    $document.on('keyup.fee-writing', _.debounce(function () {
-      post.save()
-    }, 1000))
+    $document.on('keyup.fee-writing', debouncedSave)
 
     hidden = false
   }
