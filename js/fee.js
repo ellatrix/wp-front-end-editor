@@ -24,23 +24,26 @@ window.fee = (function (
     save: function () {
       this.trigger('beforesave')
 
+      if (this.get('status') === 'auto-draft') {
+        this.set('status', 'draft')
+      }
+
       if (_.some(this.attributes, function (v, k) {
         if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
-        if (v.raw == null) return !_.isEqual(v, this._fee_last_save[k])
-        return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
+        if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
+        return !_.isEqual(v, this._fee_last_save[k])
       }, this)) {
-        BaseModel.prototype.save.apply(this, arguments)
+        // If it's not published, overwrite.
+        // If the status changes to publish, overwrite.
+        // Othewise create a copy.
+        if (this.get('status') !== 'publish' || this._fee_last_save.status !== 'publish') {
+          BaseModel.prototype.save.apply(this, arguments)
+        } else {
+          new AutosaveModel(_.clone(this.attributes)).save()
+        }
       }
 
       this._fee_last_save = _.clone(this.attributes)
-    },
-    autosave: function () {
-      if (this.get('status') === 'draft') {
-        this.save()
-      } else {
-        this.trigger('beforesync')
-        new AutosaveModel(_.clone(this.attributes)).save()
-      }
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
@@ -286,7 +289,8 @@ window.fee = (function (
   $(window).on('unload', function () {
     post.trigger('beforesave')
 
-    var url = post.url() + '?_method=put&_wpnonce=' + window.wpApiSettings.nonce
+    var autosave = post.get('status') === 'publish' ? '/autosave' : ''
+    var url = post.url() + autosave + '?_method=put&_wpnonce=' + window.wpApiSettings.nonce
     var data = JSON.stringify(post.attributes)
 
     if (!navigator.sendBeacon || !navigator.sendBeacon(url, data)) {
