@@ -21,14 +21,16 @@ window.fee = (function (
   })
 
   var Model = BaseModel.extend({
-    save: function () {
+    save: function (attributes) {
       this.trigger('beforesave')
+
+      var publish = attributes && attributes.status === 'publish'
 
       if (this.get('status') === 'auto-draft') {
         this.set('status', 'draft')
       }
 
-      if (_.some(this.attributes, function (v, k) {
+      if (publish || _.some(this.attributes, function (v, k) {
         if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
         if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
         return !_.isEqual(v, this._fee_last_save[k])
@@ -36,7 +38,7 @@ window.fee = (function (
         // If it's not published, overwrite.
         // If the status changes to publish, overwrite.
         // Othewise create a copy.
-        if (this.get('status') !== 'publish' || this._fee_last_save.status !== 'publish') {
+        if (this.get('status') !== 'publish' || publish) {
           BaseModel.prototype.save.apply(this, arguments)
         } else {
           new AutosaveModel(_.clone(this.attributes)).save()
