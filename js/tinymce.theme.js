@@ -84,10 +84,10 @@
             if (range.startContainer === range.endContainer || (
               range.startContainer.nodeType === 3 &&
               range.startContainer.parentNode === range.endContainer
-              ) || (
+            ) || (
               range.endContainer.nodeType === 3 &&
               range.endContainer.parentNode === range.startContainer
-              )) {
+            )) {
               event.toolbar = toolbar
               event.selection = range
             }
