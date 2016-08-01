@@ -25,6 +25,7 @@ window.fee = (function (
       this.trigger('beforesave')
 
       var publish = attributes && attributes.status === 'publish'
+      var xhr
 
       if (this.get('status') === 'auto-draft') {
         this.set('status', 'draft')
@@ -39,13 +40,15 @@ window.fee = (function (
         // If the status changes to publish, overwrite.
         // Othewise create a copy.
         if (this.get('status') !== 'publish' || publish) {
-          BaseModel.prototype.save.apply(this, arguments)
+          xhr = BaseModel.prototype.save.apply(this, arguments)
         } else {
           new AutosaveModel(_.clone(this.attributes)).save()
         }
       }
 
       this._fee_last_save = _.clone(this.attributes)
+
+      return xhr || $.Deferred().resolve().promise()
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
@@ -194,25 +197,13 @@ window.fee = (function (
   }
 
   function off () {
-    if (hidden || post.get('status') === 'auto-draft') {
+    if (post.get('status') === 'auto-draft') {
       return
     }
 
-    $body.removeClass('fee-on').addClass('fee-off')
-
-    _.each(editors, function (editor) {
-      editor.remove()
+    post.save().done(function () {
+      document.location.reload(true)
     })
-
-    document.title = documentTitle.replace('<!--replace-->', post.get('title').rendered)
-    $titles.add($title).html(post.get('title').rendered)
-
-    $content.html(post.get('content').rendered)
-
-    $thumbnail.off('click.fee-edit-thumbnail')
-    $document.off('keyup.fee-writing')
-
-    hidden = true
   }
 
   if (data.post.status === 'auto-draft') {

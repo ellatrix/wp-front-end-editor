@@ -135,7 +135,9 @@
       editor.addButton('publish', {
         text: 'Publish',
         onclick: function () {
-          window.fee.post.save({status: 'publish'})
+          window.fee.post.save({status: 'publish'}).done(function () {
+            document.location.reload(true)
+          })
         }
       })
 
