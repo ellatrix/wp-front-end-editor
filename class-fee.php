@@ -157,7 +157,7 @@ class FEE {
 		wp_register_script( 'fee-mce-view-register', plugins_url( 'js/mce-view-register.js', __FILE__ ), array( 'fee-mce-view' ), self::VERSION, true );
 		wp_localize_script( 'fee-mce-view-register', 'mce_view_register', array( 'post_id' => $post->ID ) );
 		wp_register_script( 'fee-tinymce-image', plugins_url( 'js/tinymce.image.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
-		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce', 'underscore' ), self::VERSION, true );
 
 		// overwrite for now
 		wp_localize_script( 'wp-api', 'wpApiSettings', array(

@@ -180,7 +180,7 @@ div.mce-inline-toolbar-grp {
 	-ms-user-select: none;
 	user-select: none;
 	max-width: 98%;
-	z-index: 100100; /* Same as the other TinyMCE "panels" */
+	z-index: 99998; /* Under adminbar */
 }
 
 div.mce-inline-toolbar-grp > div.mce-stack-layout {
@@ -320,4 +320,14 @@ div.wp-link-input input:focus {
 		max-width: -webkit-calc(100% - 86px);
 		max-width: calc(100% - 86px);
 	}
+}
+
+.fee-main-toolbar {
+	transition-duration: 0.6s;
+	transition-property: transform;
+	transform: translateY(0);
+}
+
+.fee-main-toolbar.fee-hide {
+	transform: translateY(-48px);
 }
