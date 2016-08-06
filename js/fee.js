@@ -38,10 +38,6 @@ window.fee = (function (
       var publish = attributes && attributes.status === 'publish'
       var xhr
 
-      if (this.get('status') === 'auto-draft') {
-        this.set('status', 'draft')
-      }
-
       if (publish || _.some(this.attributes, function (v, k) {
         if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
         if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
@@ -205,7 +201,7 @@ window.fee = (function (
   }
 
   function off () {
-    if (post.get('status') === 'auto-draft') {
+    if (post.get('status') === 'draft') {
       return
     }
 
@@ -214,7 +210,7 @@ window.fee = (function (
     })
   }
 
-  if (settings.post.status === 'auto-draft') {
+  if (settings.post.status === 'draft') {
     on()
   }
 

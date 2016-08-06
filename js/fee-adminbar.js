@@ -1,17 +1,17 @@
-(function ($, data) {
+(function ($, settings) {
   $(function () {
-    $.each(data.postTypes, function (i, value) {
-      $('a[href="' + data.postNew + '?post_type=' + value + '"]')
-        .add(value === 'post' ? 'a[href="' + data.postNew + '"]' : null)
+    $.each(settings.postTypes, function (k, v) {
+      $('a[href="' + settings.postNew + '?post_type=' + k + '"]')
+        .add(k === 'post' ? 'a[href="' + settings.postNew + '"]' : null)
         .on('click', function (event) {
           event.preventDefault()
 
-          window.wp.ajax.post('fee_new', {
-            post_type: value,
-            nonce: data.nonce
-          }).done(function (url) {
-            if (url) {
-              window.location.href = url
+          $.post(settings.api.root + 'wp/v2/' + v, {
+            _wpnonce: settings.api.nonce,
+            title: 'Auto Draft'
+          }).done(function (data) {
+            if (data.link) {
+              window.location.href = data.link
             }
           })
         })

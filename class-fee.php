@@ -58,8 +58,6 @@ class FEE {
 	}
 
 	function init() {
-		global $wp_post_statuses;
-
 		$this->check_wordpress_version();
 		$this->check_rest_api_plugin();
 
@@ -70,10 +68,6 @@ class FEE {
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
 
-		// Lets auto-drafts pass as drafts by WP_Query.
-		$wp_post_statuses['auto-draft']->protected = true;
-
-		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
@@ -83,17 +77,6 @@ class FEE {
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
 		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
-	}
-
-	function ajax_new() {
-		check_ajax_referer( 'fee-new', 'nonce' );
-
-		require_once( ABSPATH . '/wp-admin/includes/post.php' );
-
-		$post = get_default_post_to_edit( isset( $_POST['post_type'] ) ? $_POST['post_type'] : 'post', true );
-		wp_set_post_categories( $post->ID, array( get_option( 'default_category' ) ) );
-
-		wp_send_json_success( get_permalink( $post->ID ) );
 	}
 
 	function ajax_thumbnail() {
@@ -197,7 +180,10 @@ class FEE {
 		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
 			'postTypes' => $this->get_post_types(),
 			'postNew' => admin_url( 'post-new.php' ),
-			'nonce' => wp_create_nonce( 'fee-new' )
+			'api' => array(
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+				'root' => esc_url_raw( get_rest_url() )
+			)
 		) );
 
 		wp_register_style( 'fee-tinymce-core' , plugins_url( 'css/tinymce.core.css', __FILE__ ), array(), self::VERSION, 'screen' );
@@ -227,20 +213,6 @@ class FEE {
 		if ( ! $this->has_fee() ) {
 			return;
 		}
-
-		if ( force_ssl_admin() && ! is_ssl() ) {
-			wp_redirect( set_url_scheme( get_permalink( $post->ID ), 'https' ) );
-
-			die;
-		}
-
-		if ( $post->post_status === 'auto-draft' ) {
-			$post->post_title = '';
-			$post->comment_status = get_option( 'default_comment_status' );
-			$post->ping_status = get_option( 'default_ping_status' );
-		}
-
-		require_once( ABSPATH . '/wp-admin/includes/admin.php' );
 
 		add_filter( 'the_title', array( $this, 'the_title' ), 10, 2 );
 		add_filter( 'the_content', array( $this, 'the_content' ), 20 );
@@ -349,10 +321,13 @@ class FEE {
 	}
 
 	function get_post_types() {
-		$post_types = array_values( get_post_types( array( 'show_in_rest' => true ) ) );
-		$post_types = array_values( array_intersect( $post_types, get_post_types_by_support( 'front-end-editor' ) ) );
+		$post_types = get_post_types( array( 'show_in_rest' => true ), 'objects' );
 
-		return $post_types;
+		foreach ( $post_types as $key => $value ) {
+			$post_types[ $key ] = empty( $post_types[ $key ] ) ? $key : $post_types[ $key ]->rest_base;
+		}
+
+		return array_intersect_key( $post_types, array_flip( get_post_types_by_support( 'front-end-editor' ) ) );
 	}
 
 	function did_action( $tag ) {
