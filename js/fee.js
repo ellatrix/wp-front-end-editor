@@ -211,6 +211,10 @@ window.fee = (function (
   }
 
   if (settings.post.status === 'draft') {
+    if (settings.post.title.raw === 'Auto Draft' && !settings.post.content.raw) {
+      $title.empty()
+    }
+
     on()
   }
 
