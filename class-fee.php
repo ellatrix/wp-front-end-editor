@@ -9,8 +9,6 @@ class FEE {
 
 	public $errors = array();
 
-	private $fee;
-
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
@@ -298,6 +296,8 @@ class FEE {
 
 	// Not sure if this is a good idea, this could have unexpected consequences. But otherwise nothing shows up if the featured image is set in edit mode.
 	function get_post_metadata( $n, $object_id, $meta_key, $single ) {
+		static $lock;
+
 		if (
 			is_main_query() &&
 			in_the_loop() &&
@@ -305,13 +305,11 @@ class FEE {
 			$this->did_action( 'wp_head' ) &&
 			$meta_key === '_thumbnail_id' &&
 			$single &&
-			empty( $this->fee['filtering_get_post_metadata'] )
+			empty( $lock )
 		) {
-			$this->fee['filtering_get_post_metadata'] = true;
-
+			$lock = true;
 			$thumbnail_id = get_post_thumbnail_id( $object_id );
-
-			$this->fee['filtering_get_post_metadata'] = false;
+			$lock = false;
 
 			if ( $thumbnail_id ) {
 				return $thumbnail_id;
