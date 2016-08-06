@@ -9,8 +9,30 @@ window.fee = (function (
 ) {
   var hidden = true
 
-  var Model = Backbone.Model.extend({
+  var BaseModel = Backbone.Model.extend({
     urlRoot: settings.api.root + 'wp/v2/' + settings.api.endpoint,
+    sync: function (method, model, options) {
+      var beforeSend = options.beforeSend
+
+      options.beforeSend = function (xhr) {
+        xhr.setRequestHeader('X-WP-Nonce', settings.api.nonce)
+        if (beforeSend) return beforeSend.apply(this, arguments)
+      }
+
+      return Backbone.sync(method, model, options)
+    }
+  })
+
+  var AutosaveModel = BaseModel.extend({
+    isNew: function () {
+      return true
+    },
+    url: function() {
+      return BaseModel.prototype.url.apply(this, arguments) + '/' + this.get('id') + '/autosave'
+    }
+  })
+
+  var Model = BaseModel.extend({
     save: function (attributes) {
       this.trigger('beforesave')
 
@@ -22,7 +44,7 @@ window.fee = (function (
       }
 
       if (publish || _.some(this.attributes, function (v, k) {
-        if (_.indexOf(['modified', 'modified_gmt', 'date', 'date_gmt', '_links'], k) !== -1) return
+        if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
         if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
         return !_.isEqual(v, this._fee_last_save[k])
       }, this)) {
@@ -30,40 +52,15 @@ window.fee = (function (
         // If the status changes to publish, overwrite.
         // Othewise create a copy.
         if (this.get('status') !== 'publish' || publish) {
-          xhr = Backbone.Model.prototype.save.apply(this, arguments)
+          xhr = BaseModel.prototype.save.apply(this, arguments)
         } else {
-          var isNew = this.isNew
-          var url = this.url
-          var urlString = this.url()
-
-          this.isNew = function () {
-            return true
-          }
-
-          this.url = function () {
-            return urlString + '/autosave'
-          }
-
-          Backbone.Model.prototype.save.apply(this, arguments)
-
-          this.isNew = isNew
-          this.url = url
+          new AutosaveModel(this.attributes).save()
         }
       }
 
       this._fee_last_save = _.clone(this.attributes)
 
       return xhr || $.Deferred().resolve().promise()
-    },
-    sync: function (method, model, options) {
-      var beforeSend = options.beforeSend
-
-      options.beforeSend = function (xhr) {
-        xhr.setRequestHeader('X-WP-Nonce', settings.api.nonce)
-        if (beforeSend) return beforeSend.apply(this, arguments)
-      }
-
-      return Backbone.sync(method, model, options)
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
