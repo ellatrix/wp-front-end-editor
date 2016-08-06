@@ -369,6 +369,12 @@
             }
           })
 
+          editor.on('nodechange', function (event) {
+            if (editor.dom.isEmpty(event.element)) {
+              toolbar.show()
+            }
+          })
+
           var pageYOffset = window.pageYOffset
 
           DOM.bind(editor.getWin(), 'scroll', _.throttle(function () {
