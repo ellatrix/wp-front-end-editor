@@ -63,7 +63,7 @@ window.fee = (function (
         if (beforeSend) return beforeSend.apply(this, arguments)
       }
 
-      return Backbone.sync( method, model, options )
+      return Backbone.sync(method, model, options)
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
