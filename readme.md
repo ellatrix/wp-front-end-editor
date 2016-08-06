@@ -1,5 +1,15 @@
 # WordPress Front-end Editor
 
+A simple way to write with WordPress.
+
+## Features
+
+* Draft and edit posts.
+* Autosaves. There is no “save” button, just publish when you’re done.
+* Contextual toolbar for formatting and linking.
+* Add media with the WordPress media library.
+* Add a featured image (if your theme supports it).
+
 ## Custom Post Types Support
 
 ```
