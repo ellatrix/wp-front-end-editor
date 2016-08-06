@@ -93,7 +93,11 @@
 		var doingUndoRedo;
 		var doingUndoRedoTimer;
 		var $ = window.jQuery;
-		var urlErrors = {};
+		var emailRegex = /^(mailto:)?[a-z0-9._%+-]+@[a-z0-9][a-z0-9.-]*\.[a-z]{2,63}$/i;
+		var urlRegex1 = /^https?:\/\/([^\s/?.#-][^\s\/?.#]*\.?)+(\/[^\s"]*)?$/i;
+		var urlRegex2 = /^https?:\/\/[^\/]+\.[^\/]+($|\/)/i;
+		var speak = ( typeof window.wp !== 'undefined' && window.wp.a11y && window.wp.a11y.speak ) ? window.wp.a11y.speak : function() {};
+		var hasLinkError = false;
 
 		function getSelectedLink() {
 			var href, html,
@@ -155,39 +159,15 @@
 				return;
 			}
 
-			// Early check
-			if ( /^http/i.test( href ) && ! /\.[a-z]{2,63}(\/|$)/i.test( href ) ) {
-				urlErrors[href] = tinymce.translate( 'Invalid host name.' );
-			}
+			hasLinkError = false;
 
-			if ( urlErrors.hasOwnProperty( href ) ) {
+			if ( /^http/i.test( href ) && ( ! urlRegex1.test( href ) || ! urlRegex2.test( href ) ) ) {
+				hasLinkError = true;
 				$link.attr( 'data-wplink-url-error', 'true' );
-				return;
+				speak( editor.translate( 'Warning: the link has been inserted but may have errors. Please test it.' ), 'assertive' );
 			} else {
 				$link.removeAttr( 'data-wplink-url-error' );
 			}
-
-			$.post(
-				window.ajaxurl, {
-					action: 'test_url',
-					nonce: $( '#_wplink_urltest_nonce' ).val(),
-					href: href
-				},
-				'json'
-			).done( function( response ) {
-				if ( response.success ) {
-					return;
-				}
-
-				if ( response.data && response.data.error ) {
-					urlErrors[href] = response.data.error;
-					$link.attr( 'data-wplink-url-error', 'true' );
-
-					if ( toolbar && toolbar.visible() ) {
-						toolbar.$el.find( '.wp-link-preview a' ).addClass( 'wplink-url-error' ).attr( 'title', editor.dom.encode( response.data.error ) );
-					}
-				}
-			});
 		}
 
 		editor.on( 'preinit', function() {
@@ -274,7 +254,7 @@
 					return;
 				}
 
-				if ( ! /^(?:[a-z]+:|#|\?|\.|\/)/.test( href ) ) {
+				if ( ! /^(?:[a-z]+:|#|\?|\.|\/)/.test( href ) && ! emailRegex.test( href ) ) {
 					href = 'http://' + href;
 				}
 
@@ -291,8 +271,8 @@
 			editor.nodeChanged();
 
 			// Audible confirmation message when a link has been inserted in the Editor.
-			if ( typeof window.wp !== 'undefined' && window.wp.a11y && typeof window.wpLinkL10n !== 'undefined' ) {
-				window.wp.a11y.speak( window.wpLinkL10n.linkInserted );
+			if ( typeof window.wpLinkL10n !== 'undefined' && ! hasLinkError ) {
+				speak( window.wpLinkL10n.linkInserted );
 			}
 		} );
 
@@ -449,10 +429,9 @@
 							$input.val( ui.item.permalink );
 							$( element.firstChild.nextSibling ).val( ui.item.title );
 
-							if ( 9 === event.keyCode && typeof window.wp !== 'undefined' &&
-								window.wp.a11y && typeof window.wpLinkL10n !== 'undefined' ) {
+							if ( 9 === event.keyCode && typeof window.wpLinkL10n !== 'undefined' ) {
 								// Audible confirmation message when a link has been selected.
-								window.wp.a11y.speak( window.wpLinkL10n.linkSelected );
+								speak( window.wpLinkL10n.linkSelected );
 							}
 
 							return false;
@@ -536,7 +515,7 @@
 
 		editor.on( 'wptoolbar', function( event ) {
 			var linkNode = editor.dom.getParent( event.element, 'a' ),
-				$linkNode, href, edit, title;
+				$linkNode, href, edit;
 
 			if ( typeof window.wpLink !== 'undefined' && window.wpLink.modalOpen ) {
 				editToolbar.tempHide = true;
@@ -561,12 +540,12 @@
 					previewInstance.setURL( href );
 					event.element = linkNode;
 					event.toolbar = toolbar;
-					title = urlErrors.hasOwnProperty( href ) ? editor.dom.encode( urlErrors[ href ] ) : null;
 
 					if ( $linkNode.attr( 'data-wplink-url-error' ) === 'true' ) {
-						toolbar.$el.find( '.wp-link-preview a' ).addClass( 'wplink-url-error' ).attr( 'title', title );
+						toolbar.$el.find( '.wp-link-preview a' ).addClass( 'wplink-url-error' );
 					} else {
-						toolbar.$el.find( '.wp-link-preview a' ).removeClass( 'wplink-url-error' ).attr( 'title', null );
+						toolbar.$el.find( '.wp-link-preview a' ).removeClass( 'wplink-url-error' );
+						hasLinkError = false;
 					}
 				}
 			} else if ( editToolbar.visible() ) {
