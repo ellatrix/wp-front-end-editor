@@ -345,7 +345,7 @@
             DOM.setStyles(toolbar, {
               'position': 'fixed',
               'left': elementRect.left + (elementRect.width / 2) - (toolbarRect.width / 2),
-              'top': 42
+              'top': 37
             })
           }
 

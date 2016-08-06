@@ -1,26 +1,16 @@
 window.fee = (function (
-  data,
+  settings,
   $,
-  api,
   heartbeat,
   media,
   tinymce,
-  _
+  _,
+  Backbone
 ) {
   var hidden = true
 
-  var BaseModel = api.models[ data.post.type === 'page' ? 'Page' : 'Post' ]
-
-  var AutosaveModel = BaseModel.extend({
-    isNew: function () {
-      return true
-    },
-    url: function () {
-      return BaseModel.prototype.url.apply(this, arguments) + '/autosave'
-    }
-  })
-
-  var Model = BaseModel.extend({
+  var Model = Backbone.Model.extend({
+    urlRoot: settings.api.root + 'wp/v2/' + settings.api.endpoint,
     save: function (attributes) {
       this.trigger('beforesave')
 
@@ -32,7 +22,7 @@ window.fee = (function (
       }
 
       if (publish || _.some(this.attributes, function (v, k) {
-        if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
+        if (_.indexOf(['modified', 'modified_gmt', 'date', 'date_gmt', '_links'], k) !== -1) return
         if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
         return !_.isEqual(v, this._fee_last_save[k])
       }, this)) {
@@ -40,15 +30,40 @@ window.fee = (function (
         // If the status changes to publish, overwrite.
         // Othewise create a copy.
         if (this.get('status') !== 'publish' || publish) {
-          xhr = BaseModel.prototype.save.apply(this, arguments)
+          xhr = Backbone.Model.prototype.save.apply(this, arguments)
         } else {
-          new AutosaveModel(_.clone(this.attributes)).save()
+          var isNew = this.isNew
+          var url = this.url
+          var urlString = this.url()
+
+          this.isNew = function () {
+            return true
+          }
+
+          this.url = function () {
+            return urlString + '/autosave'
+          }
+
+          Backbone.Model.prototype.save.apply(this, arguments)
+
+          this.isNew = isNew
+          this.url = url
         }
       }
 
       this._fee_last_save = _.clone(this.attributes)
 
       return xhr || $.Deferred().resolve().promise()
+    },
+    sync: function (method, model, options) {
+      var beforeSend = options.beforeSend
+
+      options.beforeSend = function (xhr) {
+        xhr.setRequestHeader('X-WP-Nonce', settings.api.nonce)
+        if (beforeSend) return beforeSend.apply(this, arguments)
+      }
+
+      return Backbone.sync( method, model, options )
     },
     toJSON: function () {
       var attributes = _.clone(this.attributes)
@@ -72,7 +87,7 @@ window.fee = (function (
   var post = new Model()
 
   // Parse the data we got from the server and fill the model.
-  post.set(post.parse(data.post))
+  post.set(post.parse(settings.post))
 
   post.set('_fee_session', new Date().getTime())
 
@@ -104,7 +119,7 @@ window.fee = (function (
 
     $body.removeClass('fee-off').addClass('fee-on')
 
-    tinymce.init(_.extend(data.tinymce, {
+    tinymce.init(_.extend(settings.tinymce, {
       target: $content.get(0),
       setup: function (editor) {
         editor.load = function (args) {
@@ -155,7 +170,7 @@ window.fee = (function (
       paste_as_text: true,
       plugins: 'paste',
       inline: true,
-      placeholder: data.titlePlaceholder,
+      placeholder: settings.titlePlaceholder,
       entity_encoding: 'raw',
       setup: function (editor) {
         editors.push(editor)
@@ -206,13 +221,13 @@ window.fee = (function (
     })
   }
 
-  if (data.post.status === 'auto-draft') {
+  if (settings.post.status === 'auto-draft') {
     on()
   }
 
   $document.on('heartbeat-tick.fee-refresh-nonces', function (event, data) {
     if (data.fee_nonces) {
-      window.wpApiSettings.nonce = data.fee_nonces.api
+      settings.api.nonce = data.fee_nonces.api
       window.heartbeatSettings.nonce = data.fee_nonces.heartbeat
     }
   })
@@ -240,7 +255,7 @@ window.fee = (function (
 
   // Wait for admin bar to load.
   $(function () {
-    $('a[href="' + data.editURL + '"]').on('click.fee-link', function (event) {
+    $('a[href="' + settings.editURL + '"]').on('click.fee-link', function (event) {
       event.preventDefault()
       hidden ? on() : off()
     })
@@ -289,7 +304,7 @@ window.fee = (function (
     post.trigger('beforesave')
 
     var autosave = post.get('status') === 'publish' ? '/autosave' : ''
-    var url = post.url() + autosave + '?_method=put&_wpnonce=' + window.wpApiSettings.nonce
+    var url = post.url() + autosave + '?_method=put&_wpnonce=' + settings.api.nonce
     var data = JSON.stringify(post.attributes)
 
     if (!navigator.sendBeacon || !navigator.sendBeacon(url, data)) {
@@ -303,9 +318,9 @@ window.fee = (function (
 })(
   window.feeData,
   window.jQuery,
-  window.wp.api,
   window.wp.heartbeat,
   window.wp.media,
   window.tinymce,
-  window._
+  window._,
+  window.Backbone
 )

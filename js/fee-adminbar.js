@@ -1,6 +1,6 @@
 (function ($, data) {
   $(function () {
-    $.each(data.supportedPostTypes, function (i, value) {
+    $.each(data.postTypes, function (i, value) {
       $('a[href="' + data.postNew + '?post_type=' + value + '"]')
         .add(value === 'post' ? 'a[href="' + data.postNew + '"]' : null)
         .attr('href', '#')

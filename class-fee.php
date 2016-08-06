@@ -157,15 +157,6 @@ class FEE {
 		wp_register_script( 'fee-tinymce-image', plugins_url( 'js/tinymce.image.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
 		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce', 'underscore' ), self::VERSION, true );
 
-		// overwrite for now
-		wp_localize_script( 'wp-api', 'wpApiSettings', array(
-			'root' => esc_url_raw( get_rest_url() ),
-			'nonce' => wp_create_nonce( 'wp_rest' ),
-			'versionString' => 'wp/v2/',
-			'schema' => $this->api_request(),
-			'cacheSchema' => true
-		) );
-
 		$tinymce = array(
 			'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', array(
 				'wordpress',
@@ -202,21 +193,26 @@ class FEE {
 			'fee-tinymce-image',
 			'fee-tinymce-theme',
 			'heartbeat',
-			'wp-api',
 			'media-views',
 			'jquery',
-			'underscore'
+			'underscore',
+			'backbone'
 		), self::VERSION, true );
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
-			'post' => $this->api_request( 'GET', '/' . ( $post->post_type === 'page' ? 'pages' : 'posts' ) . '/' . $post->ID, array( 'context' => 'edit' ) ),
+			'post' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID, array( 'context' => 'edit' ) ),
 			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
-			'editURL' => get_edit_post_link()
+			'editURL' => get_edit_post_link(),
+			'api' => array(
+				'endpoint' => $this->get_rest_endpoint(),
+				'nonce' => wp_create_nonce( 'wp_rest' ),
+				'root' => esc_url_raw( get_rest_url() )
+			)
 		) );
 
 		wp_register_script( 'fee-adminbar', plugins_url( '/js/fee-adminbar.js', __FILE__ ), array( 'wp-util' ), self::VERSION, true );
 		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
-			'supportedPostTypes' => $this->get_supported_post_types(),
+			'postTypes' => $this->get_post_types(),
 			'postNew' => admin_url( 'post-new.php' ),
 			'nonce' => wp_create_nonce( 'fee-new' )
 		) );
@@ -352,35 +348,30 @@ class FEE {
 
 	function supports_fee( $id = null ) {
 		$post = get_post( $id );
-		$supports_fee = false;
+
+		if ( ! $post ) return false;
+
+		$post_type_object = get_post_type_object( $post->post_type );
 
 		if (
-			$post &&
+			$post->ID !== (int) get_option( 'page_for_posts' ) &&
+			$post_type_object->show_in_rest &&
 			post_type_supports( $post->post_type, 'front-end-editor' ) &&
-			current_user_can( 'edit_post', $post->ID ) &&
-			$post->ID !== (int) get_option( 'page_for_posts' )
+			current_user_can( 'edit_post', $post->ID )
 		) {
-			$supports_fee = true;
+			return apply_filters( 'supports_fee', true, $post );
 		}
 
-		return apply_filters( 'supports_fee', $supports_fee, $post );
+		return false;
 	}
 
 	function has_fee() {
 		return $this->supports_fee() && is_singular();
 	}
 
-	function get_supported_post_types() {
-		global $_wp_post_type_features;
-
-		$post_types = array();
-
-		foreach ( $_wp_post_type_features as $post_type => $features ) {
-			if ( array_key_exists( 'front-end-editor', $features ) ) {
-				$post_types;
-				array_push( $post_types, $post_type );
-			}
-		}
+	function get_post_types() {
+		$post_types = (array) get_post_types( array( 'show_in_rest' => true ), 'objects' );
+		$post_types = array_intersect_key( $post_types, array_flip( get_post_types_by_support( 'front-end-editor' ) ) );
 
 		return $post_types;
 	}
@@ -431,5 +422,15 @@ class FEE {
 		remove_action( 'post_updated', 'wp_save_post_revision', 10 );
 
 		update_post_meta( $request['id'], '_fee_session', $request['_fee_session'] );
+	}
+
+	function get_rest_endpoint( $id = null ) {
+		$post = get_post( $id );
+
+		if ( ! $post ) return;
+
+		$object = get_post_type_object( $post->post_type );
+
+		return empty( $object->rest_base ) ? $object->name : $object->rest_base;
 	}
 }
