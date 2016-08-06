@@ -76,14 +76,12 @@ class FEE {
 		$wp_post_statuses['auto-draft']->protected = true;
 
 		add_action( 'wp_ajax_fee_new', array( $this, 'ajax_new' ) );
-		add_action( 'wp_ajax_fee_shortcode', array( $this, 'ajax_shortcode' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp', array( $this, 'wp' ) );
 
-		add_filter( 'heartbeat_send', array( $this, 'heartbeat_send' ) );
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
 		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
@@ -98,16 +96,6 @@ class FEE {
 		wp_set_post_categories( $post->ID, array( get_option( 'default_category' ) ) );
 
 		wp_send_json_success( get_permalink( $post->ID ) );
-	}
-
-	function ajax_shortcode() {
-		global $post;
-
-		$post = get_post( $_POST['post_ID'] );
-
-		setup_postdata( $post );
-
-		wp_send_json_success( do_shortcode( wp_unslash( $_POST['shortcode'] ) ) );
 	}
 
 	function ajax_thumbnail() {
@@ -192,7 +180,6 @@ class FEE {
 			'fee-tinymce-wpview',
 			'fee-tinymce-image',
 			'fee-tinymce-theme',
-			'heartbeat',
 			'media-views',
 			'jquery',
 			'underscore',
@@ -228,8 +215,6 @@ class FEE {
 		global $post;
 
 		if ( $this->has_fee() ) {
-			wp_enqueue_style( 'wp-auth-check' );
-			wp_enqueue_script( 'wp-auth-check' );
 			wp_enqueue_style( 'fee' );
 			wp_enqueue_script( 'fee' );
 			wp_enqueue_media( array( 'post' => $post ) );
@@ -268,8 +253,6 @@ class FEE {
 		add_filter( 'get_post_metadata', array( $this, 'get_post_metadata' ), 10, 4 );
 		add_filter( 'private_title_format', array( $this, 'private_title_format' ), 10, 2 );
 		add_filter( 'protected_title_format', array( $this, 'private_title_format' ), 10, 2 );
-
-		add_action( 'wp_print_footer_scripts', 'wp_auth_check_html' );
 	}
 
 	function the_title( $title, $id ) {
@@ -378,15 +361,6 @@ class FEE {
 
 	function did_action( $tag ) {
 		return did_action( $tag ) - (int) doing_filter( $tag );
-	}
-
-	function heartbeat_send( $response ) {
-		$response['fee_nonces'] = array(
-			'api' => wp_create_nonce( 'wp_rest' ),
-			'heartbeat' => wp_create_nonce( 'heartbeat-nonce' )
-		);
-
-		return $response;
 	}
 
 	function rest_api_init() {

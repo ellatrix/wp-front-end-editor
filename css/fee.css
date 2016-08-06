@@ -50,18 +50,6 @@ br.fee-title
 	content: '';
 }
 
-/* Auth Check */
-
-*[id^=wp-auth-check] {
-	-webkit-box-sizing: content-box;
-	-moz-box-sizing: content-box;
-	box-sizing: content-box;
-}
-
-#wp-auth-check-wrap .wp-auth-check-close {
-	display: none;
-}
-
 div.mce-tinymce-inline {
 	position: absolute;
 	z-index: 9998;

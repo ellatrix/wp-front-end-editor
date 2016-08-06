@@ -1,7 +1,6 @@
 window.fee = (function (
   settings,
   $,
-  heartbeat,
   media,
   tinymce,
   _,
@@ -89,9 +88,6 @@ window.fee = (function (
   post.set('_fee_session', new Date().getTime())
 
   post._fee_last_save = _.clone(post.attributes)
-
-  // Set heartbeat to run every minute.
-  heartbeat.interval(60)
 
   var $document = $(document)
   var $body = $(document.body)
@@ -222,13 +218,6 @@ window.fee = (function (
     on()
   }
 
-  $document.on('heartbeat-tick.fee-refresh-nonces', function (event, data) {
-    if (data.fee_nonces) {
-      settings.api.nonce = data.fee_nonces.api
-      window.heartbeatSettings.nonce = data.fee_nonces.heartbeat
-    }
-  })
-
   _.extend(media.featuredImage, {
     set: function (id) {
       var settings = media.view.settings
@@ -317,7 +306,6 @@ window.fee = (function (
 })(
   window.feeData,
   window.jQuery,
-  window.wp.heartbeat,
   window.wp.media,
   window.tinymce,
   window._,
