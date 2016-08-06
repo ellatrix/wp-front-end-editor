@@ -27,7 +27,7 @@ window.fee = (function (
     isNew: function () {
       return true
     },
-    url: function() {
+    url: function () {
       return BaseModel.prototype.url.apply(this, arguments) + '/' + this.get('id') + '/autosave'
     }
   })
@@ -253,8 +253,10 @@ window.fee = (function (
   // Wait for admin bar to load.
   $(function () {
     $('a[href="' + settings.editURL + '"]').on('click.fee-link', function (event) {
-      event.preventDefault()
-      hidden ? on() : off()
+      if (!tinymce.util.VK.modifierPressed(event)) {
+        event.preventDefault()
+        hidden ? on() : off()
+      }
     })
   })
 
