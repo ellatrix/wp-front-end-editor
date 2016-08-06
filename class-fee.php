@@ -115,11 +115,9 @@ class FEE {
 	}
 
 	function api_request( $method = 'GET', $path = '', $query = array() ) {
-		$server = rest_get_server();
 		$request = new WP_REST_Request( $method, '/wp/v2' . $path );
 		$request->set_query_params( $query );
-		$response = $server->dispatch( $request );
-		$data = $response->get_data();
+		$data = rest_do_request( $request )->get_data();
 
 		// We need HTML.
 		if ( isset( $data['content'] ) && isset( $data['content']['raw'] ) ) {
