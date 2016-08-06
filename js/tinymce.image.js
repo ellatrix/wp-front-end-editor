@@ -483,8 +483,8 @@ tinymce.PluginManager.add('feeImage', function (editor) {
       editor.dom.remove(node)
     }
 
-    editor.nodeChanged();
-    editor.undoManager.add();
+    editor.nodeChanged()
+    editor.undoManager.add()
   }
 
   editor.on('init', function () {
