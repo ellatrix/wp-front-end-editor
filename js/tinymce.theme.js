@@ -363,8 +363,10 @@
             }
           }
 
-          editor.on('keydown', function () {
-            toolbar.hide()
+          editor.on('keydown', function (event) {
+            if (!tinymce.util.VK.modifierPressed(event)) {
+              toolbar.hide()
+            }
           })
 
           var pageYOffset = window.pageYOffset
