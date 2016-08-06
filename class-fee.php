@@ -370,8 +370,8 @@ class FEE {
 	}
 
 	function get_post_types() {
-		$post_types = (array) get_post_types( array( 'show_in_rest' => true ), 'objects' );
-		$post_types = array_intersect_key( $post_types, array_flip( get_post_types_by_support( 'front-end-editor' ) ) );
+		$post_types = array_values( get_post_types( array( 'show_in_rest' => true ) ) );
+		$post_types = array_values( array_intersect( $post_types, get_post_types_by_support( 'front-end-editor' ) ) );
 
 		return $post_types;
 	}

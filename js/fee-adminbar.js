@@ -3,7 +3,6 @@
     $.each(data.postTypes, function (i, value) {
       $('a[href="' + data.postNew + '?post_type=' + value + '"]')
         .add(value === 'post' ? 'a[href="' + data.postNew + '"]' : null)
-        .attr('href', '#')
         .on('click', function (event) {
           event.preventDefault()
 
