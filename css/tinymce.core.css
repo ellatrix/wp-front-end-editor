@@ -21,6 +21,7 @@
 	line-height: normal;
 	font-weight: normal;
 	text-align: left;
+	text-transform: none;
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
@@ -179,7 +180,7 @@
 }
 
 .mce-flow-layout-item {
-    margin: 2px 0 2px 2px;
+	margin: 2px 0 2px 2px;
 }
 
 .mce-ico {
