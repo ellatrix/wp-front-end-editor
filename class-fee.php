@@ -5,7 +5,7 @@ class FEE {
 	const WORDPRESS_MIN_VERSION = '4.5';
 	const REST_API_PLUGIN_SLUG = 'rest-api';
 	const REST_API_PLUGIN_URI = 'https://github.com/WP-API/WP-API';
-	const REST_API_MIN_VERSION = '2.0-beta12';
+	const REST_API_MIN_VERSION = '2.0-beta13.1';
 
 	public $errors = array();
 
