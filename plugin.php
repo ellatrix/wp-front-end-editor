@@ -4,7 +4,7 @@
  * Plugin Name: Front-end Editor
  * Plugin URI:  https://wordpress.org/plugins/wp-front-end-editor/
  * Description: Edit your posts on the front-end of your site.
- * Version:     2.0.0-alpha
+ * Version:     2.0.0-beta1
  * Author:      Ella Iseulde Van Dorpe
  * Author URI:  https://iseulde.com
  * Text Domain: wp-front-end-editor

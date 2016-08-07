@@ -4,7 +4,7 @@
 * Tags:              front-end editor, inline editing
 * Requires at least: 4.5
 * Tested up to:      4.6
-* Stable tag:        1.1.0
+* Stable tag:        2.0.0-beta1
 * License:           GPL-2.0+
 
 A simple way to write with WordPress.
