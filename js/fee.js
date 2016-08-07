@@ -92,6 +92,7 @@ window.fee = (function (
   var $title = $findTitle($titles, $content)
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
   var $thumbnail = $('.fee-thumbnail')
+  var $hasThumbnail = $('.has-post-thumbnail')
   var editors = []
 
   $body.addClass('fee fee-off')
@@ -193,6 +194,9 @@ window.fee = (function (
 
     $document.on('keyup.fee-writing', debouncedSave)
 
+    $hasThumbnail.addClass('has-post-thumbnail')
+    $thumbnail.show().parent().show()
+
     hidden = false
   }
 
@@ -212,6 +216,15 @@ window.fee = (function (
     }
 
     on()
+  }
+
+  if (settings.post.featured_media === 0) {
+    $hasThumbnail.removeClass('has-post-thumbnail')
+    $thumbnail.hide()
+
+    if (!$thumbnail.siblings().get(0)) {
+      $thumbnail.parent().hide()
+    }
   }
 
   _.extend(media.featuredImage, {
