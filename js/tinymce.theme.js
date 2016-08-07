@@ -24,6 +24,10 @@
           editor.getBody().setAttribute('data-placeholder', settings.placeholder)
         })
 
+        editor.on('focus', function () {
+          editor.getBody().removeAttribute('data-empty')
+        })
+
         editor.on('blur setcontent loadcontent', function () {
           if (isEmpty()) {
             editor.getBody().setAttribute('data-empty', '')
