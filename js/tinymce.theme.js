@@ -389,6 +389,54 @@
         }
       })
 
+      editor.addButton('add_featured_image', {
+        icon: 'dashicon dashicons-edit',
+        onclick: function () {
+          window.wp.media.featuredImage.frame().open()
+        }
+      })
+
+      editor.addButton('remove_featured_image', {
+        icon: 'dashicon dashicons-no',
+        onclick: function () {
+          window.wp.media.featuredImage.remove()
+        }
+      })
+
+      editor.on('preinit', function () {
+        if (editor.wp && editor.wp._createToolbar) {
+          var element = tinymce.$('.fee-thumbnail')[0]
+
+          if (!element) return
+
+          var toolbar = editor.wp._createToolbar([ 'add_featured_image', 'remove_featured_image' ])
+
+          toolbar.$el.addClass('fee-no-print mce-arrow-down')
+
+          toolbar.reposition = function () {
+            var toolbar = this.getEl()
+            var elementRect = element.getBoundingClientRect()
+            var toolbarRect = toolbar.getBoundingClientRect()
+
+            DOM.setStyles(toolbar, {
+              'position': 'absolute',
+              'left': elementRect.left + (elementRect.width / 2) - (toolbarRect.width / 2),
+              'top': elementRect.top + window.pageYOffset - toolbarRect.height - 8
+            })
+          }
+
+          toolbar.reposition()
+
+          DOM.bind(window, 'click', function (event) {
+            if (event.target === element) {
+              toolbar.show()
+            } else {
+              toolbar.hide()
+            }
+          })
+        }
+      })
+
       return {}
     }
   })

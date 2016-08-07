@@ -191,10 +191,6 @@ window.fee = (function (
       }
     })
 
-    $thumbnail.on('click.fee-edit-thumbnail', function () {
-      media.featuredImage.frame().open()
-    })
-
     $document.on('keyup.fee-writing', debouncedSave)
 
     hidden = false
@@ -234,10 +230,6 @@ window.fee = (function (
       })
     }
   })
-
-  // $thumbnailRemove.on('click.fee-remove-thumbnail', function () {
-  //   media.featuredImage.set(-1)
-  // })
 
   // Wait for admin bar to load.
   $(function () {
