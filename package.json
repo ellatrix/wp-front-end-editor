@@ -3,6 +3,7 @@
     "standard": "*"
   },
   "scripts": {
-  	"test": "standard js/*"
+    "readme": "cat readme.md > readme.txt",
+    "test": "standard js/*"
   }
 }
