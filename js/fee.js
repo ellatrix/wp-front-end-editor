@@ -40,6 +40,10 @@ window.fee = (function (
 
       attributes = _.pick(this.toJSON(), ['id', 'title', 'content', '_fee_session'])
 
+      if (publish) {
+        attributes.status = 'publish'
+      }
+
       if (publish || _.some(attributes, function (v, k) {
         return !_.isEqual($.trim(v), $.trim(this._fee_last_save[k]))
       }, this)) {
