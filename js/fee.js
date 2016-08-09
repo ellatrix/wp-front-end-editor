@@ -38,39 +38,26 @@ window.fee = (function (
       var publish = attributes && attributes.status === 'publish'
       var xhr
 
-      if (publish || _.some(this.attributes, function (v, k) {
-        if (_.indexOf(['modified', 'modified_gmt', '_links'], k) !== -1) return
-        if (v != null && v.raw != null) return !_.isEqual($.trim(v.raw), $.trim(this._fee_last_save[k].raw))
-        return !_.isEqual(v, this._fee_last_save[k])
+      attributes = _.pick(this.toJSON(), ['id', 'title', 'content'])
+
+      if (publish || _.some(attributes, function (v, k) {
+        return !_.isEqual($.trim(v), $.trim(this._fee_last_save[k]))
       }, this)) {
         // If it's not published, overwrite.
         // If the status changes to publish, overwrite.
         // Othewise create a copy.
         if (this.get('status') !== 'publish' || publish) {
-          xhr = BaseModel.prototype.save.apply(this, arguments)
+          xhr = BaseModel.prototype.save.call(this, attributes, {
+            patch: true
+          })
         } else {
-          new AutosaveModel(this.attributes).save()
+          new AutosaveModel(attributes).save()
         }
       }
 
       this._fee_last_save = _.clone(this.attributes)
 
       return xhr || $.Deferred().resolve().promise()
-    },
-    toJSON: function () {
-      var attributes = _.clone(this.attributes)
-
-      // TODO: investigate why these can't be saved as they are.
-
-      if (!attributes.slug) {
-        delete attributes.slug
-      }
-
-      if (!attributes.date_gmt) {
-        delete attributes.date_gmt
-      }
-
-      return attributes
     }
   })
 
@@ -140,13 +127,12 @@ window.fee = (function (
           }
         })
 
-        editor.on('setcontent', debouncedSave)
+        editor.on('init', function () {
+          editor.on('setcontent', debouncedSave)
+        })
 
         post.on('beforesave', function () {
-          post.set('content', {
-            raw: editor.getContent(),
-            rendered: post.get('content').rendered
-          })
+          post.set('content', editor.getContent())
 
           editor.undoManager.add()
           editor.isNotDirty = true
@@ -178,13 +164,12 @@ window.fee = (function (
           document.title = documentTitle.replace('<!--replace-->', text)
         })
 
-        editor.on('setcontent', debouncedSave)
+        editor.on('init', function () {
+          editor.on('setcontent', debouncedSave)
+        })
 
         post.on('beforesave', function () {
-          post.set('title', {
-            raw: editor.getContent(),
-            rendered: post.get('title').rendered
-          })
+          post.set('title', editor.getContent())
 
           editor.undoManager.add()
           editor.isNotDirty = true
