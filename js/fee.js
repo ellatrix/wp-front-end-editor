@@ -38,7 +38,7 @@ window.fee = (function (
       var publish = attributes && attributes.status === 'publish'
       var xhr
 
-      attributes = _.pick(this.toJSON(), ['id', 'title', 'content'])
+      attributes = _.pick(this.toJSON(), ['id', 'title', 'content', '_fee_session'])
 
       if (publish || _.some(attributes, function (v, k) {
         return !_.isEqual($.trim(v), $.trim(this._fee_last_save[k]))
