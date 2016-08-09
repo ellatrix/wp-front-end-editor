@@ -368,7 +368,7 @@
           }
 
           editor.on('keydown', function (event) {
-            if (!tinymce.util.VK.modifierPressed(event)) {
+            if (!tinymce.util.VK.modifierPressed(event) && window.pageYOffset > 0) {
               toolbar.hide()
             }
           })
