@@ -8,8 +8,6 @@ window.fee = (function (
 ) {
   var hidden = true
 
-  settings.api.nonce = 1234
-
   var BaseModel = Backbone.Model.extend({
     urlRoot: settings.api.root + 'wp/v2/' + settings.api.endpoint,
     sync: function (method, model, options) {
@@ -20,7 +18,13 @@ window.fee = (function (
         if (beforeSend) return beforeSend.apply(this, arguments)
       }
 
-      return Backbone.sync(method, model, _.clone(options)).then(null, function (data) {
+      return Backbone.sync(method, model, _.clone(options)).then(function (data, text, xhr) {
+        var nonce = xhr.getResponseHeader('X-WP-Nonce')
+
+        if (nonce) {
+          settings.api.nonce = nonce
+        }
+      }, function (data) {
         if (data.responseText) {
           data = JSON.parse(data.responseText)
 
