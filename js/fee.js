@@ -8,6 +8,8 @@ window.fee = (function (
 ) {
   var hidden = true
 
+  settings.api.nonce = 1234
+
   var BaseModel = Backbone.Model.extend({
     urlRoot: settings.api.root + 'wp/v2/' + settings.api.endpoint,
     sync: function (method, model, options) {
@@ -18,7 +20,19 @@ window.fee = (function (
         if (beforeSend) return beforeSend.apply(this, arguments)
       }
 
-      return Backbone.sync(method, model, options)
+      return Backbone.sync(method, model, _.clone(options)).then(null, function (data) {
+        if (data.responseText) {
+          data = JSON.parse(data.responseText)
+
+          // Nonce expired, so get a new one and try again.
+          if (data.code === 'rest_cookie_expired_nonce') {
+            return $.post(settings.ajaxURL, {action: 'fee_nonce'}).then(function (data) {
+              settings.api.nonce = data
+              return Backbone.sync(method, model, options)
+            })
+          }
+        }
+      })
     }
   })
 

@@ -68,6 +68,7 @@ class FEE {
 		add_post_type_support( 'post', 'front-end-editor' );
 		add_post_type_support( 'page', 'front-end-editor' );
 
+		add_action( 'wp_ajax_fee_nonce', array( $this, 'ajax_nonce' ) );
 		add_action( 'wp_ajax_fee_thumbnail', array( $this, 'ajax_thumbnail' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ) );
@@ -77,6 +78,11 @@ class FEE {
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
 		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
+	}
+
+	function ajax_nonce() {
+		echo wp_create_nonce( 'wp_rest' );
+		die;
 	}
 
 	function ajax_thumbnail() {
@@ -169,6 +175,7 @@ class FEE {
 			'post' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID, array( 'context' => 'edit' ) ),
 			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
 			'editURL' => get_edit_post_link(),
+			'ajaxURL' => admin_url( 'admin-ajax.php' ),
 			'api' => array(
 				'endpoint' => $this->get_rest_endpoint(),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
