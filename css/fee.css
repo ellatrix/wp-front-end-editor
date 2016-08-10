@@ -317,5 +317,5 @@ div.wp-link-input input:focus {
 }
 
 .fee-main-toolbar.fee-hide {
-	transform: translateY(-48px);
+	transform: translateY(48px);
 }

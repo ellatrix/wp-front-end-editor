@@ -349,7 +349,7 @@
             DOM.setStyles(toolbar, {
               'position': 'fixed',
               'left': elementRect.left + (elementRect.width / 2) - (toolbarRect.width / 2),
-              'top': 37
+              'bottom': 0
             })
           }
 
@@ -379,15 +379,9 @@
             }
           })
 
-          var pageYOffset = window.pageYOffset
-
-          DOM.bind(editor.getWin(), 'scroll', _.throttle(function () {
-            if (pageYOffset < (pageYOffset = window.pageYOffset)) {
-              toolbar.hide()
-            } else {
-              toolbar.show()
-            }
-          }, 250))
+          DOM.bind(editor.getWin(), 'scroll', function () {
+            toolbar.show()
+          })
 
           toolbar.reposition()
         }
