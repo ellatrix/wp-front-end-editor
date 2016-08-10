@@ -4,11 +4,16 @@
     "standard": "latest"
   },
   "scripts": {
-    "stage": "svn resolved -R . && svn add --force . && svn st | grep ^! | awk '{print $2}' | xargs svn rm",
-    "checkout": "svn checkout https://plugins.svn.wordpress.org/wp-front-end-editor/trunk svn && rm -rf .svn && mv svn/.svn .svn && rm -rf svn",
-    "tag": "svn copy https://plugins.svn.wordpress.org/wp-front-end-editor/trunk https://plugins.svn.wordpress.org/wp-front-end-editor/tags/$1 -m $1",
     "readme": "cat readme.md > readme.txt",
     "imagemin": "imagemin assets/* --out-dir=assets",
+    "svn-add": "svn add --force .",
+    "svn-assets": "svn copy ",
+    "svn-checkout": "svn checkout https://plugins.svn.wordpress.org/wp-front-end-editor/trunk svn && rm -rf .svn && mv svn/.svn .svn && rm -rf svn",
+    "svn-checkout-assets": "svn checkout https://plugins.svn.wordpress.org/wp-front-end-editor/assets svn && rm -rf assets/.svn && mv svn/.svn assets/.svn && rm -rf svn",
+    "svn-ignore": "svn propset svn:ignore -F .svnignore .",
+    "svn-remove": "svn st | grep ^! | awk '{print $2}' | xargs svn rm",
+    "svn-resolve": "svn resolved -R .",
+    "svn-tag": "svn copy https://plugins.svn.wordpress.org/wp-front-end-editor/trunk https://plugins.svn.wordpress.org/wp-front-end-editor/tags/$1 -m $1",
     "test": "standard js/*"
   }
 }
