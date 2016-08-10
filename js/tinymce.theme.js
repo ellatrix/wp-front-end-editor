@@ -452,12 +452,14 @@
           editor.on('wptoolbar', function (event) {
             element = event.element
 
-            if (editor.dom.isEmpty(event.element)) {
+            if (editor.dom.isEmpty(event.element) && (event.element.nodeName === 'P' || (
+              event.element.nodeName === 'BR' && event.element.parentNode.nodeName === 'P'
+            ))) {
               event.toolbar = toolbar
             }
           })
 
-          toolbar.reposition = function() {
+          toolbar.reposition = function () {
             if (!element) return
 
             var toolbar = this.getEl()
