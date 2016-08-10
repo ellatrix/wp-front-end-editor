@@ -373,12 +373,6 @@
             }
           })
 
-          editor.on('nodechange', function (event) {
-            if (editor.dom.isEmpty(event.element)) {
-              toolbar.show()
-            }
-          })
-
           DOM.bind(editor.getWin(), 'scroll', function () {
             toolbar.show()
           })
