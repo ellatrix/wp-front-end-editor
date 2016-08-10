@@ -436,7 +436,7 @@
         }
       })
 
-      editor.on('preinit', function () {
+      editor.on('focus', function () {
         if (editor.wp && editor.wp._createToolbar) {
           var toolbar = editor.wp._createToolbar(['insert_media'])
           var element
@@ -465,7 +465,21 @@
               'left': elementRect.left + 8 + 'px',
               'top': elementRect.top + window.pageYOffset + elementRect.height / 2 - toolbarRect.height / 2 + 'px'
             })
+
+            this.show()
           }
+
+          editor.on('keyup', _.throttle(function (event) {
+            if (editor.dom.isEmpty(editor.selection.getNode())) {
+              editor.nodeChanged()
+            } else {
+              toolbar.hide()
+            }
+          }, 500))
+
+          editor.on('blur', function () {
+            toolbar.hide()
+          })
         }
       })
 
