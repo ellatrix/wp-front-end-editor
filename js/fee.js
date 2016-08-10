@@ -111,6 +111,64 @@ window.fee = (function (
     post.save()
   }, 1000)
 
+  function editor (type, options) {
+    var setup = options.setup
+
+    return tinymce.init(_.extend(options, {
+      inline: true,
+      setup: function (editor) {
+        var settings = editor.settings
+
+        editors.push(editor)
+
+        settings.content_editable = true
+
+        function isEmpty () {
+          return editor.getContent({ format: 'raw' }).replace(/(?:<p[^>]*>)?(?:<br[^>]*>)?(?:<\/p>)?/, '') === ''
+        }
+
+        editor.on('focus', function () {
+          editor.dom.addClass(editor.getBody(), 'fee-edit-focus')
+        })
+
+        editor.on('blur', function () {
+          editor.dom.removeClass(editor.getBody(), 'fee-edit-focus')
+        })
+
+        if (settings.placeholder) {
+          editor.on('init', function () {
+            editor.getBody().setAttribute('data-placeholder', settings.placeholder)
+          })
+
+          editor.on('focus', function () {
+            editor.getBody().removeAttribute('data-empty')
+          })
+
+          editor.on('blur setcontent loadcontent', function () {
+            if (isEmpty()) {
+              editor.getBody().setAttribute('data-empty', '')
+            } else {
+              editor.getBody().removeAttribute('data-empty')
+            }
+          })
+        }
+
+        editor.on('init', function () {
+          editor.on('setcontent', debouncedSave)
+        })
+
+        post.on('beforesave', function () {
+          post.set(type, editor.getContent())
+
+          editor.undoManager.add()
+          editor.isNotDirty = true
+        })
+
+        setup.call(this, editor)
+      }
+    }))
+  }
+
   function on () {
     if (!hidden) {
       return
@@ -118,7 +176,7 @@ window.fee = (function (
 
     $body.removeClass('fee-off').addClass('fee-on')
 
-    tinymce.init(_.extend(settings.tinymce, {
+    editor('content', _.extend(settings.tinymce, {
       target: $content.get(0),
       setup: function (editor) {
         editor.load = function (args) {
@@ -140,39 +198,23 @@ window.fee = (function (
           return html
         }
 
-        editors.push(editor)
-
         // Remove spaces from empty paragraphs.
         editor.on('BeforeSetContent', function (event) {
           if (event.content) {
             event.content = event.content.replace(/<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>')
           }
         })
-
-        editor.on('init', function () {
-          editor.on('setcontent', debouncedSave)
-        })
-
-        post.on('beforesave', function () {
-          post.set('content', editor.getContent())
-
-          editor.undoManager.add()
-          editor.isNotDirty = true
-        })
       }
     }))
 
-    tinymce.init({
+    editor('title', {
       target: $title.get(0),
-      theme: 'fee',
+      theme: null,
       paste_as_text: true,
       plugins: 'paste',
-      inline: true,
       placeholder: settings.titlePlaceholder,
       entity_encoding: 'raw',
       setup: function (editor) {
-        editors.push(editor)
-
         editor.on('keydown', function (event) {
           if (event.keyCode === 13) {
             event.preventDefault()
@@ -184,17 +226,6 @@ window.fee = (function (
 
           $titles.text(text)
           document.title = documentTitle.replace('<!--replace-->', text)
-        })
-
-        editor.on('init', function () {
-          editor.on('setcontent', debouncedSave)
-        })
-
-        post.on('beforesave', function () {
-          post.set('title', editor.getContent())
-
-          editor.undoManager.add()
-          editor.isNotDirty = true
         })
       }
     })
@@ -293,6 +324,7 @@ window.fee = (function (
           if (!index || i < index) {
             index = i
             title = self
+            console.log(this)
           }
 
           return false

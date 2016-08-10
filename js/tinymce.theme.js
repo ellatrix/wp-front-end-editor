@@ -5,38 +5,6 @@
       var each = tinymce.each
       var DOM = tinymce.DOM
 
-      settings.content_editable = true
-
-      function isEmpty () {
-        return editor.getContent({ format: 'raw' }).replace(/(?:<p[^>]*>)?(?:<br[^>]*>)?(?:<\/p>)?/, '') === ''
-      }
-
-      editor.on('focus', function () {
-        editor.dom.addClass(editor.getBody(), 'fee-edit-focus')
-      })
-
-      editor.on('blur', function () {
-        editor.dom.removeClass(editor.getBody(), 'fee-edit-focus')
-      })
-
-      if (settings.placeholder) {
-        editor.on('init', function () {
-          editor.getBody().setAttribute('data-placeholder', settings.placeholder)
-        })
-
-        editor.on('focus', function () {
-          editor.getBody().removeAttribute('data-empty')
-        })
-
-        editor.on('blur setcontent loadcontent', function () {
-          if (isEmpty()) {
-            editor.getBody().setAttribute('data-empty', '')
-          } else {
-            editor.getBody().removeAttribute('data-empty')
-          }
-        })
-      }
-
       editor.on('preinit', function () {
         if (editor.wp && editor.wp._createToolbar) {
           var toolbar = editor.wp._createToolbar(settings.toolbar)
