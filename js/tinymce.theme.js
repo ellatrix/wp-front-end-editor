@@ -435,6 +435,44 @@
         }
       })
 
+      editor.addButton('insert_media', {
+        icon: 'dashicon dashicons-admin-media',
+        onclick: function () {
+          window.wp.media.editor.open(editor.id)
+        }
+      })
+
+      editor.on('preinit', function () {
+        if (editor.wp && editor.wp._createToolbar) {
+          var toolbar = editor.wp._createToolbar(['insert_media'])
+          var element
+
+          toolbar.$el.addClass('fee-no-print mce-arrow-left-side')
+
+          editor.on('wptoolbar', function (event) {
+            element = event.element
+
+            if (editor.dom.isEmpty(event.element)) {
+              event.toolbar = toolbar
+            }
+          })
+
+          toolbar.reposition = function() {
+            if (!element) return
+
+            var toolbar = this.getEl()
+            var toolbarRect = toolbar.getBoundingClientRect()
+            var elementRect = element.getBoundingClientRect()
+
+            DOM.setStyles(toolbar, {
+              'position': 'absolute',
+              'left': elementRect.left + 8 + 'px',
+              'top': elementRect.top + window.pageYOffset + elementRect.height / 2 - toolbarRect.height / 2 + 'px'
+            })
+          }
+        }
+      })
+
       return {}
     }
   })

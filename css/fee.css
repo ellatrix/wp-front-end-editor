@@ -255,6 +255,26 @@ div.mce-inline-toolbar-grp.mce-arrow-full > div {
 	overflow-x: auto;
 }
 
+div.mce-inline-toolbar-grp.mce-arrow-left-side:before,
+div.mce-inline-toolbar-grp.mce-arrow-left-side:after {
+	left: auto;
+	top: 50%;
+}
+
+div.mce-inline-toolbar-grp.mce-arrow-left-side:before {
+	left: -9px;
+	border-right-color: #a0a5aa;
+	border-width: 9px 9px 9px 0;
+	margin-top: -9px;
+}
+
+div.mce-inline-toolbar-grp.mce-arrow-left-side:after {
+	left: -8px;
+	border-right-color: #f5f5f5;
+	border-width: 8px 8px 8px 0;
+	margin-top: -8px;
+}
+
 div.wp-link-preview {
 	float: left;
 	margin: 5px;
