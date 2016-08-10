@@ -201,9 +201,6 @@ window.fee = (function (
 
     $document.on('keyup.fee-writing', debouncedSave)
 
-    $hasThumbnail.addClass('has-post-thumbnail')
-    $thumbnail.show().parent().show()
-
     hidden = false
   }
 
@@ -240,13 +237,23 @@ window.fee = (function (
 
       settings.post.featuredImageId = id
 
+      $hasThumbnail.removeClass('has-post-thumbnail')
+      $thumbnail.hide()
+
+      if (!$thumbnail.siblings().get(0)) {
+        $thumbnail.parent().hide()
+      }
+
       media.post('fee_thumbnail', {
         post_ID: settings.post.id,
         thumbnail_ID: settings.post.featuredImageId,
         _wpnonce: settings.post.nonce,
         size: $thumbnail.data('fee-size')
       }).done(function (html) {
-        $thumbnail.html(html)
+        if (html) {
+          $hasThumbnail.addClass('has-post-thumbnail')
+          $thumbnail.html(html).show().parent().show()
+        }
       })
     }
   })
