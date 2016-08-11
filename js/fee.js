@@ -73,7 +73,7 @@ window.fee = (function (
             patch: true
           })
         } else {
-          new AutosaveModel(attributes).save()
+          this.trigger('request', this, new AutosaveModel(attributes).save(), {})
         }
       }
 

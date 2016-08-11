@@ -104,8 +104,34 @@
         }
       })
 
+      editor.addButton('save', {
+        text: 'Saved',
+        onclick: function () {
+          window.fee.post.save()
+        },
+        onPostRender: function () {
+          var button = this
+
+          window.fee.post.on('request', function (model, xhr) {
+            button.$el.find('.mce-txt').text('Saving...')
+            button.active( true )
+            button.disabled( true )
+
+            xhr.done(function () {
+              button.$el.find('.mce-txt').text('Saved')
+            }).fail(function () {
+              button.$el.find('.mce-txt').text('Error')
+            }).always(function () {
+              button.active( false )
+              button.disabled( true )
+            })
+          })
+        }
+      })
+
       editor.addButton('publish', {
         text: 'Publish',
+        classes: 'widget btn primary',
         onclick: function () {
           window.fee.post.save({status: 'publish'}).done(function () {
             document.location.reload(true)
@@ -302,7 +328,7 @@
 
       editor.on('preinit', function () {
         if (editor.wp && editor.wp._createToolbar) {
-          var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'publish' ]).show()
+          var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'save', 'publish' ]).show()
 
           toolbar.$el.addClass('fee-no-print fee-main-toolbar')
 
