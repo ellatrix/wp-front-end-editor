@@ -1,32 +1,37 @@
 .mce-container,
 .mce-container * {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	outline: 0;
-	vertical-align: top;
 	background: transparent;
-	text-decoration: none;
-	color: #333;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-	font-size: 14px;
-	text-shadow: none;
-	float: none;
-	position: static;
-	width: auto;
-	height: auto;
-	white-space: nowrap;
-	cursor: inherit;
-	-webkit-tap-highlight-color: transparent;
-	line-height: normal;
-	font-weight: normal;
-	text-align: left;
-	text-transform: none;
+	border: 0;
+	box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	box-sizing: content-box;
+	color: #333;
+	cursor: inherit;
 	direction: ltr;
+	float: none;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	-webkit-font-smoothing: subpixel-antialiased;
+	-moz-osx-font-smoothing: auto;
+	font-weight: normal;
+	height: auto;
+	letter-spacing: normal;
+	line-height: normal;
+	margin: 0;
 	max-width: none;
+	outline: 0;
+	padding: 0;
+	position: static;
+	-webkit-tap-highlight-color: transparent;
+	text-align: left;
+	text-decoration: none;
+	text-shadow: none;
+	text-transform: none;
+	transition: none;
+	-webkit-transition: none;
+	vertical-align: top;
+	white-space: nowrap;
+	width: auto;
 }
 
 .mce-toolbar-grp {
