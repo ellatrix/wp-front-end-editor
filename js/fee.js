@@ -324,7 +324,6 @@ window.fee = (function (
           if (!index || i < index) {
             index = i
             title = self
-            console.log(this)
           }
 
           return false
