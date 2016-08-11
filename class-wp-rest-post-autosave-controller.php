@@ -178,6 +178,10 @@ class WP_REST_Post_Autosave_Controller extends WP_REST_Controller {
 	protected function prepare_item_for_database( $request ) {
 		$prepared_post = new stdClass;
 
+		if ( isset( $request['id'] ) ) {
+			$prepared_post->ID = absint( $request['id'] );
+		}
+
 		$schema = $this->get_item_schema();
 
 		// Post title.

@@ -90,6 +90,20 @@ window.fee = (function (
   // Parse the data we got from the server and fill the model.
   post.set(post.parse(settings.post))
 
+  if (settings.autosave.title) {
+    post.set('title', {
+      raw: settings.autosave.title,
+      rendered: post.set('title').rendered
+    })
+  }
+
+  if (settings.autosave.content) {
+    post.set('content', {
+      raw: settings.autosave.content,
+      rendered: post.set('content').rendered
+    })
+  }
+
   post.set('_fee_session', new Date().getTime())
 
   post._fee_last_save = _.clone(post.attributes)

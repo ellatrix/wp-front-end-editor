@@ -173,6 +173,7 @@ class FEE {
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 			'post' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID, array( 'context' => 'edit' ) ),
+			'autosave' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID . '/autosave' ),
 			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
 			'editURL' => get_edit_post_link(),
 			'ajaxURL' => admin_url( 'admin-ajax.php' ),
