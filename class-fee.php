@@ -29,7 +29,12 @@ class FEE {
 		$wp_version = str_replace( '-src', '', $wp_version );
 
 		if ( version_compare( $wp_version, self::WORDPRESS_MIN_VERSION, '<' ) ) {
-			$this->error( '<strong>Front-end Editor</strong> requires WordPress version ' . self::WORDPRESS_MIN_VERSION . ' or higher.' );
+			$this->error( sprintf(
+				/* translators: 1: This plugin 2: WordPress version */
+				__( '%1$s requires WordPress version %2$s.', 'wp-front-end-editor' ),
+				'<strong>' . __( 'Front-end Editor', 'wp-front-end-editor' ) . '</strong>',
+				self::WORDPRESS_MIN_VERSION
+			) );
 		}
 	}
 
@@ -46,18 +51,45 @@ class FEE {
 
 			if ( version_compare( $data['Version'], self::REST_API_MIN_VERSION, '<' ) ) {
 				$link = wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' . $file ), 'upgrade-plugin_' . $file );
-				$this->error( '<strong>Front-end Editor</strong> requires the REST API version ' . self::REST_API_MIN_VERSION . '. <a href="' . $link . '">Update</a>.' );
+				$this->error( sprintf(
+					/* translators: 1: This plugin 2: REST API version */
+					__( '%1$s requires WP REST API version %2$s.', 'wp-front-end-editor' ),
+					'<strong>' . __( 'Front-end Editor', 'wp-front-end-editor' ) . '</strong>',
+					self::REST_API_MIN_VERSION
+				) . ' <a href="' . $link . '">' . __( 'Update', 'wp-front-end-editor' ) . '</a>' );
 			} else if ( ! is_plugin_active( $file ) ) {
 				$link = wp_nonce_url( self_admin_url( 'plugins.php?action=activate&plugin=' . $file ), 'activate-plugin_' . $file );
-				$this->error( '<strong>Front-end Editor</strong> requires the REST API to be active. <a href="' . $link . '">Activate</a>.' );
+				$this->error( sprintf(
+					/* translators: %s: This plugin */
+					__( '%s requires WP REST API to be active.', 'wp-front-end-editor' ),
+					'<strong>' . __( 'Front-end Editor', 'wp-front-end-editor' ) . '</strong>'
+				) . ' <a href="' . $link . '">' . __( 'Activate', 'wp-front-end-editor' ) . '</a>' );
 			}
 		} else {
 			$link = wp_nonce_url( self_admin_url( 'update.php?action=install-plugin&plugin=' . self::REST_API_PLUGIN_SLUG ), 'install-plugin_' . self::REST_API_PLUGIN_SLUG );
-			$this->error( '<strong>Front-end Editor</strong> requires the REST API. <a href="' . $link . '">Install</a>.' );
+
+			$this->error( sprintf(
+				/* translators: %s: This plugin */
+				__( '%s requires WP REST API.', 'wp-front-end-editor' ),
+				'<strong>' . __( 'Front-end Editor', 'wp-front-end-editor' ) . '</strong>'
+			) . ' <a href="' . $link . '">' . sprintf(
+				/* translators: %s: Plugin name */
+				__( 'Install %s now', 'wp-front-end-editor' ),
+				'WP REST API'
+			)  . '</a>' );
 		}
 	}
 
 	function init() {
+		// Load admin translations.
+		load_textdomain( 'default', WP_LANG_DIR . '/admin-' . get_locale() . '.mo' );
+		// Load plugin translations.
+		load_plugin_textdomain( 'wp-front-end-editor', FALSE, basename( dirname( __FILE__ ) ) . '/languages' );
+
+		// Fall back to core translation.
+		add_filter( 'gettext', array( $this, 'gettext' ), 10, 3 );
+		add_filter( 'gettext_with_context', array( $this, 'gettext_with_context' ), 10, 4 );
+
 		$this->check_wordpress_version();
 		$this->check_rest_api_plugin();
 
@@ -152,7 +184,20 @@ class FEE {
 			'convert_urls' => false,
 			'browser_spellcheck' => true,
 			'wpeditimage_html5_captions' => current_theme_supports( 'html5', 'caption' ),
-			'end_container_on_empty_block' => true
+			'end_container_on_empty_block' => true,
+			'strings' => array(
+				'publish' => __( 'Publish', 'wp-front-end-editor' ),
+				'saved' => __( 'Saved', 'wp-front-end-editor' ),
+				'saving' => __( 'Saving...', 'wp-front-end-editor' ),
+				'error' => __( 'Error', 'wp-front-end-editor' ),
+				'paragraph' => __( 'Paragraph', 'wp-front-end-editor' ),
+				'heading2' => __( 'Heading 2', 'wp-front-end-editor' ),
+				'heading3' => __( 'Heading 3', 'wp-front-end-editor' ),
+				'heading4' => __( 'Heading 4', 'wp-front-end-editor' ),
+				'heading5' => __( 'Heading 5', 'wp-front-end-editor' ),
+				'heading6' => __( 'Heading 6', 'wp-front-end-editor' ),
+				'preformatted' => _x( 'Preformatted', 'HTML tag', 'wp-front-end-editor' )
+			)
 		);
 
 		wp_register_script( 'fee', plugins_url( '/js/fee.js', __FILE__ ), array(
@@ -174,7 +219,7 @@ class FEE {
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 			'post' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID, array( 'context' => 'edit' ) ),
 			'autosave' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID . '/autosave' ),
-			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here' ), $post ),
+			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here', 'wp-front-end-editor' ), $post ),
 			'editURL' => get_edit_post_link(),
 			'ajaxURL' => admin_url( 'admin-ajax.php' ),
 			'api' => array(
@@ -385,5 +430,21 @@ class FEE {
 		$object = get_post_type_object( $post->post_type );
 
 		return empty( $object->rest_base ) ? $object->name : $object->rest_base;
+	}
+
+	function gettext( $translation, $text, $domain ) {
+		if ($domain === 'wp-front-end-editor' && $translation === $text) {
+			$translation = __( $text );
+		}
+
+		return $translation;
+	}
+
+	function gettext_with_context( $translation, $text, $context, $domain ) {
+		if ($domain === 'wp-front-end-editor' && $translation === $text) {
+			$translation = _x( $text, $context );
+		}
+
+		return $translation;
 	}
 }

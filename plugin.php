@@ -8,7 +8,7 @@
  * Author:      Ella Iseulde Van Dorpe
  * Author URI:  https://iseulde.com
  * Text Domain: wp-front-end-editor
- * Domain Path: languages
+ * Domain Path: /languages
  * Network:     false
  * License:     GPL-2.0+
  */

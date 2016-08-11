@@ -72,26 +72,26 @@
         icon: 'dashicon dashicons-editor-paragraph',
         options: {
           p: {
-            text: 'Paragraph',
+            text: settings.strings.paragraph,
             icon: 'dashicon dashicons-editor-paragraph'
           },
           h2: {
-            text: 'Heading 2'
+            text: settings.strings.heading2
           },
           h3: {
-            text: 'Heading 3'
+            text: settings.strings.heading3
           },
           h4: {
-            text: 'Heading 4'
+            text: settings.strings.heading4
           },
           h5: {
-            text: 'Heading 5'
+            text: settings.strings.heading5
           },
           h6: {
-            text: 'Heading 6'
+            text: settings.strings.heading6
           },
           pre: {
-            text: 'Preformatted',
+            text: settings.strings.preformatted,
             icon: 'dashicon dashicons-editor-code'
           }
         }
@@ -105,7 +105,7 @@
       })
 
       editor.addButton('save', {
-        text: 'Saved',
+        text: settings.strings.saved,
         onclick: function () {
           window.fee.post.save()
         },
@@ -113,14 +113,14 @@
           var button = this
 
           window.fee.post.on('request', function (model, xhr) {
-            button.$el.find('.mce-txt').text('Saving...')
+            button.$el.find('.mce-txt').text(settings.strings.saving)
             button.active( true )
             button.disabled( true )
 
             xhr.done(function () {
-              button.$el.find('.mce-txt').text('Saved')
+              button.$el.find('.mce-txt').text(settings.strings.saved)
             }).fail(function () {
-              button.$el.find('.mce-txt').text('Error')
+              button.$el.find('.mce-txt').text(settings.strings.error)
             }).always(function () {
               button.active( false )
               button.disabled( true )
@@ -130,7 +130,7 @@
       })
 
       editor.addButton('publish', {
-        text: 'Publish',
+        text: settings.strings.publish,
         classes: 'widget btn primary',
         onclick: function () {
           window.fee.post.save({status: 'publish'}).done(function () {
