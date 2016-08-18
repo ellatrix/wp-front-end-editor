@@ -110,6 +110,8 @@ class FEE {
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		add_filter( 'rest_pre_dispatch', array( $this, 'rest_reset_content_type' ), 10, 3 );
 		add_filter( 'rest_dispatch_request', array( $this, 'rest_revision' ), 10, 3 );
+
+		add_filter( 'get_edit_post_link', array( $this, 'get_edit_post_link' ), 10, 3 );
 	}
 
 	function ajax_nonce() {
@@ -232,7 +234,8 @@ class FEE {
 		wp_register_script( 'fee-adminbar', plugins_url( '/js/fee-adminbar.js', __FILE__ ), array( 'wp-util' ), self::VERSION, true );
 		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
 			'postTypes' => $this->get_post_types(),
-			'postNew' => admin_url( 'post-new.php' ),
+			'adminURL' => admin_url( '/' ),
+			'homeURL' => home_url( '/' ),
 			'api' => array(
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 				'root' => esc_url_raw( get_rest_url() )
@@ -446,5 +449,15 @@ class FEE {
 		}
 
 		return $translation;
+	}
+
+	function get_edit_post_link( $link, $id, $context ) {
+		$post = get_post( $id );
+
+		if ( $post ) {
+			$link = add_query_arg( 'post_type', $post->post_type, $link );
+		}
+
+		return $link;
 	}
 }

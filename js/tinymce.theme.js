@@ -114,16 +114,16 @@
 
           window.fee.post.on('request', function (model, xhr) {
             button.$el.find('.mce-txt').text(settings.strings.saving)
-            button.active( true )
-            button.disabled( true )
+            button.active(true)
+            button.disabled(true)
 
             xhr.done(function () {
               button.$el.find('.mce-txt').text(settings.strings.saved)
             }).fail(function () {
               button.$el.find('.mce-txt').text(settings.strings.error)
             }).always(function () {
-              button.active( false )
-              button.disabled( true )
+              button.active(false)
+              button.disabled(true)
             })
           })
         }
@@ -134,7 +134,7 @@
         classes: 'widget btn primary',
         onclick: function () {
           window.fee.post.save({status: 'publish'}).done(function () {
-            document.location.reload(true)
+            window.location.reload(true)
           })
         }
       })

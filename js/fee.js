@@ -4,7 +4,9 @@ window.fee = (function (
   media,
   tinymce,
   _,
-  Backbone
+  Backbone,
+  location,
+  history
 ) {
   var hidden = true
 
@@ -255,7 +257,7 @@ window.fee = (function (
     }
 
     post.save().done(function () {
-      document.location.reload(true)
+      location.reload(true)
     })
   }
 
@@ -265,6 +267,16 @@ window.fee = (function (
     }
 
     on()
+  }
+
+  var regExp = /[?&]edit=post(?:$|&)/
+
+  if (regExp.test(location.href)) {
+    on()
+
+    if (history.replaceState) {
+      history.replaceState(null, null, location.href.replace(regExp, '') + location.hash)
+    }
   }
 
   if (settings.post.featured_media === 0) {
@@ -373,5 +385,7 @@ window.fee = (function (
   window.wp.media,
   window.tinymce,
   window._,
-  window.Backbone
+  window.Backbone,
+  window.location,
+  window.history
 )
