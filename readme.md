@@ -1,9 +1,9 @@
 # Front-end Editor for WordPress
 
-* Contributors:      iseulde, fleuron, siteground
+* Contributors:      iseulde, wordpressdotorg, siteground
 * Tags:              front-end editor, inline editing
-* Requires at least: 4.5
-* Tested up to:      4.6
+* Requires at least: 4.6
+* Tested up to:      4.7
 * Stable tag:        2.1.0
 * License:           GPL-2.0+
 
