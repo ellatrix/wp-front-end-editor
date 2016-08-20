@@ -1,11 +1,12 @@
 # Front-end Editor for WordPress
 
-* Contributors:      iseulde, wordpressdotorg, siteground
-* Tags:              front-end editor, inline editing
-* Requires at least: 4.6
-* Tested up to:      4.7
-* Stable tag:        2.1.0
-* License:           GPL-2.0+
+    Contributors:      iseulde, wordpressdotorg, siteground
+    Tags:              front-end editor, inline editing
+    Requires at least: 4.6
+    Tested up to:      4.7
+    Stable tag:        2.1.0
+    License:           GPL-2.0+
+    Donate:            https://iseulde.com/donate
 
 A simple way to write with WordPress.
 
