@@ -5,22 +5,67 @@
       var each = tinymce.each
       var DOM = tinymce.DOM
 
-      editor.on('preinit', function () {
+      editor.on('focus', function () {
         if (editor.wp && editor.wp._createToolbar) {
-          var toolbar = editor.wp._createToolbar(settings.toolbar)
+          var element
+          var toolbarInline = editor.wp._createToolbar(settings.toolbars.inline)
+          var toolbarBlock = editor.wp._createToolbar(settings.toolbars.block)
+          var toolbarCaret = editor.wp._createToolbar(settings.toolbars.caret)
 
-          toolbar.$el.addClass('fee-no-print')
+          toolbarInline.$el.addClass('fee-no-print')
+          toolbarBlock.$el.addClass('fee-no-print')
+          toolbarCaret.$el.addClass('fee-no-print mce-arrow-left-side')
+
+          toolbarCaret.reposition = function () {
+            if (!element) return
+
+            var toolbar = this.getEl()
+            var toolbarRect = toolbar.getBoundingClientRect()
+            var elementRect = element.getBoundingClientRect()
+
+            DOM.setStyles(toolbar, {
+              position: 'absolute',
+              left: elementRect.left + 8 + 'px',
+              top: elementRect.top + window.pageYOffset + elementRect.height / 2 - toolbarRect.height / 2 + 'px'
+            })
+
+            this.show()
+          }
+
+          editor.on('keyup', _.throttle(function (event) {
+            if (editor.dom.isEmpty(editor.selection.getNode())) {
+              editor.nodeChanged()
+            } else {
+              toolbarCaret.hide()
+            }
+          }, 500))
+
+          editor.on('blur', function () {
+            toolbarCaret.hide()
+          })
 
           editor.on('wptoolbar', function (event) {
-            var element = event.element
-
+            element = event.element
             element.normalize()
 
             var range = editor.selection.getRng()
             var content = editor.selection.getContent()
+            var parent = editor.dom.getParent(range.startContainer, '*[data-mce-selected="block"]')
+
+            if (parent) {
+              event.toolbar = toolbarBlock
+              event.selection = parent
+              return
+            }
 
             // No collapsed selection.
             if (range.collapsed) {
+              if (editor.dom.isEmpty(event.element) && (event.element.nodeName === 'P' || (
+                event.element.nodeName === 'BR' && event.element.parentNode.nodeName === 'P'
+              ))) {
+                event.toolbar = toolbarCaret
+              }
+
               return
             }
 
@@ -52,55 +97,42 @@
               return
             }
 
-            // Selection needs to be contained in one element.
-            if (range.startContainer === range.endContainer || (
-              range.startContainer.nodeType === 3 &&
-              range.startContainer.parentNode === range.endContainer
-            ) || (
-              range.endContainer.nodeType === 3 &&
-              range.endContainer.parentNode === range.startContainer
-            )) {
-              event.toolbar = toolbar
-              event.selection = range
-            }
+            event.toolbar = toolbarInline
+            event.selection = range
           })
         }
       })
 
-      editor.addButton('convert', {
+      editor.addButton('heading', {
         type: 'FEESelect',
-        icon: 'dashicon dashicons-editor-paragraph',
+        text: 'H',
+        classes: 'widget btn i-heading',
+        stateSelector: 'h2,h3,h4,h5,h6',
         options: {
           p: {
             text: settings.strings.paragraph,
-            icon: 'dashicon dashicons-editor-paragraph'
+            icon: 'H'
           },
           h2: {
-            text: settings.strings.heading2
+            text: settings.strings.heading2,
+            icon: 'H2'
           },
           h3: {
-            text: settings.strings.heading3
+            text: settings.strings.heading3,
+            icon: 'H3'
           },
           h4: {
-            text: settings.strings.heading4
+            text: settings.strings.heading4,
+            icon: 'H4'
           },
           h5: {
-            text: settings.strings.heading5
+            text: settings.strings.heading5,
+            icon: 'H5'
           },
           h6: {
-            text: settings.strings.heading6
-          },
-          pre: {
-            text: settings.strings.preformatted,
-            icon: 'dashicon dashicons-editor-code'
+            text: settings.strings.heading6,
+            icon: 'H6'
           }
-        }
-      })
-
-      editor.addButton('insert', {
-        icon: 'dashicon dashicons-plus-alt',
-        onclick: function () {
-          window.wp.media.editor.open(editor.id)
         }
       })
 
@@ -252,11 +284,7 @@
           var options = self.settings.options
 
           $select.on('change', function () {
-            var icon = options[ this.value ].icon
-
-            self.icon(icon || '')
-            self.text(icon ? '' : this.value.toUpperCase())
-
+            self.text(options[ this.value ].icon)
             editor.formatter.apply(this.value)
           })
 
@@ -267,11 +295,7 @@
               each(options, function (value, key) {
                 if (formatter.matchNode(node, key)) {
                   $select[0].value = key
-
-                  var icon = value.icon
-
-                  self.icon(icon || '')
-                  self.text(icon ? '' : key.toUpperCase())
+                  self.text(value.icon)
                 }
               })
             })
@@ -328,7 +352,7 @@
 
       editor.on('preinit', function () {
         if (editor.wp && editor.wp._createToolbar) {
-          var toolbar = editor.wp._createToolbar([ 'insert', 'convert', 'save', 'publish' ]).show()
+          var toolbar = editor.wp._createToolbar(['save', 'publish']).show()
 
           toolbar.$el.addClass('fee-no-print fee-main-toolbar')
 
@@ -423,56 +447,26 @@
         }
       })
 
-      editor.addButton('insert_media', {
+      editor.addButton('media', {
         icon: 'dashicon dashicons-admin-media',
         onclick: function () {
           window.wp.media.editor.open(editor.id)
         }
       })
 
-      editor.on('focus', function () {
-        if (editor.wp && editor.wp._createToolbar) {
-          var toolbar = editor.wp._createToolbar(['insert_media'])
-          var element
+      editor.addButton('select', {
+        icon: 'dashicon dashicons-editor-textcolor',
+        onclick: function () {
+          var range = editor.selection.getRng()
+          var $start = editor.$(editor.dom.getParent(range.startContainer, editor.dom.isBlock))
+          var $end = editor.$(editor.dom.getParent(range.endContainer, editor.dom.isBlock))
 
-          toolbar.$el.addClass('fee-no-print mce-arrow-left-side')
+          $start.add($start.nextUntil($end)).add($end).attr('data-mce-selected', 'block')
+          editor.nodeChanged()
 
-          editor.on('wptoolbar', function (event) {
-            element = event.element
-
-            if (editor.dom.isEmpty(event.element) && (event.element.nodeName === 'P' || (
-              event.element.nodeName === 'BR' && event.element.parentNode.nodeName === 'P'
-            ))) {
-              event.toolbar = toolbar
-            }
-          })
-
-          toolbar.reposition = function () {
-            if (!element) return
-
-            var toolbar = this.getEl()
-            var toolbarRect = toolbar.getBoundingClientRect()
-            var elementRect = element.getBoundingClientRect()
-
-            DOM.setStyles(toolbar, {
-              'position': 'absolute',
-              'left': elementRect.left + 8 + 'px',
-              'top': elementRect.top + window.pageYOffset + elementRect.height / 2 - toolbarRect.height / 2 + 'px'
-            })
-
-            this.show()
-          }
-
-          editor.on('keyup', _.throttle(function (event) {
-            if (editor.dom.isEmpty(editor.selection.getNode())) {
-              editor.nodeChanged()
-            } else {
-              toolbar.hide()
-            }
-          }, 500))
-
-          editor.on('blur', function () {
-            toolbar.hide()
+          editor.once('click keydown', function () {
+            editor.$('*[data-mce-selected="block"]').removeAttr('data-mce-selected')
+            editor.nodeChanged()
           })
         }
       })

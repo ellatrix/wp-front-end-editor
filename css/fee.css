@@ -17,13 +17,15 @@ br.fee-title,
 }
 
 .fee-on .fee-thumbnail,
-.fee-on .mce-content-body {
+.fee-on .mce-content-body,
+*[data-mce-selected="block"] {
 	position: relative;
 	outline: none;
 }
 
 .fee-on .fee-thumbnail:before,
-.fee-on .mce-content-body:before {
+.fee-on .mce-content-body:before,
+*[data-mce-selected="block"]:before {
 	content: '';
 	display: block;
 	position: absolute;

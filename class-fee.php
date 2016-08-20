@@ -174,12 +174,23 @@ class FEE {
 				'paste',
 				'lists'
 			) ) ) ),
-			'toolbar' => apply_filters( 'fee_tinymce_toolbar', array(
-				'bold',
-				'italic',
-				'strikethrough',
-				'link'
-			) ),
+			'toolbars' => array(
+				'caret' => apply_filters( 'fee_toolbar_caret', array(
+					'media',
+					'select'
+				) ),
+				'inline' => apply_filters( 'fee_toolbar_inline', array(
+					'bold',
+					'italic',
+					'strikethrough',
+					'link',
+					'select'
+				) ),
+				'block' => apply_filters( 'fee_toolbar_block', array(
+					'heading',
+					'blockquote'
+				) )
+			),
 			'theme' => 'fee',
 			'inline' => true,
 			'relative_urls' => false,

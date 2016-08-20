@@ -242,6 +242,25 @@
 	content: '\f224';
 }
 
+.mce-i-blockquote:before {
+	content: '\f205';
+}
+
+.mce-i-hr:before {
+	content: '\f460';
+}
+
+.mce-i-dashicon.dashicons-editor-textcolor {
+	background: #777;
+	color: #f7f7f7;
+}
+
+.mce-i-heading .mce-txt {
+	color: #777;
+	text-align: center;
+	font-size: 16px;
+}
+
 .mce-btn select {
 	width: 26px;
 	padding: 0;

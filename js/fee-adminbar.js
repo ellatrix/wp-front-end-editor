@@ -26,7 +26,7 @@
       var id = href.match(idRegExp)
       var type = href.match(typeRegExp)
 
-      if (id && type && settings.postTypes[ type[1] ] && href !== editURL) {
+      if (id && type && settings.postTypes[ type[1] ] && href !== settings.editURL) {
         event.preventDefault()
         window.location.href = settings.homeURL + '?p=' + id[1] + '&edit=post'
       }
