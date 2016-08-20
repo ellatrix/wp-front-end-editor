@@ -215,6 +215,7 @@ class FEE {
 			)
 		);
 
+		if ( $post ) {
 		wp_register_script( 'fee', plugins_url( '/js/fee.js', __FILE__ ), array(
 			'fee-tinymce',
 			'fee-tinymce-lists',
@@ -230,6 +231,7 @@ class FEE {
 			'underscore',
 			'backbone'
 		), self::VERSION, true );
+
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 			'post' => $this->api_request( 'GET', '/' . $this->get_rest_endpoint() . '/' . $post->ID, array( 'context' => 'edit' ) ),
@@ -243,6 +245,7 @@ class FEE {
 				'root' => esc_url_raw( get_rest_url() )
 			)
 		) );
+		}
 
 		wp_register_script( 'fee-adminbar', plugins_url( '/js/fee-adminbar.js', __FILE__ ), array( 'wp-util' ), self::VERSION, true );
 		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
