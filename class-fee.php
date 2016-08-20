@@ -188,6 +188,8 @@ class FEE {
 				) ),
 				'block' => apply_filters( 'fee_toolbar_block', array(
 					'heading',
+					'bullist',
+					'numlist',
 					'blockquote'
 				) )
 			),

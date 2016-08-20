@@ -250,6 +250,14 @@
 	content: '\f460';
 }
 
+.mce-i-bullist:before {
+	content: '\f203';
+}
+
+.mce-i-numlist:before {
+	content: '\f204';
+}
+
 .mce-i-dashicon.dashicons-editor-textcolor {
 	background: #777;
 	color: #f7f7f7;
