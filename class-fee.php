@@ -248,7 +248,7 @@ class FEE {
 		wp_localize_script( 'fee-adminbar', 'fee_adminbar', array(
 			'postTypes' => $this->get_post_types(),
 			'adminURL' => admin_url( '/' ),
-			'editURL' => get_edit_post_link(),
+			'editURL' => is_singular() ? get_edit_post_link() : false,
 			'homeURL' => home_url( '/' ),
 			'api' => array(
 				'nonce' => wp_create_nonce( 'wp_rest' ),
