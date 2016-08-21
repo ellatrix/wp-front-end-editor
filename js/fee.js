@@ -118,6 +118,7 @@ window.fee = (function (
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
   var $thumbnail = $('.fee-thumbnail')
   var $hasThumbnail = $('.has-post-thumbnail')
+  var contentEditor
 
   $body.addClass('fee fee-off')
   $content.removeClass('fee-content')
@@ -141,11 +142,11 @@ window.fee = (function (
         }
 
         editor.on('focus', function () {
-          $body.addClass('fee-edit-focus');
+          $body.addClass('fee-edit-focus')
         })
 
         editor.on('blur', function () {
-          $body.removeClass('fee-edit-focus');
+          $body.removeClass('fee-edit-focus')
         })
 
         if (settings.placeholder) {
@@ -217,6 +218,8 @@ window.fee = (function (
             event.content = event.content.replace(/<p>(?:&nbsp;|\s)+<\/p>/gi, '<p><br></p>')
           }
         })
+
+        contentEditor = editor
       }
     }))
 
@@ -231,6 +234,7 @@ window.fee = (function (
         editor.on('keydown', function (event) {
           if (event.keyCode === 13) {
             event.preventDefault()
+            contentEditor.focus()
           }
         })
 
