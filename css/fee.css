@@ -18,7 +18,7 @@ br.fee-title,
 	outline: 1px dashed #000;
 }
 
-.fee-edit-focus.mce-content-body {
+.fee-on.fee-edit-focus .mce-content-body {
 	outline: none;
 }
 

@@ -118,7 +118,6 @@ window.fee = (function (
   var documentTitle = document.title.replace($title.text(), '<!--replace-->')
   var $thumbnail = $('.fee-thumbnail')
   var $hasThumbnail = $('.has-post-thumbnail')
-  var editors = []
 
   $body.addClass('fee fee-off')
   $content.removeClass('fee-content')
@@ -135,8 +134,6 @@ window.fee = (function (
       setup: function (editor) {
         var settings = editor.settings
 
-        editors.push(editor)
-
         settings.content_editable = true
 
         function isEmpty () {
@@ -144,11 +141,11 @@ window.fee = (function (
         }
 
         editor.on('focus', function () {
-          editor.dom.addClass(editor.getBody(), 'fee-edit-focus')
+          $body.addClass('fee-edit-focus');
         })
 
         editor.on('blur', function () {
-          editor.dom.removeClass(editor.getBody(), 'fee-edit-focus')
+          $body.removeClass('fee-edit-focus');
         })
 
         if (settings.placeholder) {
