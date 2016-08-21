@@ -25,21 +25,33 @@ A simple way to write with WordPress.
 
 ### Configure and extend
 
+This plugin is designed to be “plug and play”, but also configurable and extensible.
+
 #### Toolbars and buttons
 
-You can add more buttons any of the toolbars with the following filters:
+You can add more buttons to any of the toolbars with the following filters:
 
 * `fee_toolbar_caret` for the caret,
 * `fee_toolbar_inline` for normal selections,
 * `fee_toolbar_block` for block selections.
 
+E.g.
+
+    add_filter('fee_toolbar_inline', function($buttons){
+      return array_merge($buttons, array('subscript'));
+    });
+
 See the [Codex page](https://codex.wordpress.org/TinyMCE_Custom_Buttons) and [TinyMCE docs](https://www.tinymce.com/docs/advanced/editor-control-identifiers/#toolbarcontrols) for more information about adding toolbar buttons with TinyMCE.
+
+#### Linking to the editor
+
+You can link to the editor from anywhere on the website with the normal edit link to the admin, and it will be picked up by the plugin. Use `edit_post_link` or similar.
 
 #### Custom Post Types Support
 
     add_post_type_support( 'page', 'front-end-editor' );
 
-Note that this may change in the future. Please make sure you also support the [REST API](http://v2.wp-api.org/extending/custom-content-types/).
+Please make sure you also support the [REST API](http://v2.wp-api.org/extending/custom-content-types/).
 
 #### Disable
 
