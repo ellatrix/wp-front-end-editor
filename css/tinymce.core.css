@@ -1,11 +1,17 @@
 .mce-container,
-.mce-container * {
+.mce-container *,
+.mce-container button,
+.mce-container button:focus,
+.mce-container button:hover,
+.mce-container button:active,
+.mce-container input {
+	-webkit-appearance: none;
 	background: transparent;
 	border: 0;
 	box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;
-	color: #333;
+	color: inherit;
 	cursor: inherit;
 	direction: ltr;
 	float: none;
@@ -34,19 +40,6 @@
 	width: auto;
 }
 
-.mce-toolbar-grp {
-	padding-bottom: 2px;
-}
-
-.mce-toolbar-grp .mce-flow-layout-item {
-	margin-bottom: 0;
-}
-
-.mce-panel {
-	border: 0 solid #9e9e9e;
-	background-color: #f0f0f0;
-}
-
 .mce-tooltip {
 	display: none;
 }
@@ -56,132 +49,35 @@
 	padding: 0;
 }
 
-.mce-btn button,
-.mce-btn button i {
-	text-align: center;
-	color: inherit;
-	text-shadow: none;
-	padding: 0;
-	line-height: 26px;
-}
-
-.mce-btn {
-	color: #555;
-	background: #f7f7f7;
-	text-decoration: none;
-	font-size: 13px;
-	line-height: 26px;
-	height: 28px;
-	margin: 0;
-	padding: 0;
-	cursor: pointer;
-	border: 1px solid #ccc;
-	-webkit-appearance: none;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-	white-space: nowrap;
-	-webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0,0,0,.08);
-	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba(0,0,0,.08);
-	background-image: none;
-	display: inline-block;
-}
-
-.mce-btn button,
-.mce-btn button:hover,
-.mce-btn button:focus,
-.mce-btn button:active {
-	padding: 4px 10px;
-	font-size: 14px;
-	line-height: 20px;
-	cursor: pointer;
-	text-align: center;
-	overflow: visible;
-	-webkit-appearance: none;
-	background: none;
-	box-shadow: none;
-	outline: none;
-	border: none;
-}
-
-.mce-btn:hover {
-	background: #fafafa;
-	border-color: #999;
-	color: #222;
-}
-
-.mce-btn:focus {
-	-webkit-box-shadow: 1px 1px 1px rgba(0,0,0,.2);
-	box-shadow: 1px 1px 1px rgba(0,0,0,.2);
-}
-
-.mce-btn:active {
-	background: #eee;
-	border-color: #999;
-	color: #333;
- 	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
- 	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.5 );
-}
-
-.mce-inline-toolbar-grp .mce-btn,
-.mce-tinymce-inline .mce-btn {
+.mce-inline-toolbar-grp .mce-btn {
 	border: 1px solid transparent;
 	position: relative;
 	display: inline-block;
 	background: none;
 	border-radius: 2px;
-	box-shadow: none;
 	margin: 2px;
-	color: #777;
-	height: 24px;
-	line-height: 24px;
+	color: #23282d;
 }
 
 .mce-inline-toolbar-grp .mce-btn:hover,
-.mce-inline-toolbar-grp .mce-btn:focus,
-.mce-tinymce-inline .mce-btn:hover,
-.mce-tinymce-inline .mce-btn:focus {
-	color: #222;
+.mce-inline-toolbar-grp .mce-btn:focus {
 	background-color: #fafafa;
-	border-color: #999;
+	border-color: #23282d;
 	-webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
 	box-shadow: inset 0 1px 0 #fff, 0 1px 0 rgba( 0, 0, 0, 0.08 );
 }
 
 .mce-inline-toolbar-grp .mce-btn.mce-active,
-.mce-inline-toolbar-grp .mce-btn:active,
-.mce-tinymce-inline .mce-btn.mce-active,
-.mce-tinymce-inline .mce-btn:active {
+.mce-inline-toolbar-grp .mce-btn:active {
 	background-color: #ebebeb;
-	border-color: #999;
+	border-color: #555d66;
 	-webkit-box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
 	box-shadow: inset 0 2px 5px -3px rgba( 0, 0, 0, 0.3 );
 }
 
-.mce-inline-toolbar-grp .mce-btn.mce-active:hover,
-.mce-tinymce-inline .mce-btn.mce-active:hover {
-	border-color: #555;
-}
-
-.mce-inline-toolbar-grp .mce-btn button,
-.mce-tinymce-inline .mce-btn button {
+.mce-inline-toolbar-grp .mce-btn button {
 	padding: 2px 3px;
-	font-size: 14px;
-	font-weight: bold;
-	line-height: 20px;
-	cursor: pointer;
-	color: #777;
-	text-align: center;
-	overflow: visible;
-	-webkit-appearance: none;
 	display: block;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
-}
-
-.mce-inline-toolbar-grp .mce-btn button i,
-.mce-tinymce-inline .mce-btn button i {
-	line-height: 20px;
 }
 
 .mce-inline-toolbar-grp .mce-btn.mce-primary {
@@ -217,11 +113,8 @@
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	display: inline-block;
-	background: transparent center center;
-	background-size: cover;
 	width: 20px;
 	height: 20px;
-	color: #333;
 	padding: 0;
 	display: block;
 }
@@ -259,12 +152,11 @@
 }
 
 .mce-i-dashicon.dashicons-editor-textcolor {
-	background: #777;
-	color: #f7f7f7;
+	background: #23282d;
+	color: #f5f5f5;
 }
 
 .mce-i-heading .mce-txt {
-	color: #777;
 	text-align: center;
 	font-size: 16px;
 }

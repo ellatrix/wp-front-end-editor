@@ -3,46 +3,6 @@
 	position: relative;
 }
 
-.mce-edit-focus .wpview[data-mce-selected]:before,
-.wpview:hover:before,
-.mce-content-body hr[data-mce-selected]:before,
-.mce-content-body hr:hover:before,
-.mce-content-body img:hover:before {
-	content: '';
-	margin: 0;
-	padding: 0;
-	position: absolute;
-	top: -5px;
-	left: -5px;
-	right: -5px;
-	bottom: -5px;
-	border-radius: 3px;
-	border: 3px solid #ffe767;
-	width: auto;
-}
-
-.mce-content-body img:hover {
-	outline: 3px solid #ffe767;
-	outline-offset: 2px;
-}
-
-.mce-edit-focus .wpview[data-mce-selected]:before,
-.mce-content-body hr[data-mce-selected]:before {
-	border-color: rgb(88, 144, 255);
-}
-
-.mce-content-body img[data-mce-selected] {
-	outline: 3px solid rgb(88, 144, 255) !important;
-	outline-offset: 2px;
-}
-
-.mce-content-body div.mce-resizehandle {
-	border: none !important;
-	background: rgb(88, 144, 255) !important;
-	width: 7px !important;
-	height: 7px !important;
-}
-
 .wpview {
 	width: 100%;
 	position: relative;
