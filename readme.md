@@ -4,7 +4,7 @@
     Tags:              front-end editor, inline editing
     Requires at least: 4.6
     Tested up to:      4.7
-    Stable tag:        2.1.0
+    Stable tag:        2.2.0
     License:           GPL-2.0+
     Donate:            https://iseulde.com/donate
 
@@ -41,7 +41,7 @@ E.g.
       return array_merge($buttons, array('subscript'));
     });
 
-See the [Codex page](https://codex.wordpress.org/TinyMCE_Custom_Buttons) and [TinyMCE docs](https://www.tinymce.com/docs/advanced/editor-control-identifiers/#toolbarcontrols) for more information about adding toolbar buttons with TinyMCE.
+You may need to provide extra CSS and JS. See the [Codex page](https://codex.wordpress.org/TinyMCE_Custom_Buttons) and [TinyMCE docs](https://www.tinymce.com/docs/advanced/editor-control-identifiers/#toolbarcontrols) for more information about adding toolbar buttons with TinyMCE.
 
 #### Linking to the editor
 
@@ -55,7 +55,7 @@ Please make sure you also support the [REST API](http://v2.wp-api.org/extending/
 
 #### Disable
 
-If you'd like to disable the editor for certain posts, you can use the `supports_fee` filter.
+If you’d like to disable the editor for certain posts, you can use the `supports_fee` filter.
 
     // Disable for the post with ID 1.
     add_filter('supports_fee', function($supports, $post) {
