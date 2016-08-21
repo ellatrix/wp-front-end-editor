@@ -136,6 +136,8 @@ class WP_REST_Post_Autosave_Controller extends WP_REST_Controller {
 		$data = array(
 			'date'         => $this->prepare_date_response( $post->post_date_gmt, $post->post_date ),
 			'date_gmt'     => $this->prepare_date_response( $post->post_date_gmt ),
+			'modified'         => $this->prepare_date_response( $post->post_modified_gmt, $post->post_modified ),
+			'modified_gmt'     => $this->prepare_date_response( $post->post_modified_gmt ),
 		);
 
 		$schema = $this->get_item_schema();

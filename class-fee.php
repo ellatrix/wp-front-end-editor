@@ -238,7 +238,7 @@ class FEE {
 		wp_localize_script( 'fee', 'feeData', array(
 			'tinymce' => apply_filters( 'fee_tinymce_config', $tinymce ),
 			'post' => $rest_post,
-			'autosave' => strtotime($rest_autosave['date']) > strtotime($rest_post['modified']) ? $rest_autosave : null,
+			'autosave' => strtotime($rest_autosave['modified']) > strtotime($rest_post['modified']) ? $rest_autosave : null,
 			'titlePlaceholder' => apply_filters( 'enter_title_here', __( 'Enter title here', 'wp-front-end-editor' ), $post ),
 			'editURL' => get_edit_post_link(),
 			'ajaxURL' => admin_url( 'admin-ajax.php' ),
