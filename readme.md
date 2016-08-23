@@ -6,7 +6,7 @@
     Tested up to:      4.7
     Stable tag:        2.2.0
     License:           GPL-2.0+
-    Donate:            https://iseulde.com/donate
+    Donate link:       https://iseulde.com/donate
 
 A simple way to write with WordPress.
 

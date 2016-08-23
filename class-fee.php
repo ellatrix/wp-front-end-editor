@@ -153,6 +153,10 @@ class FEE {
 	function register_scripts() {
 		global $post;
 
+		wp_register_script( 'fee.filePicker', plugins_url( 'js/filePicker.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
+		wp_register_script( 'fee.blobToBase64', plugins_url( 'js/blobToBase64.js', __FILE__ ), array( 'jquery' ), self::VERSION, true );
+		wp_register_script( 'fee.insertBlob', plugins_url( 'js/insertBlob.js', __FILE__ ), array( 'fee.blobToBase64' ), self::VERSION, true );
+
 		wp_register_script( 'fee-tinymce', plugins_url( 'vendor/tinymce.js', __FILE__ ), array(), self::VERSION, true );
 		wp_register_script( 'fee-tinymce-lists', plugins_url( 'vendor/lists.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
 		wp_register_script( 'fee-tinymce-paste', plugins_url( 'vendor/paste.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
@@ -162,7 +166,8 @@ class FEE {
 		wp_register_script( 'fee-tinymce-wpview', plugins_url( 'vendor/wpview.js', __FILE__ ), array( 'fee-tinymce', 'fee-mce-view' ), self::VERSION, true );
 		wp_register_script( 'fee-mce-view', plugins_url( 'vendor/mce-view.js', __FILE__ ), array( 'shortcode', 'jquery', 'media-views', 'media-audiovideo' ), self::VERSION, true );
 		wp_register_script( 'fee-tinymce-image', plugins_url( 'js/tinymce.image.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
-		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce', 'underscore' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-imagetools', plugins_url( 'vendor/imagetools.js', __FILE__ ), array( 'fee-tinymce' ), self::VERSION, true );
+		wp_register_script( 'fee-tinymce-theme', plugins_url( 'js/tinymce.theme.js', __FILE__ ), array( 'fee-tinymce', 'underscore', 'fee.filePicker', 'fee.insertBlob' ), self::VERSION, true );
 
 		$tinymce = array(
 			'plugins' => implode( ' ', array_unique( apply_filters( 'fee_tinymce_plugins', array(
@@ -172,7 +177,8 @@ class FEE {
 				'wplink',
 				'wpview',
 				'paste',
-				'lists'
+				'lists',
+				'imagetools'
 			) ) ) ),
 			'toolbars' => array(
 				'caret' => apply_filters( 'fee_toolbar_caret', array(
@@ -225,6 +231,7 @@ class FEE {
 			'fee-tinymce-wptextpattern',
 			'fee-tinymce-wpview',
 			'fee-tinymce-image',
+			'fee-tinymce-imagetools',
 			'fee-tinymce-theme',
 			'media-views',
 			'jquery',

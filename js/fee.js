@@ -194,6 +194,23 @@ window.fee = (function (
 
     editor('content', _.extend(settings.tinymce, {
       target: $content.get(0),
+      images_upload_handler: function (blobInfo, success, failure) {
+        var formData = new window.FormData()
+
+        formData.append('file', blobInfo.blob())
+        formData.append('name', blobInfo.filename())
+
+        $.ajax({
+          url: settings.api.root + 'wp/v2/media?_wpnonce=' + settings.api.nonce,
+          data: formData,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function (data) {
+            success(data.source_url)
+          }
+        })
+      },
       setup: function (editor) {
         editor.load = function (args) {
           var elm = this.getElement()

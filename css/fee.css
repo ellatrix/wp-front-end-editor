@@ -226,3 +226,33 @@ div.wp-link-input input:focus {
 .fee-main-toolbar.fee-hide {
 	transform: translateY(48px);
 }
+
+.fee-image-select {
+	width: 312px;
+	height: 312px;
+	overflow-y: scroll;
+	background: #fff;
+	border-top: 1px solid #a0a5aa;
+	margin: 3px -3px -3px;
+	padding: 2px;
+}
+
+.fee-image-select:before,
+.fee-image-select:after {
+	content: '';
+	display: table;
+}
+.fee-image-select:after {
+	clear: both;
+}
+
+.fee-image-select img {
+	float: left;
+	width: 100px;
+	padding: 2px;
+	height: auto;
+}
+
+img.fee-selected {
+	opacity: 0.5;
+}

@@ -1,4 +1,9 @@
-(function (tinymce, _) {
+(function (
+  tinymce,
+  _,
+  filePicker,
+  insertBlob
+) {
   tinymce.ThemeManager.add('fee', function (editor) {
     this.renderUI = function () {
       var settings = editor.settings
@@ -11,12 +16,17 @@
           var toolbarInline = editor.wp._createToolbar(settings.toolbars.inline)
           var toolbarBlock = editor.wp._createToolbar(settings.toolbars.block)
           var toolbarCaret = editor.wp._createToolbar(settings.toolbars.caret)
+          var toolbarMedia = editor.wp._createToolbar(['media_new', 'media_images', 'media_audio', 'media_video', 'media_insert', 'media_select'])
 
           toolbarInline.$el.addClass('fee-no-print')
           toolbarBlock.$el.addClass('fee-no-print')
           toolbarCaret.$el.addClass('fee-no-print mce-arrow-left-side')
+          toolbarMedia.$el.addClass('fee-no-print mce-arrow-left-side')
 
-          toolbarCaret.reposition = function () {
+          toolbarMedia.blockHide = true
+
+          toolbarCaret.reposition =
+          toolbarMedia.reposition = function () {
             if (!element) return
 
             var toolbar = this.getEl()
@@ -50,11 +60,19 @@
 
             var range = editor.selection.getRng()
             var content = editor.selection.getContent()
-            var parent = editor.dom.getParent(range.startContainer, '*[data-mce-selected="block"]')
+            var block = editor.dom.getParent(range.startContainer, '*[data-mce-selected="block"]')
 
-            if (parent) {
+            if (block) {
               event.toolbar = toolbarBlock
-              event.selection = parent
+              event.selection = block
+              return
+            }
+
+            var media = editor.dom.getParent(range.startContainer, '*[data-mce-selected="media"]')
+
+            if (media) {
+              event.toolbar = toolbarMedia
+              // event.selection = media
               return
             }
 
@@ -450,7 +468,16 @@
       editor.addButton('media', {
         icon: 'dashicon dashicons-admin-media',
         onclick: function () {
-          window.wp.media.editor.open(editor.id)
+          var range = editor.selection.getRng()
+          var $start = editor.$(editor.dom.getParent(range.startContainer, editor.dom.isBlock))
+
+          $start.attr('data-mce-selected', 'media')
+          editor.nodeChanged()
+
+          editor.once('click keydown', function () {
+            editor.$('*[data-mce-selected="media"]').removeAttr('data-mce-selected')
+            editor.nodeChanged()
+          })
         }
       })
 
@@ -471,7 +498,96 @@
         }
       })
 
+      editor.addButton('media_new', {
+        icon: 'dashicon dashicons-plus-alt',
+        onclick: function () {
+          filePicker().done(function (fileList) {
+            _.each(fileList, function (file) {
+              insertBlob(editor, file)
+            })
+
+            editor.editorUpload.uploadImages()
+          })
+        }
+      })
+
+      editor.addButton('media_images', {
+        icon: 'dashicon dashicons-format-image',
+        active: true,
+        onclick: function () {}
+      })
+
+      editor.addButton('media_audio', {
+        icon: 'dashicon dashicons-format-audio',
+        onclick: function () {
+          window.wp.media.editor.open(editor.id)
+        }
+      })
+
+      editor.addButton('media_video', {
+        icon: 'dashicon dashicons-video-alt2',
+        onclick: function () {
+          window.wp.media.editor.open(editor.id)
+        }
+      })
+
+      var Collection = window.Backbone.Collection.extend({
+        url: window.feeData.api.root + 'wp/v2/media?per_page=20&media_type=image&context=edit&_wpnonce=' + window.feeData.api.nonce
+      })
+
+      var collection = new Collection()
+
+      tinymce.ui.FEEImageSelect = tinymce.ui.Control.extend({
+        renderHtml: function () {
+          return (
+            '<div id="' + this._id + '" class="fee-image-select"></div>'
+          )
+        },
+        load: function () {
+          var self = this
+
+          this.$el.on('click', function (event) {
+            tinymce.$(event.target).toggleClass('fee-selected')
+          })
+
+          collection.fetch().done(function (data) {
+            var string = ''
+
+            _.each(data, function (image) {
+              if (image.media_details.sizes.thumbnail) {
+                string += '<img data-id="' + image.id + '" src="' + image.media_details.sizes.thumbnail.source_url + '">'
+              }
+            })
+
+            self.$el.append(string)
+          })
+        }
+      })
+
+      editor.addButton('media_select', {
+        type: 'FEEImageSelect',
+        onPostRender: function () {
+          this.load()
+        }
+      })
+
+      editor.addButton('media_insert', {
+        text: 'Insert',
+        classes: 'widget btn primary',
+        onclick: function () {
+          tinymce.$('.fee-image-select img.fee-selected').each(function () {
+            var image = collection.get(tinymce.$(this).attr('data-id'))
+            editor.insertContent(editor.dom.createHTML('img', {src: image.get('source_url')}))
+          })
+        }
+      })
+
       return {}
     }
   })
-})(window.tinymce, window._)
+})(
+  window.tinymce,
+  window._,
+  window.fee.filePicker,
+  window.fee.insertBlob
+)
