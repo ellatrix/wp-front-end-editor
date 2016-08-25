@@ -227,6 +227,20 @@ div.wp-link-input input:focus {
 	transform: translateY(48px);
 }
 
+@media screen and ( max-width: 320px ) {
+	div.mce-inline-toolbar-grp.fee-media-toolbar {
+		position: fixed !important;
+		top: 0 !important;
+		right: 0 !important;
+		bottom: 0 !important;
+		left: 0 !important;
+		z-index: 100000;
+		max-width: none;
+		margin: 0;
+		border: 0;
+	}
+}
+
 .fee-image-select {
 	width: 312px;
 	height: 312px;
@@ -235,6 +249,8 @@ div.wp-link-input input:focus {
 	border-top: 1px solid #a0a5aa;
 	margin: 3px -3px -3px;
 	padding: 2px;
+	z-index: 1;
+	position: relative;
 }
 
 .fee-image-select:before,
@@ -242,17 +258,44 @@ div.wp-link-input input:focus {
 	content: '';
 	display: table;
 }
+
 .fee-image-select:after {
 	clear: both;
 }
 
-.fee-image-select img {
+.fee-image-select .fee-image {
 	float: left;
 	width: 100px;
 	padding: 2px;
-	height: auto;
+	height: 100px;
+	position: relative;
 }
 
-img.fee-selected {
-	opacity: 0.5;
+.fee-image-select .fee-image:before {
+	display: none;
+}
+
+.fee-image-select .fee-image img {
+	display: block;
+	width: 100%;
+	height: auto;
+	z-index: -1;
+	position: relative;
+}
+
+.fee-image-select .fee-image.fee-selected img {
+	opacity: 0.8;
+}
+
+.fee-image-select .fee-image.fee-selected:before {
+	display: block;
+	position: absolute;
+	bottom: 5px;
+	right: 5px;
+	background: #0085ba;
+	border-radius: 11px;
+	border: 1px solid #fff;
+	color: #fff;
+	text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+	box-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
 }

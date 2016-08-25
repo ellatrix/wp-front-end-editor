@@ -23,7 +23,7 @@
           toolbarInline.$el.addClass('fee-no-print')
           toolbarBlock.$el.addClass('fee-no-print')
           toolbarCaret.$el.addClass('fee-no-print mce-arrow-left-side')
-          toolbarMedia.$el.addClass('fee-no-print mce-arrow-left-side')
+          toolbarMedia.$el.addClass('fee-no-print mce-arrow-left-side fee-media-toolbar')
 
           toolbarMedia.blockHide = true
 
@@ -67,6 +67,7 @@
             if (block) {
               event.toolbar = toolbarBlock
               event.selection = block
+
               return
             }
 
@@ -74,7 +75,10 @@
 
             if (media) {
               event.toolbar = toolbarMedia
-              // event.selection = media
+              setTimeout(function() {
+                var node = toolbarMedia.find( 'toolbar' )[0];
+                node && node.focus( true );
+              })
               return
             }
 
@@ -298,7 +302,11 @@
           $start.attr('data-mce-selected', 'media')
           editor.nodeChanged()
 
-          editor.once('click keydown', function () {
+          editor.once('click keydown nodechange', function (event) {
+            if (tinymce.util.VK.modifierPressed(event)) {
+              return;
+            }
+
             editor.$('*[data-mce-selected="media"]').removeAttr('data-mce-selected')
             editor.nodeChanged()
           })
@@ -379,7 +387,7 @@
 
             _.each(data, function (image) {
               if (image.media_details.sizes.thumbnail) {
-                string += '<img data-id="' + image.id + '" src="' + image.media_details.sizes.thumbnail.source_url + '">'
+                string += '<div class="fee-image dashicons-before dashicons-yes"><img data-id="' + image.id + '" src="' + image.media_details.sizes.thumbnail.source_url + '"></div>'
               }
             })
 
@@ -399,9 +407,11 @@
         text: 'Insert',
         classes: 'widget btn primary',
         onclick: function () {
-          tinymce.$('.fee-image-select img.fee-selected').each(function () {
+          tinymce.$('.fee-image-select .fee-selected img').each(function () {
             var image = collection.get(tinymce.$(this).attr('data-id'))
             editor.insertContent(editor.dom.createHTML('img', {src: image.get('source_url')}))
+            editor.nodeChanged()
+            editor.focus()
           })
         }
       })
