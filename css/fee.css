@@ -70,7 +70,7 @@ div.mce-inline-toolbar-grp.mce-arrow-up {
 	margin-top: 8px;
 }
 
-div.mce-inline-toolbar-grp:after {
+div.mce-inline-toolbar-grp:not(.fee-main-toolbar):after {
 	position: absolute;
 	left: 50%;
 	display: block;
@@ -138,17 +138,13 @@ div.mce-inline-toolbar-grp.mce-arrow-left-side:after {
 }
 
 div.mce-inline-toolbar-grp.mce-arrow-left-side:before {
-	left: -9px;
-	border-right-color: #a0a5aa;
-	border-width: 9px 9px 9px 0;
-	margin-top: -9px;
+	left: -6px;
+	margin-top: -6px;
 }
 
 div.mce-inline-toolbar-grp.mce-arrow-left-side:after {
-	left: -8px;
-	border-right-color: #f5f5f5;
-	border-width: 8px 8px 8px 0;
-	margin-top: -8px;
+	left: -6px;
+	margin-top: -6px;
 }
 
 div.wp-link-preview {
