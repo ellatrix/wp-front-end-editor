@@ -313,6 +313,8 @@ class WP_REST_Post_Autosave_Controller extends WP_REST_Controller {
 			'post_excerpt' => __( 'Excerpt' ),
 		);
 
+		$post = get_post( get_the_ID(), ARRAY_A );
+
 		/**
 		 * Filter the list of fields saved in post revisions.
 		 *
@@ -323,11 +325,13 @@ class WP_REST_Post_Autosave_Controller extends WP_REST_Controller {
 		 * and 'post_author'.
 		 *
 		 * @since 2.6.0
+		 * @since 4.5.0 The `$post` parameter was added.
 		 *
 		 * @param array $fields List of fields to revision. Contains 'post_title',
 		 *                      'post_content', and 'post_excerpt' by default.
+		 * @param array $post   A post array being processed for insertion as a post revision.
 		 */
-		$fields = apply_filters( '_wp_post_revision_fields', $fields );
+		$fields = apply_filters( '_wp_post_revision_fields', $fields, $post );
 
 		foreach ( $fields as $property => $name ) {
 
